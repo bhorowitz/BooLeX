@@ -9,7 +9,7 @@ module : circuitDeclaration* EOF ;
 // of assignments, followed by an output statement and the End keyword.
 circuitDeclaration
     : Circuit Identifier (LeftParen identifierList? RightParen)?
-        (assignment)*
+        assignment*
         outStatement
       End
     ;

@@ -1,0 +1,12 @@
+circuit HA(a,b)
+	sum = (a ^ b)'' # unnecessary, but cool for parsing!
+	carry = a and b
+	out sum, carry
+end
+
+# This is a full-adder
+circuit FA(a,b,c)
+	sum1, carry1 = HA(a,b)
+	sum2, carry2 = HA(sum1,c)
+	out sum2, carry1 or carry2
+end
