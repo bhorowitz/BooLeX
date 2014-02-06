@@ -5,7 +5,7 @@ module
     ;
 
 circuitdeclaration
-    : Circuit Identifier LeftParen identifierList? RightParen (assignment)* out End
+    : Circuit Identifier LeftParen identifierList? RightParen (assignment)* outStatement End
     ;
 
 identifierList
@@ -22,7 +22,7 @@ assignment
     : identifierList Assign booleanExpression
     ;
 
-out : Out expressionList ;
+outStatement : Out expressionList ;
 
 circuitCall
     : Identifier LeftParen identifierList? RightParen
