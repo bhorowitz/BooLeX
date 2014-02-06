@@ -97,18 +97,10 @@ Identifier
     ;
 
 // Skip whitespace, newlines, and comments.
-Whitespace
-    : [ \t]+
-      -> skip
-    ;
-
+Whitespace : [ \t]+ -> skip ;
+LineComment : '#' ~[\r\n]* -> skip ;
 Newline
     : ( '\r' '\n'?
       | '\n'
       ) -> skip
-    ;
-
-LineComment
-    : '#' ~[\r\n]*
-      -> skip
     ;
