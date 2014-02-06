@@ -1,9 +1,7 @@
 grammar BooLeX;
 
 // Top level declaration for a BooLeX file.
-module
-    : circuitDeclaration* EOF
-    ;
+module : circuitDeclaration* EOF ;
 
 // A module is made of many of these.
 // A circuitDeclaration is the keyword circuit, followed by an identifier
@@ -44,44 +42,21 @@ circuitCall
 // a literal boolean value (either the keyword or a 0/1), or a parenthesized
 // boolean expression
 booleanFactor
-    : circuitCall
+    : '(' booleanExpression ')'
+    | circuitCall
     | Identifier
     | BooleanValue
-    | '(' booleanExpression ')'
     ;
 
-// Gramatical structure to allow for multiple post-nots. 1'' == 1
-booleanPostNot
-    : booleanFactor
-    | booleanPostNot PostNot
-    ;
-
-// Gramatical structure to allow for multiple pre-nots not not 1 == 1
-booleanPreNot
-    : booleanPostNot
-    | Not booleanPreNot
-    ;
-
-// Gramatical structure for the Or-Nor precedence level. (above pre/postfix nots)
-booleanOr
-    : booleanPreNot
-    | booleanPreNot Or booleanPreNot
-    | booleanPreNot Nor booleanFactor
-    ;
-
-// Gramatical structure for the Xor-XNor precedence level (above or)
-booleanXor
-    : booleanOr
-    | booleanOr Xor booleanOr
-    | booleanOr XNor booleanOr
-    ;
-
-// Gramatical structure for the And/Nand precedence level (above xor)
-// The overall expression structure
+// Recursive grammar for whole boolean expression, listed
+// in decreasing order of precedence.
 booleanExpression
-    : booleanXor
-    | booleanXor And booleanXor
-    | booleanXor NAnd booleanXor
+    : booleanFactor
+    | booleanExpression PostNot
+    | Not booleanExpression
+    | booleanExpression (And|NAnd) booleanExpression
+    | booleanExpression (Xor|XNor) booleanExpression
+    | booleanExpression (Or|Nor) booleanExpression
     ;
 
 /***** Lexical Constants ******/
