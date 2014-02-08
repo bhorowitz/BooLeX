@@ -30,8 +30,8 @@ identifierList
 
 // A comma-separated list of expressions (at least one)
 expressionList
-    : booleanExpression
-    | expressionList ',' booleanExpression
+    : expression
+    | expressionList ',' expression
     ;
 
 // A call to evaluate a circuit with a set of parameters.
@@ -40,8 +40,8 @@ circuitCall : Identifier LeftParen expressionList? RightParen ;
 // A factor that can be either a call to a circuit, an identifier to be evaluated,
 // a literal boolean value (either the keyword or a 0/1), or a parenthesized
 // boolean expression
-booleanFactor
-    : '(' booleanExpression ')'
+factor
+    : '(' expression ')'
     | circuitCall
     | Identifier
     | BooleanValue
@@ -49,13 +49,13 @@ booleanFactor
 
 // Recursive grammar for whole boolean expression, listed
 // in decreasing order of precedence.
-booleanExpression
-    : booleanFactor
-    | booleanExpression PostNot
-    | Not booleanExpression
-    | booleanExpression (And|NAnd) booleanExpression
-    | booleanExpression (Xor|XNor) booleanExpression
-    | booleanExpression (Or|Nor) booleanExpression
+expression
+    : factor
+    | expression PostNot
+    | Not expression
+    | expression (And|NAnd) expression
+    | expression (Xor|XNor) expression
+    | expression (Or|Nor) expression
     ;
 
 /***** Lexical Constants ******/
@@ -66,11 +66,11 @@ Out     : 'out' ;
 End     : 'end' ;
 
 // Operators
-And     : 'and' | '*' ;
-Or      : 'or'  | '+' ;
-Not     : 'not' | '-' ;
-PostNot : '\''   ;
-Xor     : 'xor' | '^' ;
+And     : 'and'  | '*' ;
+Or      : 'or'   | '+' ;
+Not     : 'not'  | '-' ;
+PostNot :          '\'';
+Xor     : 'xor'  | '^' ;
 NAnd    : 'nand' ;
 Nor     : 'nor'  ;
 XNor    : 'xnor' ;
