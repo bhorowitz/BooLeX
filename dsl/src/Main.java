@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import java.io.IOException;
 
 public class Main {
-    static private TypeCheckingVisitor tcv = new TypeCheckingVisitor();
+    static private BooLeXTypeChecker tcv = new BooLeXTypeChecker();
 
     public static void main(String[] args) {
         try {

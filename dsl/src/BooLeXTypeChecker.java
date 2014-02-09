@@ -7,7 +7,7 @@ import java.util.*;
  * TODO: Make error messages more informative.
  */
 
-public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
+public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     private List<String> knownCircuits = new ArrayList<>();
     private HashMap<String, List<String>> circuitLocals = new LinkedHashMap<>();
 
