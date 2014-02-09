@@ -12,7 +12,7 @@ public class Main {
             BooLeXParser.ModuleContext module = bp.module();
             TypeCheckingVisitor tcv = new TypeCheckingVisitor();
             Boolean programCorrect = tcv.visit(module);
-            if(programCorrect) {
+            if (programCorrect) {
                 System.out.println("Program is valid. Continuing...");
             } else {
                 System.out.println("Error! Program is invalid. Cannot continue.");
