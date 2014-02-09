@@ -3,10 +3,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.*;
 
-/**
- * Created by Alex Reinking on 2/8/14.
- * Created on 2/8/14 for BooLeX
- *
+/*
  * TODO: Make error messages more informative.
  */
 
@@ -26,9 +23,9 @@ public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
     }
 
     private BooLeXParser.CircuitDeclarationContext getCircuit(ParserRuleContext ctx) {
-        if(ctx.getParent() == null)
+        if (ctx.getParent() == null)
             return null;
-        else if(ctx instanceof BooLeXParser.CircuitDeclarationContext)
+        else if (ctx instanceof BooLeXParser.CircuitDeclarationContext)
             return (BooLeXParser.CircuitDeclarationContext) ctx;
         else
             return getCircuit(ctx.getParent());
@@ -63,25 +60,30 @@ public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
     @Override
     public Boolean visitCircuitCall(@NotNull BooLeXParser.CircuitCallContext ctx) {
         String callee = ctx.Identifier().toString();
+        boolean validCall = isSymbolAccessible(ctx, callee);
 
-        BooLeXParser.CircuitDeclarationContext circuit = getCircuit(ctx);
-        if(circuit == null) {
-            System.err.println("Could not get circuit for node.");
-            return false;
-        }
-
-        // If the name of the circuit appears among the extant circuits
-        // or if the name was passed as an argument / is a local.
-        boolean validCall = knownCircuits.contains(callee)
-                         || circuitLocals.get(circuit.Identifier().toString())
-                                         .contains(callee);
-
-        if(!validCall) {
+        if (!validCall) {
             System.err.println("Invalid call to " + callee);
             return false;
         }
 
         return visitExpressionList(ctx.expressionList());
+    }
+
+    private boolean isSymbolAccessible(ParserRuleContext ctx, String symbol) {
+        boolean validCall;
+        BooLeXParser.CircuitDeclarationContext circuit = getCircuit(ctx);
+        if (circuit == null) {
+            System.err.println("Could not get circuit for node.");
+            validCall = false;
+        } else {
+            // If the name of the circuit appears among the extant circuits
+            // or if the name was passed as an argument / is a local.
+            validCall = knownCircuits.contains(symbol)
+                    || circuitLocals.get(circuit.Identifier().toString())
+                    .contains(symbol);
+        }
+        return validCall;
     }
 
     @Override
@@ -108,7 +110,7 @@ public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
             return visitFactor(ctx.factor());
         else {
             for (BooLeXParser.ExpressionContext subExpression : ctx.expression()) {
-                if(!visitExpression(subExpression)) {
+                if (!visitExpression(subExpression)) {
                     System.err.println("Sub-expression failed!");
                     return false;
                 }
@@ -120,16 +122,17 @@ public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
     @Override
     public Boolean visitAssignment(@NotNull BooLeXParser.AssignmentContext ctx) {
         // TODO: Implement enough of a symbol table to ensure that assignments do not under- or over- assign.
-        if(!visitExpressionList(ctx.expressionList())) {
+        if (!visitExpressionList(ctx.expressionList())) {
             System.err.println("Bad expression in assignment!");
             return false;
         }
 
         BooLeXParser.CircuitDeclarationContext circuit = getCircuit(ctx);
-        if(circuit == null)
+        if (circuit == null)
             return false;
 
-        circuitLocals.get(circuit.Identifier().toString()).addAll(extractIdentifiers(ctx.identifierList()));
+        List<String> identifiers = extractIdentifiers(ctx.identifierList());
+        circuitLocals.get(circuit.Identifier().toString()).addAll(identifiers);
         return true;
     }
 
@@ -149,14 +152,13 @@ public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitFactor(@NotNull BooLeXParser.FactorContext ctx) {
         if (ctx.circuitCall() != null)
             return visitCircuitCall(ctx.circuitCall());
-        else if(ctx.expression() != null)
+        else if (ctx.expression() != null)
             return visitExpression(ctx.expression());
-        else if(ctx.Identifier() != null) {
-            BooLeXParser.CircuitDeclarationContext circuit = getCircuit(ctx);
-            return circuitLocals.get(circuit.Identifier().toString()).contains(ctx.Identifier().toString());
-        } else if(ctx.BooleanValue() != null) {
+        else if (ctx.Identifier() != null)
+            return circuitLocals.get(getCircuit(ctx).Identifier().toString()).contains(ctx.Identifier().toString());
+        else if (ctx.BooleanValue() != null)
             return true;
-        }
+
         System.err.println("Unhandled case for factor!!!");
         return false;
     }
