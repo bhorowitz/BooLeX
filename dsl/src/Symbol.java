@@ -4,27 +4,15 @@
  */
 public class Symbol {
     private String name = "";
-    private boolean isLocal = false;
+    private Type type = null;
 
-    public Symbol(String name, boolean local) {
+    public Symbol(String name, Type type) {
         this.name = name;
-        isLocal = local;
-    }
-
-    public boolean isLocal() {
-        return isLocal;
-    }
-
-    public void setLocal(boolean isLocal) {
-        this.isLocal = isLocal;
+        this.type = type;
     }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -34,7 +22,7 @@ public class Symbol {
 
         Symbol symbol = (Symbol) o;
 
-        if (isLocal != symbol.isLocal) return false;
+        if (type != symbol.type) return false;
         if (name != null ? !name.equals(symbol.name) : symbol.name != null)
             return false;
 
@@ -43,8 +31,13 @@ public class Symbol {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (isLocal ? 1 : 0);
+        int result = name.hashCode();
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
+    }
+
+    public enum Type {
+        Local,
+        Argument
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
  * Created by Alex Reinking on 2/9/14.
  * This file is a part of BooLeX
  */
-public class Circuit  {
+public class Circuit {
     private String name = "";
     private List<Symbol> arguments = new LinkedList<>();
     private List<Symbol> locals = new LinkedList<>();
@@ -14,39 +14,25 @@ public class Circuit  {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
+    public void addAllArguments(List<String> syms, Symbol.Type type) {
+        for (String sym : syms) {
+            arguments.add(new Symbol(sym, type));
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void addArgument(Symbol sym) {
-        arguments.add(sym);
-    }
-
-    public void addAllArguments(List<Symbol> syms) {
-        arguments.addAll(syms);
-    }
-
-    public void addLocal(Symbol sym) throws Exception {
-        if(getSymbol(sym.getName()) != null)
-            throw new Exception("Error: symbol " + sym.getName() + " already exists.");
-        locals.add(sym);
-    }
-
-    public void allAllLocals(List<Symbol> syms) {
-        locals.addAll(syms);
+    public void addAllLocals(List<String> identifiers, Symbol.Type type) {
+        for (String sym : identifiers) {
+            locals.add(new Symbol(sym, type));
+        }
     }
 
     public Symbol getSymbol(String name) {
         for (Symbol argument : arguments) {
-            if(argument.getName().equals(name))
+            if (argument.getName().equals(name))
                 return argument;
         }
         for (Symbol local : locals) {
-            if(local.getName().equals(name))
+            if (local.getName().equals(name))
                 return local;
         }
         return null;

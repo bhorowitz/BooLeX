@@ -1,15 +1,16 @@
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 /*
  * TODO: Make error messages more informative.
  */
 
 public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
-    private List<String> knownCircuits = new ArrayList<>();
-    private HashMap<String, List<String>> circuitLocals = new LinkedHashMap<>();
+    private HashMap<String, Circuit> knownCircuits = new HashMap<>();
 
     private List<String> extractIdentifiers(BooLeXParser.IdentifierListContext ctx) {
         List<String> identifiers = new LinkedList<>();
@@ -22,12 +23,16 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return identifiers;
     }
 
-    private BooLeXParser.CircuitDeclarationContext getCircuit(ParserRuleContext ctx) {
+    private Circuit getCircuit(ParserRuleContext ctx) {
         if (ctx.getParent() == null)
             return null;
-        else if (ctx instanceof BooLeXParser.CircuitDeclarationContext)
-            return (BooLeXParser.CircuitDeclarationContext) ctx;
-        else
+        else if (ctx instanceof BooLeXParser.CircuitDeclarationContext) {
+            BooLeXParser.CircuitDeclarationContext circuitDeclarationContext = (BooLeXParser.CircuitDeclarationContext) ctx;
+            Circuit ret = knownCircuits.get(circuitDeclarationContext.Identifier().toString());
+            if (ret == null)
+                System.err.println("Impossible!");
+            return ret;
+        } else
             return getCircuit(ctx.getParent());
     }
 
@@ -35,14 +40,16 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitCircuitDeclaration(@NotNull BooLeXParser.CircuitDeclarationContext ctx) {
         // Check that the circuit has not yet been defined.
         String circuitName = ctx.Identifier().toString();
-        if (knownCircuits.contains(circuitName)) {
+        if (knownCircuits.get(circuitName) != null) {
             System.err.println("Circuit " + circuitName + " already exists.");
             return false;
         }
-        knownCircuits.add(circuitName);
+
+        Circuit circuit = new Circuit(circuitName);
+        circuit.addAllArguments(extractIdentifiers(ctx.identifierList()), Symbol.Type.Argument);
 
         // Add the names of the inputs to the list of local circuit variables.
-        circuitLocals.put(circuitName, extractIdentifiers(ctx.identifierList()));
+        knownCircuits.put(circuitName, circuit);
 
         // Check all of the assignments inside.
         List<BooLeXParser.AssignmentContext> assignment = ctx.assignment();
@@ -60,7 +67,8 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     @Override
     public Boolean visitCircuitCall(@NotNull BooLeXParser.CircuitCallContext ctx) {
         String callee = ctx.Identifier().toString();
-        boolean validCall = isSymbolAccessible(ctx, callee);
+
+        boolean validCall = knownCircuits.containsKey(callee);
 
         if (!validCall) {
             System.err.println("Invalid call to " + callee);
@@ -68,22 +76,6 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         }
 
         return visitExpressionList(ctx.expressionList());
-    }
-
-    private boolean isSymbolAccessible(ParserRuleContext ctx, String symbol) {
-        boolean validCall;
-        BooLeXParser.CircuitDeclarationContext circuit = getCircuit(ctx);
-        if (circuit == null) {
-            System.err.println("Could not get circuit for node.");
-            validCall = false;
-        } else {
-            // If the name of the circuit appears among the extant circuits
-            // or if the name was passed as an argument / is a local.
-            validCall = knownCircuits.contains(symbol)
-                    || circuitLocals.get(circuit.Identifier().toString())
-                    .contains(symbol);
-        }
-        return validCall;
     }
 
     @Override
@@ -96,11 +88,11 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         }
     }
 
-    @Override
-    public Boolean visitIdentifierList(@NotNull BooLeXParser.IdentifierListContext ctx) {
-        // an identifier list on its own can't be invalid.
-        return true;
-    }
+//    @Override
+//    public Boolean visitIdentifierList(@NotNull BooLeXParser.IdentifierListContext ctx) {
+//        // an identifier list on its own can't be invalid.
+//        return true;
+//    }
 
     @Override
     public Boolean visitExpression(@NotNull BooLeXParser.ExpressionContext ctx) {
@@ -127,12 +119,12 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return false;
         }
 
-        BooLeXParser.CircuitDeclarationContext circuit = getCircuit(ctx);
+        Circuit circuit = getCircuit(ctx);
         if (circuit == null)
             return false;
 
         List<String> identifiers = extractIdentifiers(ctx.identifierList());
-        circuitLocals.get(circuit.Identifier().toString()).addAll(identifiers);
+        circuit.addAllLocals(identifiers, Symbol.Type.Local);
         return true;
     }
 
@@ -154,9 +146,10 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return visitCircuitCall(ctx.circuitCall());
         else if (ctx.expression() != null)
             return visitExpression(ctx.expression());
-        else if (ctx.Identifier() != null)
-            return circuitLocals.get(getCircuit(ctx).Identifier().toString()).contains(ctx.Identifier().toString());
-        else if (ctx.BooleanValue() != null)
+        else if (ctx.Identifier() != null) {
+            Symbol symbol = getCircuit(ctx).getSymbol(ctx.Identifier().toString());
+            return symbol != null;
+        } else if (ctx.BooleanValue() != null)
             return true;
 
         System.err.println("Unhandled case for factor!!!");
