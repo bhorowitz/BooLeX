@@ -12,15 +12,19 @@ public class Main {
             BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
             BooLeXParser.ModuleContext module = bp.module();
+            if(bp.getNumberOfSyntaxErrors() > 0)
+                throw new Exception("There was a parse error.");
+
             Boolean programCorrect = tcv.visit(module);
 
-            if (programCorrect) {
-                System.out.println("Program is valid. Continuing...");
-            } else {
-                System.out.println("Error! Program is invalid. Cannot continue.");
-            }
+            if (!programCorrect)
+                throw new Exception("Program contains semantic errors.");
+
+            System.out.println("Program is valid. Continuing...");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error! Could not open example program.");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
     }
 }

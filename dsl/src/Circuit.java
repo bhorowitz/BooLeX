@@ -9,6 +9,7 @@ public class Circuit {
     private String name = "";
     private List<Symbol> arguments = new LinkedList<>();
     private List<Symbol> locals = new LinkedList<>();
+    private int numberOfOutputs = -1;
 
     public Circuit(String name) {
         this.name = name;
@@ -24,6 +25,10 @@ public class Circuit {
         for (String sym : identifiers) {
             locals.add(new Symbol(sym, type));
         }
+    }
+
+    public int getNumberOfArguments() {
+        return arguments.size();
     }
 
     public Symbol getSymbol(String name) {
@@ -58,5 +63,13 @@ public class Circuit {
         result = 31 * result + arguments.hashCode();
         result = 31 * result + locals.hashCode();
         return result;
+    }
+
+    public int getNumberOfOutputs() {
+        return numberOfOutputs;
+    }
+
+    public void setNumberOfOutputs(int numberOfOutputs) {
+        this.numberOfOutputs = numberOfOutputs;
     }
 }

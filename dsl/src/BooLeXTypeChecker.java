@@ -23,6 +23,17 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return identifiers;
     }
 
+    private int expressionListLength(BooLeXParser.ExpressionListContext ctx) {
+        int size = 0;
+
+        while (ctx != null) {
+            size++;
+            ctx = ctx.expressionList();
+        }
+
+        return size;
+    }
+
     private Circuit getCircuit(ParserRuleContext ctx) {
         if (ctx.getParent() == null)
             return null;
@@ -53,12 +64,9 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
         // Check all of the assignments inside.
         List<BooLeXParser.AssignmentContext> assignment = ctx.assignment();
-        for (BooLeXParser.AssignmentContext assignmentContext : assignment) {
-            if (!visitAssignment(assignmentContext)) {
-                System.err.println("Assignment failed in circuit " + circuitName);
+        for (BooLeXParser.AssignmentContext assignmentContext : assignment)
+            if (!visitAssignment(assignmentContext))
                 return false;
-            }
-        }
 
         // At this point, the only thing left unchecked is the output declaration.
         return visitOutStatement(ctx.outStatement());
@@ -68,10 +76,15 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitCircuitCall(@NotNull BooLeXParser.CircuitCallContext ctx) {
         String callee = ctx.Identifier().toString();
 
-        boolean validCall = knownCircuits.containsKey(callee);
+        Circuit target= knownCircuits.get(callee);
 
-        if (!validCall) {
+        if (target == null) {
             System.err.println("Invalid call to " + callee);
+            return false;
+        }
+
+        if(target.getNumberOfArguments() != expressionListLength(ctx.expressionList())) {
+            System.err.println("Too few arguments to " + callee);
             return false;
         }
 
@@ -100,28 +113,24 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // via nots, ands, ors, etc.
         if (ctx.factor() != null)
             return visitFactor(ctx.factor());
-        else {
-            for (BooLeXParser.ExpressionContext subExpression : ctx.expression()) {
-                if (!visitExpression(subExpression)) {
-                    System.err.println("Sub-expression failed!");
+        else
+            for (BooLeXParser.ExpressionContext subExpression : ctx.expression())
+                if (!visitExpression(subExpression))
                     return false;
-                }
-            }
-        }
         return true;
     }
 
     @Override
     public Boolean visitAssignment(@NotNull BooLeXParser.AssignmentContext ctx) {
         // TODO: Implement enough of a symbol table to ensure that assignments do not under- or over- assign.
-        if (!visitExpressionList(ctx.expressionList())) {
-            System.err.println("Bad expression in assignment!");
+        if (!visitExpressionList(ctx.expressionList()))
             return false;
-        }
 
         Circuit circuit = getCircuit(ctx);
-        if (circuit == null)
+        if (circuit == null) {
+            System.err.println("Stray assignment! How did this get past the parser?");
             return false;
+        }
 
         List<String> identifiers = extractIdentifiers(ctx.identifierList());
         circuit.addAllLocals(identifiers, Symbol.Type.Local);
@@ -132,10 +141,8 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitModule(@NotNull BooLeXParser.ModuleContext ctx) {
         for (BooLeXParser.CircuitDeclarationContext circuitDeclarationContext : ctx.circuitDeclaration()) {
             Boolean circuitOk = visitCircuitDeclaration(circuitDeclarationContext);
-            if (!circuitOk) {
-                System.err.println("Bad circuit!");
+            if (!circuitOk)
                 return false;
-            }
         }
         return true;
     }
@@ -159,6 +166,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     @Override
     public Boolean visitOutStatement(@NotNull BooLeXParser.OutStatementContext ctx) {
         // An out statement is only as good as the expressions making up its outputs.
+        getCircuit(ctx).setNumberOfOutputs(expressionListLength(ctx.expressionList()));
         return visitExpressionList(ctx.expressionList());
     }
 }
