@@ -6,7 +6,10 @@ import java.util.*;
 /**
  * Created by Alex Reinking on 2/8/14.
  * Created on 2/8/14 for BooLeX
+ *
+ * TODO: Make error messages more informative.
  */
+
 public class TypeCheckingVisitor extends BooLeXBaseVisitor<Boolean> {
     private List<String> knownCircuits = new ArrayList<>();
     private HashMap<String, List<String>> circuitLocals = new LinkedHashMap<>();
