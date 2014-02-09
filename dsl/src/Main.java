@@ -4,14 +4,16 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import java.io.IOException;
 
 public class Main {
+    static private TypeCheckingVisitor tcv = new TypeCheckingVisitor();
+
     public static void main(String[] args) {
         try {
             BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples\\adder.blex"));
             BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
             BooLeXParser.ModuleContext module = bp.module();
-            TypeCheckingVisitor tcv = new TypeCheckingVisitor();
             Boolean programCorrect = tcv.visit(module);
+
             if (programCorrect) {
                 System.out.println("Program is valid. Continuing...");
             } else {
