@@ -23,11 +23,38 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return identifiers;
     }
 
-    private int expressionListLength(BooLeXParser.ExpressionListContext ctx) {
+    private int factorOutputs(BooLeXParser.FactorContext ctx) throws Exception {
+        if (ctx.circuitCall() != null) {
+            Circuit circuit = knownCircuits.get(ctx.circuitCall().Identifier().toString());
+            if(circuit == null)
+                throw new Exception("Error! Circuit has not yet been declared.");
+            return circuit.getNumberOfOutputs();
+        }
+        else if (ctx.expression() != null) return expressionOutputs(ctx.expression());
+        else if (ctx.Identifier() != null) return 1;
+        else if (ctx.BooleanValue() != null) return 1;
+        return 1;
+    }
+
+    private int expressionOutputs(BooLeXParser.ExpressionContext ctx) throws Exception {
+        int number = -1;
+        if (ctx.factor() != null)
+            number = factorOutputs(ctx.factor());
+        else
+            for (BooLeXParser.ExpressionContext subExpression : ctx.expression())
+                if (number == -1)
+                    number = expressionOutputs(subExpression);
+                else if (expressionOutputs(subExpression) != number)
+                    throw new Exception("Error! Cannot apply binary operation to many elements.");
+
+        return number;
+    }
+
+    private int expressionListLength(BooLeXParser.ExpressionListContext ctx) throws Exception {
         int size = 0;
 
         while (ctx != null) {
-            size++;
+            size += expressionOutputs(ctx.expression());
             ctx = ctx.expressionList();
         }
 
@@ -83,8 +110,12 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return false;
         }
 
-        if (target.getNumberOfArguments() != expressionListLength(ctx.expressionList())) {
-            System.err.println("Too few arguments to " + callee);
+        try {
+            int rhsOuts = expressionListLength(ctx.expressionList());
+            if (target.getNumberOfArguments() != rhsOuts)
+                throw new Exception("Incorrect number of arguments to " + callee);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
             return false;
         }
 
@@ -119,6 +150,14 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitExpression(@NotNull BooLeXParser.ExpressionContext ctx) {
         // An expression is either a factor or a composition of expressions
         // via nots, ands, ors, etc.
+        try {
+            if(expressionOutputs(ctx) < 0)
+                return false;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+
         if (ctx.factor() != null)
             return visitFactor(ctx.factor());
         else
@@ -144,6 +183,15 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return false;
 
         List<String> identifiers = extractIdentifiers(ctx.identifierList());
+
+        try {
+            if(identifiers.size() != expressionListLength(ctx.expressionList()))
+                throw new Exception("Error! Mismatched assignment!");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+
         circuit.addAllLocals(identifiers, Symbol.Type.Local);
         return true;
     }
@@ -180,7 +228,15 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     @Override
     public Boolean visitOutStatement(@NotNull BooLeXParser.OutStatementContext ctx) {
         // An out statement is only as good as the expressions making up its outputs.
-        getCircuit(ctx).setNumberOfOutputs(expressionListLength(ctx.expressionList()));
+        int numberOfOutputs;
+        try {
+            numberOfOutputs = expressionListLength(ctx.expressionList());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+
+        getCircuit(ctx).setNumberOfOutputs(numberOfOutputs);
         return visitExpressionList(ctx.expressionList());
     }
 }
