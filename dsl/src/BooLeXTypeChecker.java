@@ -139,6 +139,9 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
     @Override
     public Boolean visitModule(@NotNull BooLeXParser.ModuleContext ctx) {
+        // Module is top-level, so we reset the state for this run
+        knownCircuits = new HashMap<>();
+
         for (BooLeXParser.CircuitDeclarationContext circuitDeclarationContext : ctx.circuitDeclaration()) {
             Boolean circuitOk = visitCircuitDeclaration(circuitDeclarationContext);
             if (!circuitOk)
