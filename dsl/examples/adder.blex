@@ -1,6 +1,7 @@
 circuit HA(a,b)
 	sum = (a ^ b)'' # unnecessary, but cool for parsing!
 	carry = a and b
+	carry = true # this is invalid
 	out sum, carry
 end
 

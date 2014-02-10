@@ -76,14 +76,14 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitCircuitCall(@NotNull BooLeXParser.CircuitCallContext ctx) {
         String callee = ctx.Identifier().toString();
 
-        Circuit target= knownCircuits.get(callee);
+        Circuit target = knownCircuits.get(callee);
 
         if (target == null) {
             System.err.println("Invalid call to " + callee);
             return false;
         }
 
-        if(target.getNumberOfArguments() != expressionListLength(ctx.expressionList())) {
+        if (target.getNumberOfArguments() != expressionListLength(ctx.expressionList())) {
             System.err.println("Too few arguments to " + callee);
             return false;
         }
@@ -101,11 +101,19 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         }
     }
 
-//    @Override
-//    public Boolean visitIdentifierList(@NotNull BooLeXParser.IdentifierListContext ctx) {
-//        // an identifier list on its own can't be invalid.
-//        return true;
-//    }
+    @Override
+    public Boolean visitIdentifierList(@NotNull BooLeXParser.IdentifierListContext ctx) {
+        Circuit circuit = getCircuit(ctx);
+        while (ctx != null) {
+            String identifier = ctx.Identifier().toString();
+            if (circuit.getSymbol(identifier) != null) {
+                System.err.println("Error: Redefining symbol \'" + identifier + "\'");
+                return false;
+            }
+            ctx = ctx.identifierList();
+        }
+        return true;
+    }
 
     @Override
     public Boolean visitExpression(@NotNull BooLeXParser.ExpressionContext ctx) {
@@ -131,6 +139,9 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             System.err.println("Stray assignment! How did this get past the parser?");
             return false;
         }
+
+        if (!visitIdentifierList(ctx.identifierList()))
+            return false;
 
         List<String> identifiers = extractIdentifiers(ctx.identifierList());
         circuit.addAllLocals(identifiers, Symbol.Type.Local);
