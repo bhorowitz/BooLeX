@@ -26,11 +26,10 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     private int factorOutputs(BooLeXParser.FactorContext ctx) throws Exception {
         if (ctx.circuitCall() != null) {
             Circuit circuit = knownCircuits.get(ctx.circuitCall().Identifier().toString());
-            if(circuit == null)
+            if (circuit == null)
                 throw new Exception("Error! Circuit has not yet been declared.");
             return circuit.getNumberOfOutputs();
-        }
-        else if (ctx.expression() != null) return expressionOutputs(ctx.expression());
+        } else if (ctx.expression() != null) return expressionOutputs(ctx.expression());
         else if (ctx.Identifier() != null) return 1;
         else if (ctx.BooleanValue() != null) return 1;
         return 1;
@@ -68,7 +67,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             BooLeXParser.CircuitDeclarationContext circuitDeclarationContext = (BooLeXParser.CircuitDeclarationContext) ctx;
             Circuit ret = knownCircuits.get(circuitDeclarationContext.Identifier().toString());
             if (ret == null)
-                System.err.println("Impossible!");
+                System.err.println("Error! This should be impossible.");
             return ret;
         } else
             return getCircuit(ctx.getParent());
@@ -79,7 +78,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // Check that the circuit has not yet been defined.
         String circuitName = ctx.Identifier().toString();
         if (knownCircuits.get(circuitName) != null) {
-            System.err.println("Circuit " + circuitName + " already exists.");
+            System.err.println("Error! Circuit " + circuitName + " already exists.");
             return false;
         }
 
@@ -106,14 +105,14 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         Circuit target = knownCircuits.get(callee);
 
         if (target == null) {
-            System.err.println("Invalid call to " + callee);
+            System.err.println("Error! Invalid call to " + callee);
             return false;
         }
 
         try {
             int rhsOuts = expressionListLength(ctx.expressionList());
             if (target.getNumberOfArguments() != rhsOuts)
-                throw new Exception("Incorrect number of arguments to " + callee);
+                throw new Exception("Error! Incorrect number of arguments to " + callee);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return false;
@@ -151,7 +150,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // An expression is either a factor or a composition of expressions
         // via nots, ands, ors, etc.
         try {
-            if(expressionOutputs(ctx) < 0)
+            if (expressionOutputs(ctx) < 0)
                 return false;
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -175,7 +174,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
         Circuit circuit = getCircuit(ctx);
         if (circuit == null) {
-            System.err.println("Stray assignment! How did this get past the parser?");
+            System.err.println("Error! Stray assignment: how did this get past the parser?");
             return false;
         }
 
@@ -185,8 +184,8 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         List<String> identifiers = extractIdentifiers(ctx.identifierList());
 
         try {
-            if(identifiers.size() != expressionListLength(ctx.expressionList()))
-                throw new Exception("Error! Mismatched assignment!");
+            if (identifiers.size() != expressionListLength(ctx.expressionList()))
+                throw new Exception("Error! Mismatched assignment.");
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return false;
@@ -221,7 +220,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         } else if (ctx.BooleanValue() != null)
             return true;
 
-        System.err.println("Unhandled case for factor!!!");
+        System.err.println("Error! Unhandled case for factor.");
         return false;
     }
 
