@@ -12,7 +12,7 @@ public class Main {
             BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
             BooLeXParser.ModuleContext module = bp.module();
-            if(bp.getNumberOfSyntaxErrors() > 0)
+            if (bp.getNumberOfSyntaxErrors() > 0)
                 throw new Exception("There was a parse error.");
 
             Boolean programCorrect = typeChecker.visit(module);
