@@ -1,7 +1,7 @@
 circuit HA(a,b)
 	sum = (a ^ b)'' # unnecessary, but cool for parsing!
 	carry = a and b
-	carry = true # this is invalid
+	# carry = true # this is invalid
 	out sum, carry
 end
 
@@ -11,3 +11,13 @@ circuit FA(a,b,c)
 	sum2, carry2 = HA(sum1,c)
 	out sum2, carry1 or carry2
 end
+
+# How to do sequential circuits?
+# circuit hard(a,b)
+#     t1 = not a
+#     t2 = t1 and a
+#     t3 = a and b
+#     t4 = t2 xor seq(t5) # how to represent this?
+#     t5 = t3 xor t4
+#     out t4, t5
+# end
