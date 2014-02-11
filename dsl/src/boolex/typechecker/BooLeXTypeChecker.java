@@ -1,8 +1,11 @@
 package boolex.typechecker;
 
-import boolex.antlr.*;
+import boolex.antlr.BooLeXBaseVisitor;
+import boolex.antlr.BooLeXParser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,6 +17,14 @@ import java.util.List;
 
 public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     private HashMap<String, Circuit> knownCircuits = new HashMap<>();
+    private HashMap<String, Circuit> currentEvaluationScope = null;
+
+    // Terminals are without context and so are always valid, since they
+    // escaped the parser.
+    @Override
+    public Boolean visitTerminal(@NotNull TerminalNode node) {
+        return true;
+    }
 
     private List<String> extractIdentifiers(BooLeXParser.IdentifierListContext ctx) {
         List<String> identifiers = new LinkedList<>();
@@ -26,27 +37,130 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return identifiers;
     }
 
+    @Override
+    public Boolean visitPrint(@NotNull BooLeXParser.PrintContext ctx) {
+        return visitExpressionList(ctx.expressionList());
+    }
+
+    @Override
+    public Boolean visitEvaluations(@NotNull BooLeXParser.EvaluationsContext ctx) {
+        currentEvaluationScope = new HashMap<>();
+        for (ParseTree child : ctx.children) {
+            Boolean result = visit(child);
+            if (!result)
+                return false;
+        }
+        currentEvaluationScope = null;
+        return true;
+    }
+
+    @Override
+    public Boolean visitSetCircuit(@NotNull BooLeXParser.SetCircuitContext ctx) {
+        String varName = ctx.Identifier().toString();
+        int index = Integer.parseInt(ctx.Integer().toString());
+        if (!currentEvaluationScope.containsKey(varName)) {
+            System.err.println("Error! Circuit " + varName + " not yet defined!");
+            return false;
+        }
+
+        try {
+            if (countExpressionOutputs(ctx.expression()) != 1)
+                return false;
+            if (index >= currentEvaluationScope.get(varName).getNumberOfArguments())
+                return false;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+
+        return visitExpression(ctx.expression());
+    }
+
+    @Override
+    public Boolean visitCreateCircuit(@NotNull BooLeXParser.CreateCircuitContext ctx) {
+        String locName = ctx.Identifier(0).toString();
+        String circName = ctx.Identifier(1).toString();
+
+        int nInputs = 0;
+        if (ctx.expressionList() != null) {
+            try {
+                nInputs = expressionListLength(ctx.expressionList());
+                if (!visitExpressionList(ctx.expressionList()))
+                    return false;
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                return false;
+            }
+        }
+
+        if (knownCircuits.get(circName) == null) {
+            System.err.println("Error! No such circuit " + circName);
+            return false;
+        }
+
+        if (currentEvaluationScope.get(locName) != null) {
+            System.err.println("Error! Redefinition of symbol " + locName);
+            return false;
+        }
+
+        if (knownCircuits.get(circName).getNumberOfArguments() != nInputs) {
+            System.err.println("Error! Mismatched number of inputs to " + locName);
+            return false;
+        }
+
+        currentEvaluationScope.put(locName, knownCircuits.get(circName));
+        return true;
+    }
+
+    @Override
+    public Boolean visitCircuitIndex(@NotNull BooLeXParser.CircuitIndexContext ctx) {
+        if (currentEvaluationScope == null) {
+            System.err.println("Error! Cannot index a sub-circuit in a circuit definition.");
+            return false;
+        }
+
+        String locVar = ctx.Identifier().toString();
+        int index = Integer.parseInt(ctx.Integer().toString());
+
+        if (currentEvaluationScope.get(locVar) == null) {
+            System.err.println("Error! Undefined symbol " + locVar + ".");
+            return false;
+        }
+
+        if (currentEvaluationScope.get(locVar).getNumberOfArguments() < index) {
+            System.err.println("Error! " + locVar + " does not have " + index + " outputs.");
+            return false;
+        }
+
+        return true;
+    }
+
     private int factorOutputs(BooLeXParser.FactorContext ctx) throws Exception {
         if (ctx.circuitCall() != null) {
-            Circuit circuit = knownCircuits.get(ctx.circuitCall().Identifier().toString());
+            String callee = ctx.circuitCall().Identifier().toString();
+            Circuit circuit = knownCircuits.get(callee);
             if (circuit == null)
-                throw new Exception("Error! boolex.typechecker.Circuit has not yet been declared.");
+                if (currentEvaluationScope != null)
+                    circuit = currentEvaluationScope.get(callee);
+            if (circuit == null)
+                throw new Exception("Error! Circuit has not yet been declared.");
             return circuit.getNumberOfOutputs();
-        } else if (ctx.expression() != null) return expressionOutputs(ctx.expression());
+        } else if (ctx.circuitIndex() != null) return 1;
+        else if (ctx.expression() != null) return countExpressionOutputs(ctx.expression());
         else if (ctx.Identifier() != null) return 1;
         else if (ctx.BooleanValue() != null) return 1;
         return 1;
     }
 
-    private int expressionOutputs(BooLeXParser.ExpressionContext ctx) throws Exception {
+    private int countExpressionOutputs(BooLeXParser.ExpressionContext ctx) throws Exception {
         int number = -1;
         if (ctx.factor() != null)
             number = factorOutputs(ctx.factor());
         else
             for (BooLeXParser.ExpressionContext subExpression : ctx.expression())
                 if (number == -1)
-                    number = expressionOutputs(subExpression);
-                else if (expressionOutputs(subExpression) != number)
+                    number = countExpressionOutputs(subExpression);
+                else if (countExpressionOutputs(subExpression) != number)
                     throw new Exception("Error! Cannot apply binary operation to many elements.");
 
         return number;
@@ -56,7 +170,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         int size = 0;
 
         while (ctx != null) {
-            size += expressionOutputs(ctx.expression());
+            size += countExpressionOutputs(ctx.expression());
             ctx = ctx.expressionList();
         }
 
@@ -81,7 +195,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // Check that the circuit has not yet been defined.
         String circuitName = ctx.Identifier().toString();
         if (knownCircuits.get(circuitName) != null) {
-            System.err.println("Error! boolex.typechecker.Circuit " + circuitName + " already exists.");
+            System.err.println("Error! Circuit " + circuitName + " already exists.");
             return false;
         }
 
@@ -153,7 +267,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // An expression is either a factor or a composition of expressions
         // via nots, ands, ors, etc.
         try {
-            if (expressionOutputs(ctx) < 0)
+            if (countExpressionOutputs(ctx) < 0)
                 return false;
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -203,11 +317,11 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // Module is top-level, so we reset the state for this run
         knownCircuits = new HashMap<>();
 
-        for (BooLeXParser.CircuitDeclarationContext circuitDeclarationContext : ctx.circuitDeclaration()) {
-            Boolean circuitOk = visitCircuitDeclaration(circuitDeclarationContext);
-            if (!circuitOk)
+        for (ParseTree child : ctx.children) {
+            if (!visit(child))
                 return false;
         }
+
         return true;
     }
 
@@ -215,6 +329,8 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitFactor(@NotNull BooLeXParser.FactorContext ctx) {
         if (ctx.circuitCall() != null)
             return visitCircuitCall(ctx.circuitCall());
+        else if (ctx.circuitIndex() != null)
+            return visitCircuitIndex(ctx.circuitIndex());
         else if (ctx.expression() != null)
             return visitExpression(ctx.expression());
         else if (ctx.Identifier() != null) {
