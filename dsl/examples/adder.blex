@@ -15,7 +15,7 @@ end
 evaluate
     fullAdder = new FA(true, false, true)
     print fullAdder(0)
-    print fullAdder(1)
+    print fullAdder(t)
     fullAdder(0, false)
     fullAdder(1, true)
     fullAdder(2, true)

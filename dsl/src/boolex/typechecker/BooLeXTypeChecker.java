@@ -135,15 +135,16 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return true;
     }
 
-    private int factorOutputs(BooLeXParser.FactorContext ctx) throws Exception {
+    private int factorOutputs(BooLeXParser.FactorContext ctx) throws ParseException {
         if (ctx.circuitCall() != null) {
-            String callee = ctx.circuitCall().Identifier().toString();
+            TerminalNode identifier = ctx.circuitCall().Identifier();
+            String callee = identifier.toString();
             Circuit circuit = knownCircuits.get(callee);
             if (circuit == null)
                 if (currentEvaluationScope != null)
                     circuit = currentEvaluationScope.get(callee);
             if (circuit == null)
-                throw new Exception("Error! Circuit has not yet been declared.");
+                throw new CircuitDeclarationException(callee, identifier.getSymbol().getLine(), identifier.getSymbol().getCharPositionInLine());
             return circuit.getNumberOfOutputs();
         } else if (ctx.circuitIndex() != null) return 1;
         else if (ctx.expression() != null) return countExpressionOutputs(ctx.expression());
@@ -152,7 +153,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return 1;
     }
 
-    private int countExpressionOutputs(BooLeXParser.ExpressionContext ctx) throws Exception {
+    private int countExpressionOutputs(BooLeXParser.ExpressionContext ctx) throws ParseException {
         int number = -1;
         if (ctx.factor() != null)
             number = factorOutputs(ctx.factor());
@@ -161,12 +162,13 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
                 if (number == -1)
                     number = countExpressionOutputs(subExpression);
                 else if (countExpressionOutputs(subExpression) != number)
-                    throw new Exception("Error! Cannot apply binary operation to many elements.");
+                    throw new BinaryOperationException("Cannot apply binary operation to more than two elements.",
+                            subExpression.getStart().getLine(), subExpression.getStart().getCharPositionInLine());
 
         return number;
     }
 
-    private int expressionListLength(BooLeXParser.ExpressionListContext ctx) throws Exception {
+    private int expressionListLength(BooLeXParser.ExpressionListContext ctx) throws ParseException {
         int size = 0;
 
         while (ctx != null) {
@@ -222,7 +224,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         Circuit target = knownCircuits.get(callee);
 
         if (target == null) {
-            System.err.println("Error! Invalid call to " + callee);
+            System.err.println("Error! Missing declaration of circuit " + callee);
             return false;
         }
 
