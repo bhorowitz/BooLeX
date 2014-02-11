@@ -16,8 +16,8 @@ import java.util.List;
  */
 
 public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
-    private HashMap<String, Circuit> knownCircuits = new HashMap<>();
-    private HashMap<String, Circuit> currentEvaluationScope = null;
+    private HashMap<String, CircuitDeclaration> knownCircuits = new HashMap<>();
+    private HashMap<String, CircuitDeclaration> currentEvaluationScope = null;
 
     // Terminals are without context and so are always valid, since they
     // escaped the parser.
@@ -139,7 +139,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         if (ctx.circuitCall() != null) {
             TerminalNode identifier = ctx.circuitCall().Identifier();
             String callee = identifier.toString();
-            Circuit circuit = knownCircuits.get(callee);
+            CircuitDeclaration circuit = knownCircuits.get(callee);
             if (circuit == null)
                 if (currentEvaluationScope != null)
                     circuit = currentEvaluationScope.get(callee);
@@ -179,12 +179,12 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return size;
     }
 
-    private Circuit getCircuit(ParserRuleContext ctx) {
+    private CircuitDeclaration getCircuit(ParserRuleContext ctx) {
         if (ctx.getParent() == null)
             return null;
         else if (ctx instanceof BooLeXParser.CircuitDeclarationContext) {
             BooLeXParser.CircuitDeclarationContext circuitDeclarationContext = (BooLeXParser.CircuitDeclarationContext) ctx;
-            Circuit ret = knownCircuits.get(circuitDeclarationContext.Identifier().toString());
+            CircuitDeclaration ret = knownCircuits.get(circuitDeclarationContext.Identifier().toString());
             if (ret == null)
                 System.err.println("Error! This should be impossible.");
             return ret;
@@ -201,7 +201,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return false;
         }
 
-        Circuit circuit = new Circuit(circuitName);
+        CircuitDeclaration circuit = new CircuitDeclaration(circuitName);
         circuit.addAllArguments(extractIdentifiers(ctx.identifierList()), Symbol.Type.Argument);
 
         // Add the names of the inputs to the list of local circuit variables.
@@ -221,7 +221,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     public Boolean visitCircuitCall(@NotNull BooLeXParser.CircuitCallContext ctx) {
         String callee = ctx.Identifier().toString();
 
-        Circuit target = knownCircuits.get(callee);
+        CircuitDeclaration target = knownCircuits.get(callee);
 
         if (target == null) {
             System.err.println("Error! Missing declaration of circuit " + callee);
@@ -252,7 +252,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
     @Override
     public Boolean visitIdentifierList(@NotNull BooLeXParser.IdentifierListContext ctx) {
-        Circuit circuit = getCircuit(ctx);
+        CircuitDeclaration circuit = getCircuit(ctx);
         while (ctx != null) {
             String identifier = ctx.Identifier().toString();
             if (circuit.getSymbol(identifier) != null) {
@@ -291,7 +291,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         if (!visitExpressionList(ctx.expressionList()))
             return false;
 
-        Circuit circuit = getCircuit(ctx);
+        CircuitDeclaration circuit = getCircuit(ctx);
         if (circuit == null) {
             System.err.println("Error! Stray assignment: how did this get past the parser?");
             return false;
