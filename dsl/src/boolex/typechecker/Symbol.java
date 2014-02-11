@@ -1,3 +1,5 @@
+package boolex.typechecker;
+
 /**
  * Created by Alex Reinking on 2/9/14.
  * This file is a part of BooLeX

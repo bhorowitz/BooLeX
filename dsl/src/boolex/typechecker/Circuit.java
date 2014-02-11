@@ -1,3 +1,5 @@
+package boolex.typechecker;
+
 import java.util.LinkedList;
 import java.util.List;
 

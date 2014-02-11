@@ -1,5 +1,9 @@
 grammar BooLeX;
 
+@header {
+package boolex.antlr;
+}
+
 // Top level declaration for a BooLeX file.
 module : circuitDeclaration* EOF ;
 
@@ -64,6 +68,7 @@ expression
 Circuit : 'circuit' ;
 Out     : 'out' ;
 End     : 'end' ;
+Eval    : 'evaluate';
 
 // Operators
 And     : 'and'  | '*' ;

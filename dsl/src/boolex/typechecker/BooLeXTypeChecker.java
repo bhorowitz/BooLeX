@@ -1,3 +1,6 @@
+package boolex.typechecker;
+
+import boolex.antlr.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 
@@ -27,7 +30,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         if (ctx.circuitCall() != null) {
             Circuit circuit = knownCircuits.get(ctx.circuitCall().Identifier().toString());
             if (circuit == null)
-                throw new Exception("Error! Circuit has not yet been declared.");
+                throw new Exception("Error! boolex.typechecker.Circuit has not yet been declared.");
             return circuit.getNumberOfOutputs();
         } else if (ctx.expression() != null) return expressionOutputs(ctx.expression());
         else if (ctx.Identifier() != null) return 1;
@@ -78,7 +81,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         // Check that the circuit has not yet been defined.
         String circuitName = ctx.Identifier().toString();
         if (knownCircuits.get(circuitName) != null) {
-            System.err.println("Error! Circuit " + circuitName + " already exists.");
+            System.err.println("Error! boolex.typechecker.Circuit " + circuitName + " already exists.");
             return false;
         }
 

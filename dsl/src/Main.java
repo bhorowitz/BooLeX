@@ -1,5 +1,7 @@
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import boolex.typechecker.BooLeXTypeChecker;
+import boolex.antlr.*;
 
 import java.io.IOException;
 
