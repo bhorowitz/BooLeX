@@ -5,7 +5,13 @@ package boolex.antlr;
 }
 
 // Top level declaration for a BooLeX file.
-module : circuitDeclaration* EOF ;
+module : (circuitDeclaration | evaluations)* EOF ;
+
+// section for evaluations
+evaluations   : Eval (createCircuit | setCircuit | circuitCall | print)* End ;
+createCircuit : Identifier Assign New Identifier (LeftParen expressionList RightParen)? ;
+setCircuit    : Identifier LeftParen Integer ',' expression RightParen ;
+print         : Print expression ;
 
 // A module is made of many of these.
 // A circuitDeclaration is the keyword circuit, followed by an identifier
@@ -69,6 +75,8 @@ Circuit : 'circuit' ;
 Out     : 'out' ;
 End     : 'end' ;
 Eval    : 'evaluate';
+New     : 'new';
+Print   : 'print';
 
 // Operators
 And     : 'and'  | '*' ;
@@ -92,6 +100,7 @@ BooleanValue : 'true' | 'false' | '1' | '0' ;
 
 // Identifiers like C/C++/Java.
 Identifier   : [a-zA-Z_][a-zA-Z0-9_]* ;
+Integer      : [0-9]+;
 
 // Skip whitespace, newlines, and comments.
 Whitespace   : [ \t]+ -> skip ;
