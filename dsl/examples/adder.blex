@@ -1,0 +1,23 @@
+circuit HA(a,b)
+	sum = (a ^ b)'' # unnecessary, but cool for parsing!
+	carry = a and b
+	# carry = true # this is invalid
+	out sum, carry
+end
+
+# This is a full-adder
+circuit FA(a,b,c)
+	sum1, carry1 = HA(a,b)
+	sum2, carry2 = HA(sum1,c)
+	out sum2, carry1 or carry2
+end
+
+evaluate
+    fullAdder = new FA(true, false, true)
+    print fullAdder(0)
+    print fullAdder(1)
+    fullAdder(0, false)
+    fullAdder(1, true)
+    fullAdder(2, true)
+    print fullAdder(0), not fullAdder(2)
+end
