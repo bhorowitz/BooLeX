@@ -23,7 +23,7 @@ public class BLXSignalQueue {
         if (test != null && test) {
             BLXSignalQueue storeQueue = new BLXSignalQueue(null);
             BLXSignalQueue restoreQueue = new BLXSignalQueue(null);
-            BLXSignalable target = signal.getTarget();
+            BLXSignalReceiver target = signal.getTarget();
             storeQueue.signal(new BLXStoreSignal(target));
             add(signal);
             signalChain();

@@ -6,6 +6,6 @@ import boolex.logic.elements.signals.BLXSignalQueue;
 /**
  * Created by dani on 2/11/14.
  */
-public interface BLXSignalable {
-    public void signal(BLXSignal signal, BLXSignalQueue queue);
+public interface BLXSignalReceiver {
+    public void receive(BLXSignal signal, BLXSignalQueue queue);
 }
