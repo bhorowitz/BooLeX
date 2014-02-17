@@ -311,7 +311,11 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
                 if (currentEvaluationScope != null)
                     circuit = currentEvaluationScope.get(callee);
             if (circuit == null)
-                throw new CircuitDeclarationException(callee, identifier.getSymbol().getLine(), identifier.getSymbol().getCharPositionInLine());
+                throw new CircuitDeclarationException(
+                        callee,
+                        identifier.getSymbol().getLine(),
+                        identifier.getSymbol().getCharPositionInLine());
+
             return circuit.getNumberOfOutputs();
         } else if (ctx.circuitIndex() != null) return 1;
         else if (ctx.expression() != null) return countExpressionOutputs(ctx.expression());
@@ -329,8 +333,10 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
                 if (number == -1)
                     number = countExpressionOutputs(subExpression);
                 else if (countExpressionOutputs(subExpression) != number)
-                    throw new BinaryOperationException("Cannot apply binary operation to more than two elements.",
-                            subExpression.getStart().getLine(), subExpression.getStart().getCharPositionInLine());
+                    throw new BinaryOperationException(
+                            "Cannot apply binary operation to more than two elements.",
+                            subExpression.getStart().getLine(),
+                            subExpression.getStart().getCharPositionInLine());
 
         return number;
     }
@@ -350,8 +356,9 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         if (ctx.getParent() == null)
             return null;
         else if (ctx instanceof BooLeXParser.CircuitDeclarationContext) {
-            BooLeXParser.CircuitDeclarationContext circuitDeclarationContext = (BooLeXParser.CircuitDeclarationContext) ctx;
-            CircuitDeclaration ret = knownCircuits.get(circuitDeclarationContext.Identifier().toString());
+            BooLeXParser.CircuitDeclarationContext declarationContext =
+                    (BooLeXParser.CircuitDeclarationContext) ctx;
+            CircuitDeclaration ret = knownCircuits.get(declarationContext.Identifier().toString());
             if (ret == null)
                 System.err.println("Error! This should be impossible.");
             return ret;
