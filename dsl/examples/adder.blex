@@ -12,12 +12,12 @@ circuit FA(a,b,c)
 	out sum2, carry1 or carry2
 end
 
-# How to do sequential circuits?
-# circuit hard(a,b)
-#     t1 = not a
-#     t2 = t1 and a
-#     t3 = a and b
-#     t4 = t2 xor seq(t5) # how to represent this?
-#     t5 = t3 xor t4
-#     out t4, t5
-# end
+evaluate
+    fullAdder = new FA(true, false, true)
+    print fullAdder(0)
+    print fullAdder(1)
+    fullAdder(0, false)
+    fullAdder(1, true)
+    fullAdder(2, true)
+    print fullAdder(0), not fullAdder(2)
+end

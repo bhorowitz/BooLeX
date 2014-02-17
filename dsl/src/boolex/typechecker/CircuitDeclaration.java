@@ -7,13 +7,13 @@ import java.util.List;
  * Created by Alex Reinking on 2/9/14.
  * This file is a part of BooLeX
  */
-public class Circuit {
+public class CircuitDeclaration {
     private String name = "";
     private List<Symbol> arguments = new LinkedList<>();
     private List<Symbol> locals = new LinkedList<>();
     private int numberOfOutputs = -1;
 
-    public Circuit(String name) {
+    public CircuitDeclaration(String name) {
         this.name = name;
     }
 
@@ -50,7 +50,7 @@ public class Circuit {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Circuit circuit = (Circuit) o;
+        CircuitDeclaration circuit = (CircuitDeclaration) o;
 
         if (!arguments.equals(circuit.arguments)) return false;
         if (!locals.equals(circuit.locals)) return false;

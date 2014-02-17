@@ -12,7 +12,11 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$" />
+<<<<<<< HEAD
     <orderEntry type="jdk" jdkName="Python 2.7.1 (/System/Library/Frameworks/Python.framework/Versions/2.7/bin/python)" jdkType="Python SDK" />
+=======
+    <orderEntry type="jdk" jdkName="Python 2.7.5" jdkType="Python SDK" />
+>>>>>>> fe2f1dbd4b91dd7af70d33d91f1dc53c5b88adfb
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
