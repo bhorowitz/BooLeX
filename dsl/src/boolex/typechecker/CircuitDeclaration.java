@@ -17,15 +17,15 @@ public class CircuitDeclaration {
         this.name = name;
     }
 
-    public void addAllArguments(List<String> syms, Symbol.Type type) {
+    public void addAllArguments(List<String> syms) {
         for (String sym : syms) {
-            arguments.add(new Symbol(sym, type));
+            arguments.add(new Symbol(sym, Symbol.Type.Argument));
         }
     }
 
-    public void addAllLocals(List<String> identifiers, Symbol.Type type) {
+    public void addAllLocals(List<String> identifiers) {
         for (String sym : identifiers) {
-            locals.add(new Symbol(sym, type));
+            locals.add(new Symbol(sym, Symbol.Type.Local));
         }
     }
 
