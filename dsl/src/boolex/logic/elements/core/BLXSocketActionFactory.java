@@ -16,8 +16,8 @@ class BLXSocketActionFactory {
             Boolean value = ((BLXValueSignal)signal).getValue();
             return socket -> socket.setValue(value);
         }
-        else if (signal instanceof BLXStoreSignal)   return socket -> socket.store();
-        else if (signal instanceof BLXRestoreSignal) return socket -> socket.restore();
+        else if (signal instanceof BLXStoreSignal)   return BLXSocket::store;
+        else if (signal instanceof BLXRestoreSignal) return BLXSocket::restore;
         return socket -> {}; // do nothing
     }
 }

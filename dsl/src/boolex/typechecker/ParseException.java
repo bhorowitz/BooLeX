@@ -16,15 +16,21 @@ public class ParseException extends Exception {
         return line;
     }
 
-    public void setLine(int line) {
-        this.line = line;
-    }
+//    Let's see if we ever actually need these:
+
+// --Commented out by Inspection START (2/17/14 11:54 AM):
+//    public void setLine(int line) {
+//        this.line = line;
+//    }
+// --Commented out by Inspection STOP (2/17/14 11:54 AM)
 
     public int getPos() {
         return pos;
     }
 
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
+// --Commented out by Inspection START (2/17/14 11:54 AM):
+//    public void setPos(int pos) {
+//        this.pos = pos;
+//    }
+// --Commented out by Inspection STOP (2/17/14 11:54 AM)
 }

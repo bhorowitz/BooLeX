@@ -143,7 +143,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return false;
         }
 
-        circuit.addAllLocals(identifiers, Symbol.Type.Local);
+        circuit.addAllLocals(identifiers);
         return true;
     }
 
@@ -192,7 +192,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         }
 
         CircuitDeclaration circuit = new CircuitDeclaration(circuitName);
-        circuit.addAllArguments(extractIdentifiers(ctx.identifierList()), Symbol.Type.Argument);
+        circuit.addAllArguments(extractIdentifiers(ctx.identifierList()));
 
         // Add the names of the inputs to the list of local circuit variables.
         knownCircuits.put(circuitName, circuit);
