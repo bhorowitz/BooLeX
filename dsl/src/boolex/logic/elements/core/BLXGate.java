@@ -5,7 +5,6 @@
 package boolex.logic.elements.core;
 
 import boolex.logic.elements.signals.BLXSignal;
-import boolex.logic.elements.signals.BLXSignalActionFactory;
 import boolex.logic.elements.signals.BLXSignalQueue;
 import boolex.logic.elements.signals.BLXSignalReceiver;
 
@@ -14,114 +13,72 @@ import java.util.ArrayList;
 public abstract class BLXGate implements BLXSignalReceiver {
     private ArrayList<BLXSocket> inputSockets;
     private ArrayList<BLXSocket> outputSockets;
-    private BLXTruthTable table;
 
-    public BLXGate(BLXTruthTable table) {
+    public BLXGate() {
         inputSockets = new ArrayList<>();
         outputSockets = new ArrayList<>();
-        this.table = table;
     }
 
-//    public int numInputSockets() {
-//        return inputSockets.size();
-//    }
-//
-//    public int numOutputSockets() {
-//        return outputSockets.size();
-//    }
-//
-//    public BLXSocket getInputSocket(int index) {
-//        return inputSockets.get(index);
-//    }
-//
-//    public BLXSocket getOutputSocket(int index) {
-//        return outputSockets.get(index);
-//    }
-//
-//    public void setInputSocket(int index, Boolean defaultValue) {
-//        inputSockets.set(index, new BLXSocket(defaultValue));
-//    }
-//
-//    public void setOutputSocket(int index, Boolean defaultValue) {
-//        outputSockets.set(index, new BLXSocket(defaultValue));
-//    }
+    public BLXSocket getInputSocket(int index) {
+        if (index < 0 || index >= inputSockets.size())
+            return null;
+        else
+            return inputSockets.get(index);
+    }
+
+    public BLXSocket getOutputSocket(int index) {
+        if (index < 0 || index >= inputSockets.size())
+            return null;
+        else
+            return outputSockets.get(index);
+    }
+
+    public void setInputSocket(int index, Boolean defaultValue) {
+        if (index >= 0) {
+            BLXSocket socket = new BLXSocket(defaultValue);
+            socket.addTarget(this);
+            if (index >= inputSockets.size())
+                inputSockets.add(index, socket);
+            else
+                inputSockets.set(index, socket);
+        }
+
+    }
+
+    public void setOutputSocket(int index, Boolean defaultValue) {
+        if (index >= 0) {
+            BLXSocket socket = new BLXSocket(defaultValue);
+            if (index >= outputSockets.size())
+                outputSockets.add(index, socket);
+            else
+                outputSockets.set(index, socket);
+        }
+    }
 
     public void connectTo(BLXGate gate, int fromIndex, int toIndex) {
-        BLXSocket outputSocket = outputSockets.get(fromIndex);
-        gate.inputSockets.set(toIndex, outputSocket);
-    }
-
-    private boolean isOperational() {
-        return table != null
-            && table.getNumInputs()  == inputSockets.size()
-            && table.getNumOutputs() == outputSockets.size();
+        if (gate != null) {
+            BLXSocket inputSocket = gate.getInputSocket(toIndex);
+            if (inputSocket == null) {
+                gate.setInputSocket(toIndex, null);
+                inputSocket = gate.getInputSocket(toIndex);
+            }
+            BLXSocket outputSocket = getOutputSocket(fromIndex);
+            if (outputSocket == null) {
+                setOutputSocket(fromIndex, null);
+                outputSocket = getOutputSocket(fromIndex);
+            }
+            outputSocket.addTarget(inputSocket);
+        }
     }
 
     @Override
-    public void signal(BLXSignal signal, BLXSignalQueue queue) {
-        if (isOperational()) {
-
-        }
-
-
-
-
-
-        BLXSignalActionFactory.getSocketAction(signal).performSocketAction(this);
-        if (queue == null) {
-            signal(signal);
-        }
-        else {
-            for (BLXSignalReceiver target : targets) {
-                queue.add(signal.propagate(target,0));
+    public void receive(BLXSignal signal, BLXSignalQueue queue) {
+        if (queue != null) {
+            for (int i = 0; i < outputSockets.size(); i++) {
+                queue.add(computeSignalForOutputSocket(signal, getOutputSocket(i)));
             }
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public void signal(BLXSocket socket) {
-        signal(socket, false);
-    }
-
-    public void signal(BLXSocket socket, boolean test) {
-        assert(inputSockets.contains(socket));
-        if (inputSockets.contains(socket)) {
-            Boolean[] inputValues = test ? getInputValues() : getTestInputValues();
-            Boolean[] outputValues = evaluate(inputValues);
-            for (int i = 0; i < outputValues.length; i++) {
-                outputSockets.get(i).signal(outputValues[i],test);
-            }
-        }
-    }
-
-    public Boolean[] getInputValues() {
-        Boolean[] values = new Boolean[inputSockets.size()];
-        for (int i = 0; i < values.length; i++) {
-            values[i] = inputSockets.get(i).getValue();
-        }
-        return values;
-    }
-
-    public Boolean[] getTestInputValues() {
-        Boolean[] testValues = new Boolean[inputSockets.size()];
-        for (int i = 0; i < testValues.length; i++) {
-            testValues[i] = inputSockets.get(i).getTestValue();
-        }
-        return testValues;
-    }
-
-    public abstract Boolean[] evaluate(Boolean[] inputValues);
+    protected abstract BLXSignal computeSignalForOutputSocket(BLXSignal incomingSignal, BLXSocket socket);
 }

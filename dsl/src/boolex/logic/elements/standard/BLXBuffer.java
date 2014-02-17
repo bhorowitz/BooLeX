@@ -6,32 +6,24 @@ import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXValueSignal;
 
 /**
- * Created by dani on 2/10/14.
+ * Created by dani on 2/17/14.
  */
-public class BLXXnorGate extends BLXGate {
+public class BLXBuffer extends BLXGate {
 
-    public BLXXnorGate() {
+    public BLXBuffer() {
         super();
         setInputSocket(0,null);
-        setInputSocket(1,null);
         setOutputSocket(0, null);
     }
 
     @Override
     protected BLXSignal computeSignalForOutputSocket(BLXSignal incomingSignal, BLXSocket outputSocket) {
         BLXSocket input0 = getInputSocket(0);
-        BLXSocket input1 = getInputSocket(1);
         // If something went wrong, return unknown value signal
-        if (input0 == null || input1 == null)
+        if (input0 == null)
             return new BLXValueSignal(outputSocket, null, 1);
-        else if (incomingSignal instanceof BLXValueSignal) {
-            Boolean value0 = input0.getValue();
-            Boolean value1 = input1.getValue();
-            if (value0 == null || value1 == null)
-                return new BLXValueSignal(outputSocket, null, 1);
-            else
-                return new BLXValueSignal(outputSocket,value0 && value1 || !value0 && !value1,1);
-        }
+        else if (incomingSignal instanceof BLXValueSignal)
+            return new BLXValueSignal(outputSocket, input0.getValue(), 1);
         else
             return incomingSignal.propagate(outputSocket,1);
     }

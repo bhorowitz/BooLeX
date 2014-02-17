@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 /**
  * Created by dani on 2/15/14.
  */
-public class BLXSocketActionFactory {
+class BLXSocketActionFactory {
     public static Consumer<BLXSocket> getSocketAction(BLXSignal signal) {
         if (signal instanceof BLXValueSignal) {
             Boolean value = ((BLXValueSignal)signal).getValue();

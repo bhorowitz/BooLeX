@@ -4,8 +4,8 @@ package boolex.logic.elements.signals;
  * Created by dani on 2/11/14.
  */
 
-import java.util.Queue;
 import java.util.PriorityQueue;
+import java.util.Queue;
 public class BLXSignalQueue {
     private Boolean test;
     private Queue<BLXSignal> queue;

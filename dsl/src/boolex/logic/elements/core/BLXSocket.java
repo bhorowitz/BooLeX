@@ -7,9 +7,10 @@ package boolex.logic.elements.core;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXSignalQueue;
 import boolex.logic.elements.signals.BLXSignalReceiver;
+import boolex.logic.elements.signals.BLXValueSignal;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 public class BLXSocket implements BLXSignalReceiver {
     private Boolean value;
@@ -40,23 +41,24 @@ public class BLXSocket implements BLXSignalReceiver {
         value = defaultValue;
     }
 
-    public void signal(BLXSignal signal) {
+    public void signal(Boolean value) {
         BLXSignalQueue queue = new BLXSignalQueue(false);
-        queue.signal(signal);
+        queue.signal(new BLXValueSignal(this,value,0));
     }
 
-    public void testSignal(BLXSignal signal) {
+    public void testSignal(Boolean value) {
         BLXSignalQueue testQueue = new BLXSignalQueue(true);
-        testQueue.signal(signal);
+        testQueue.signal(new BLXValueSignal(this,value,0));
+    }
+
+    public void addTarget(BLXSignalReceiver target) {
+        targets.add(target);
     }
 
     @Override
     public void receive(BLXSignal signal, BLXSignalQueue queue) {
-        BLXSocketActionFactory.getSocketAction(signal).accept(this);
-        if (queue == null) {
-            signal(signal);
-        }
-        else {
+        if (queue != null) {
+            BLXSocketActionFactory.getSocketAction(signal).accept(this);
             for (BLXSignalReceiver target : targets) {
                 queue.add(signal.propagate(target,0));
             }

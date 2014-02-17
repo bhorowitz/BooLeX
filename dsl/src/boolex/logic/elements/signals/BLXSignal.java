@@ -1,7 +1,5 @@
 package boolex.logic.elements.signals;
 
-import java.lang.reflect.Constructor;
-
 /**
  * Created by dani on 2/11/14.
  */

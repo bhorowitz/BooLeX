@@ -1,3 +1,4 @@
+import boolex.logic.elements.BLXLogicElementTest;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import boolex.typechecker.BooLeXTypeChecker;
@@ -28,5 +29,10 @@ public class Main {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
+
+
+        // Remove when done.
+        BLXLogicElementTest test = new BLXLogicElementTest();
+        test.testLogic();
     }
 }
