@@ -5,6 +5,9 @@ import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXValueSignal;
 
+import static boolex.logic.elements.helpers.LogicHelper.isTrue;
+import static boolex.logic.elements.helpers.LogicHelper.isFalse;
+
 /**
  * Created by dani on 2/10/14.
  */
@@ -27,9 +30,9 @@ public class BLXNandGate extends BLXGate {
         else if (incomingSignal instanceof BLXValueSignal) {
             Boolean value0 = input0.getValue();
             Boolean value1 = input1.getValue();
-            if (value0 != null && !value0 || value1 != null && !value1)
+            if (isFalse(value0) || isFalse(value1))
                 return new BLXValueSignal(outputSocket, true, 1);
-            else if (value0 != null && value0 && value1 != null && value1)
+            else if (isTrue(value0) && isTrue(value1))
                 return new BLXValueSignal(outputSocket, false, 1);
             else
                 return new BLXValueSignal(outputSocket, null, 1);

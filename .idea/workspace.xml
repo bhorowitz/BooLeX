@@ -2,34 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="49491227-fbd0-4414-8efc-83c0d140300d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dsl/src/boolex/typechecker/BinaryOperationException.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dsl/src/boolex/typechecker/CircuitDeclarationException.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dsl/tests/MainTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dsl/src/boolex/typechecker/ParseException.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dev/algorithm_sketches/circuit.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/BooLeX/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/BooLeX/admin.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/BooLeX/models.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/BooLeX/tests.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/BooLeX/views.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/README.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/manage.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/website/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/website/settings.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/website/urls.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/website/wsgi.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/dsl/src/boolex/typechecker/Circuit.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/typechecker/CircuitDeclaration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/BooLeX.g4" afterPath="$PROJECT_DIR$/dsl/src/BooLeX.g4" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/typechecker/BooLeXTypeChecker.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/typechecker/BooLeXTypeChecker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/Main.java" afterPath="$PROJECT_DIR$/dsl/src/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/examples/adder.blex" afterPath="$PROJECT_DIR$/dsl/examples/adder.blex" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/dsl.iml" afterPath="$PROJECT_DIR$/dsl/dsl.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/website.iml" afterPath="$PROJECT_DIR$/website/website.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/helpers/LogicHelper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNandGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNandGate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNorGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNorGate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNotGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNotGate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXOrGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXOrGate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXnorGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXnorGate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXorGate.java" afterPath="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXorGate.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="BooLeX.iws" />
@@ -100,25 +80,7 @@
       <file leaf-file-name="BLXSocket.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocket.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="65" column="0" selection-start="1714" selection-end="1714" vertical-scroll-proportion="0.0" vertical-offset="975" max-vertical-offset="1095">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BLXOrGate.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXOrGate.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="32" column="66" selection-start="1278" selection-end="1278" vertical-scroll-proportion="0.0" vertical-offset="480" max-vertical-offset="690">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BLXAndGate.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="0" selection-start="1297" selection-end="1297" vertical-scroll-proportion="0.0" vertical-offset="510" max-vertical-offset="690">
+            <state line="65" column="0" selection-start="1714" selection-end="1714" vertical-scroll-proportion="0.0" vertical-offset="214" max-vertical-offset="945">
               <folding />
             </state>
           </provider>
@@ -154,16 +116,16 @@
       <file leaf-file-name="BLXLogicElementTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXLogicElementTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="765">
+            <state line="30" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="450" max-vertical-offset="825">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Main.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dsl/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="27" selection-start="324" selection-end="324" vertical-scroll-proportion="0.16415869" vertical-offset="0" max-vertical-offset="731">
+            <state line="8" column="27" selection-start="324" selection-end="324" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -171,19 +133,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BLXGate.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXGate.java">
+      <file leaf-file-name="BLXXorGate.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXorGate.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="80" column="0" selection-start="2527" selection-end="2527" vertical-scroll-proportion="0.0" vertical-offset="1200" max-vertical-offset="1350">
+            <state line="2" column="7" selection-start="48" selection-end="48" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="615">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BLXBuffer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXBuffer.java">
+      <file leaf-file-name="BLXXnorGate.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXnorGate.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="0" selection-start="805" selection-end="805" vertical-scroll-proportion="0.0" vertical-offset="121" max-vertical-offset="540">
+            <state line="40" column="0" selection-start="1391" selection-end="1391" vertical-scroll-proportion="1.107595" vertical-offset="0" max-vertical-offset="615">
               <folding />
             </state>
           </provider>
@@ -202,7 +164,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXNotGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXNorGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXNandGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXAndGate.java" />
@@ -243,16 +204,17 @@
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocketActionFactory.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocket.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXGate.java" />
-        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXBuffer.java" />
-        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNandGate.java" />
+        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXLogicElementTest.java" />
+        <option value="$PROJECT_DIR$/dsl/src/Main.java" />
+        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/helpers/LogicHelper.java" />
+        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXOrGate.java" />
+        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNotGate.java" />
+        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNandGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNorGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXorGate.java" />
         <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXnorGate.java" />
-        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNotGate.java" />
-        <option value="$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXLogicElementTest.java" />
-        <option value="$PROJECT_DIR$/dsl/src/Main.java" />
       </list>
     </option>
   </component>
@@ -309,7 +271,7 @@
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
   <component name="ProjectReloadState">
-    <option name="STATE" value="2" />
+    <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
@@ -324,6 +286,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -474,6 +437,32 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="helpers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BooLeX" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dsl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="boolex" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="elements" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="core" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -494,7 +483,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -826,12 +814,13 @@
       <workItem from="1392139202803" duration="8110000" />
       <workItem from="1392386910784" duration="10007000" />
       <workItem from="1392514827273" duration="28942000" />
-      <workItem from="1392655212067" duration="68000" />
+      <workItem from="1392655212067" duration="137000" />
+      <workItem from="1392657229891" duration="970000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="67806000" />
+    <option name="totallyTimeSpent" value="68845000" />
   </component>
   <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
@@ -876,7 +865,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="ANTLR Parse Tree" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3294271" sideWeight="0.5765832" order="12" side_tool="true" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26108727" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3286445" sideWeight="0.4234168" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3286445" sideWeight="0.4234168" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28645065" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -906,6 +895,13 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXBuffer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="805" selection-end="805" vertical-scroll-proportion="0.0" vertical-offset="121" max-vertical-offset="540">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocket.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="65" column="0" selection-start="1714" selection-end="1714" vertical-scroll-proportion="0.0" vertical-offset="975" max-vertical-offset="1095">
@@ -1119,61 +1115,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNandGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="9" selection-start="1375" selection-end="1375" vertical-scroll-proportion="0.6962865" vertical-offset="0" max-vertical-offset="754">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNorGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="1" selection-start="1455" selection-end="1455" vertical-scroll-proportion="0.7758621" vertical-offset="0" max-vertical-offset="754">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXnorGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="0" selection-start="1326" selection-end="1326" vertical-scroll-proportion="0.75596815" vertical-offset="0" max-vertical-offset="754">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXorGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="8" selection-start="852" selection-end="1257" vertical-scroll-proportion="0.51724136" vertical-offset="0" max-vertical-offset="754">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNotGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="1107" selection-end="1107" vertical-scroll-proportion="0.67639256" vertical-offset="0" max-vertical-offset="754">
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocketActionFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="0" selection-start="541" selection-end="541" vertical-scroll-proportion="0.0" vertical-offset="16" max-vertical-offset="435">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXBuffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="805" selection-end="805" vertical-scroll-proportion="0.0" vertical-offset="121" max-vertical-offset="540">
           <folding />
         </state>
       </provider>
@@ -1206,27 +1150,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="65" column="0" selection-start="1714" selection-end="1714" vertical-scroll-proportion="0.0" vertical-offset="556" max-vertical-offset="975">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="1297" selection-end="1297" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXOrGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="66" selection-start="1278" selection-end="1278" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/BLXLogicElementTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="30" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="825">
@@ -1234,12 +1157,84 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dsl/src/Main.java">
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/helpers/LogicHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="27" selection-start="324" selection-end="324" vertical-scroll-proportion="0.16415869" vertical-offset="0" max-vertical-offset="731">
+        <state line="9" column="4" selection-start="196" selection-end="196" vertical-scroll-proportion="0.18467852" vertical-offset="0" max-vertical-offset="731">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXAndGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="13" selection-start="413" selection-end="413" vertical-scroll-proportion="0.14363885" vertical-offset="0" max-vertical-offset="731">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXOrGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="0" selection-start="1544" selection-end="1544" vertical-scroll-proportion="0.75923395" vertical-offset="0" max-vertical-offset="731">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/core/BLXSocket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="0" selection-start="1714" selection-end="1714" vertical-scroll-proportion="0.0" vertical-offset="556" max-vertical-offset="975">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXBuffer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="805" selection-end="805" vertical-scroll-proportion="0.4514364" vertical-offset="0" max-vertical-offset="731">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNotGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="13" selection-start="507" selection-end="507" vertical-scroll-proportion="0.41039672" vertical-offset="0" max-vertical-offset="731">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNandGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="0" selection-start="1548" selection-end="1548" vertical-scroll-proportion="0.75923395" vertical-offset="0" max-vertical-offset="731">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXNorGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="12" selection-start="1476" selection-end="1476" vertical-scroll-proportion="0.8002736" vertical-offset="0" max-vertical-offset="735">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="27" selection-start="324" selection-end="324" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXorGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2" column="7" selection-start="48" selection-end="48" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="615">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dsl/src/boolex/logic/elements/standard/BLXXnorGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="0" selection-start="1391" selection-end="1391" vertical-scroll-proportion="1.107595" vertical-offset="0" max-vertical-offset="615">
+          <folding />
         </state>
       </provider>
     </entry>

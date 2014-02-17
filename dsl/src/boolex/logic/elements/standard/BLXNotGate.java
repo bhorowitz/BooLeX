@@ -5,6 +5,8 @@ import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXValueSignal;
 
+import static boolex.logic.elements.helpers.LogicHelper.isNull;
+
 /**
  * Created by dani on 2/10/14.
  */
@@ -23,7 +25,7 @@ public class BLXNotGate extends BLXGate {
         if (input0 == null)
             return new BLXValueSignal(outputSocket, null, 1);
         else if (incomingSignal instanceof BLXValueSignal) {
-            if (input0.getValue() == null)
+            if (isNull(input0.getValue()))
                 return new BLXValueSignal(outputSocket, null, 1);
             else
                 return new BLXValueSignal(outputSocket, !input0.getValue(), 1);
