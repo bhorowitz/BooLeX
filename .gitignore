@@ -3,3 +3,4 @@ dsl/gen
 out/
 .idea/workspace.xml
 *.class
+target/
