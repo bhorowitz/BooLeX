@@ -1,0 +1,4 @@
+<IntegrationSpec-results timestamp="1392716541019"><result location="IntegrationSpec (IntegrationSpec.scala:17)" id="708906715"><stats time="848" expectations="1" errors="1" examples="1"></stats></result>
+</IntegrationSpec-results>
+<IntegrationSpec-stats timestamp="1392716541022"><stats expectations="1" errors="1" examples="1"></stats></IntegrationSpec-stats>
+<IntegrationSpec-stats timestamp="1392716665726"><stats expectations="1" successes="1" examples="1"><trend><stats errors="-1" successes="1"></stats></trend></stats></IntegrationSpec-stats>

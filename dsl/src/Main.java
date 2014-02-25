@@ -1,4 +1,3 @@
-import boolex.logic.elements.BLXLogicElementTest;
 import boolex.antlr.BooLeXLexer;
 import boolex.antlr.BooLeXParser;
 import boolex.typechecker.BooLeXTypeChecker;
@@ -31,10 +30,5 @@ public class Main {
         } catch (Exception e) {
             System.err.println("[error] " + e.getMessage());
         }
-
-
-        // Remove when done.
-        BLXLogicElementTest test = new BLXLogicElementTest();
-        test.testLogic();
     }
 }
