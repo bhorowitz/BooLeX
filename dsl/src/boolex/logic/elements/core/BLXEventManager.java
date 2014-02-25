@@ -7,18 +7,18 @@ import boolex.logic.elements.signals.BLXValueSignal;
  * Created by dani on 2/17/14.
  */
 public class BLXEventManager {
-    private BLXSocket socket;
+    private BLXSocket startSocket;
     private Boolean value;
     private BLXSignalQueue queue;
 
     public BLXEventManager(BLXSocket startSocket, Boolean startValue, Boolean test) {
-        this.socket = startSocket;
+        this.startSocket = startSocket;
         this.value = startValue;
         this.queue = new BLXSignalQueue(test);
     }
 
     public void start() {
-        queue.signal(new BLXValueSignal(socket,value,0));
+        queue.signal(new BLXValueSignal(startSocket,value,0));
     }
 
 }

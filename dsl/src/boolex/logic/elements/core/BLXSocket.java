@@ -16,13 +16,27 @@ public class BLXSocket implements BLXSignalReceiver {
     private Boolean value;
     private Boolean defaultValue;
     private Boolean cache;
+    private String id;
     private Set<BLXSignalReceiver> targets;
 
+    public BLXSocket(String id) {
+        this(id,null);
+    }
+
     public BLXSocket(Boolean defaultValue) {
+        this(null,defaultValue);
+    }
+
+    public BLXSocket(String id, Boolean defaultValue) {
+        this.id = id;
         this.value = this.defaultValue = defaultValue;
         this.targets = new HashSet<>();
     }
 
+    public String getId() {
+        return id;
+    }
+    
     public Boolean getValue() {
         return value;
     }
