@@ -12,10 +12,6 @@
         </option>
         <option name="useAutoImport" value="true" />
       </SbtProjectSettings>
-      <SbtProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/website" />
-        <option name="useAutoImport" value="true" />
-      </SbtProjectSettings>
     </option>
   </component>
 </project>
