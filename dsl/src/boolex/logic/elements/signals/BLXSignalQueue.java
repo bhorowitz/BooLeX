@@ -26,20 +26,29 @@ public class BLXSignalQueue {
             BLXSignalReceiver target = signal.getTarget();
             storeQueue.signal(new BLXStoreSignal(target));
             add(signal);
-            signalChain();
+            start();
             restoreQueue.signal(new BLXRestoreSignal(target));
         }
         else {
             add(signal);
-            signalChain();
+            start();
         }
     }
 
-    private void signalChain() {
-        while (!queue.isEmpty()) {
+    private void start() {
+        resume();
+    }
+
+    public void resume() {
+        if (!queue.isEmpty()) {
             signalZeroes();
             decrementChain();
+            pause();
         }
+    }
+
+    public void pause() {
+
     }
 
     private void signalZeroes() {
