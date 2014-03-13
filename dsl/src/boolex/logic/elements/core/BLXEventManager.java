@@ -4,10 +4,9 @@ import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXSignalQueue;
 import boolex.logic.elements.signals.BLXSignalReceiver;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by dani on 2/17/14.
@@ -45,7 +44,7 @@ public class BLXEventManager {
 }
 
 class JSONBuilder {
-    public static JSONArray buildSocketMap(HashSet<BLXSignalReceiver> components) {
+    public static JSONArray buildSocketMap(Set<BLXSignalReceiver> components) {
         HashMap<String,Boolean> socketMap = new HashMap<>();
         for (BLXSignalReceiver component : components) {
             if (component instanceof BLXSocket) {

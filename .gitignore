@@ -12,6 +12,9 @@
 *.iws
 *.ipr
 
+## SBT Bullshit
+.idea/libraries/SBT_*
+
 ## Additional for IntelliJ
 out/
 

@@ -6,13 +6,14 @@ package boolex.logic.elements.signals;
 
 import java.util.Queue;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.HashSet;
 
 public class BLXSignalQueue {
     public final static int DEFAULT_DELAY_TIME = 100; //milliseconds
 
     public interface BLXSignalQueueCallback {
-        public void onSignalEvent(HashSet<BLXSignalReceiver> components);
+        public void onSignalEvent(Set<BLXSignalReceiver> components);
     }
 
     private Queue<BLXSignal> queue;
@@ -44,7 +45,7 @@ public class BLXSignalQueue {
             interrupted = false;
             add(signal);
             while (!queue.isEmpty() && !interrupted) {
-                HashSet<BLXSignalReceiver> receivers = signalZeroes();
+                Set<BLXSignalReceiver> receivers = signalZeroes();
                 decrementChain();
                 if (callback != null) {
                     try {
@@ -65,8 +66,8 @@ public class BLXSignalQueue {
         queue.add(signal);
     }
 
-    private HashSet<BLXSignalReceiver> signalZeroes() {
-        HashSet<BLXSignalReceiver> receivers = new HashSet<>();
+    private Set<BLXSignalReceiver> signalZeroes() {
+        Set<BLXSignalReceiver> receivers = new HashSet<>();
         while (queue.peek() != null && queue.peek().getDelay() == 0) {
             BLXSignal nextSignal = queue.poll();
             nextSignal.signal(this);
