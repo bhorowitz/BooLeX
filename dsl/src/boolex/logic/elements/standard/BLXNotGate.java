@@ -3,7 +3,6 @@ package boolex.logic.elements.standard;
 import boolex.logic.elements.core.BLXGate;
 import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignal;
-import boolex.logic.elements.signals.BLXValueSignal;
 
 import static boolex.logic.elements.helpers.LogicHelper.isNull;
 
@@ -20,17 +19,10 @@ public class BLXNotGate extends BLXGate {
 
     @Override
     protected BLXSignal computeSignalForOutputSocket(BLXSignal incomingSignal, BLXSocket outputSocket) {
-        BLXSocket input0 = getInputSocket(0);
         // If something went wrong, return unknown value signal
-        if (input0 == null)
-            return new BLXValueSignal(outputSocket, null, 1);
-        else if (incomingSignal instanceof BLXValueSignal) {
-            if (isNull(input0.getValue()))
-                return new BLXValueSignal(outputSocket, null, 1);
-            else
-                return new BLXValueSignal(outputSocket, !input0.getValue(), 1);
-        }
+        if (incomingSignal.getValue() == null)
+            return incomingSignal.propagate(outputSocket, null, 1);
         else
-            return incomingSignal.propagate(outputSocket,1);
+            return incomingSignal.propagate(outputSocket, !incomingSignal.getValue(), 1);
     }
 }
