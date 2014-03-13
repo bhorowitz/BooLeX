@@ -6,23 +6,28 @@ import boolex.logic.elements.signals.BLXSignalReceiver;
 import net.sf.json.JSONArray;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by dani on 2/17/14.
  */
 public class BLXEventManager {
-    private BLXSocket startSocket;
-    private Boolean value;
     private BLXSignalQueue queue;
+    private BLXSignal[] signals;
 
-    public BLXEventManager(BLXSocket startSocket, Boolean startValue) {
-        this(startSocket,startValue,BLXSignalQueue.DEFAULT_DELAY_TIME);
+    public BLXEventManager(Map<BLXSocket,Boolean> startSignals) {
+        this(startSignals,BLXSignalQueue.DEFAULT_DELAY_TIME);
     }
 
-    public BLXEventManager(BLXSocket startSocket, Boolean startValue, int delayTime) {
-        this.startSocket = startSocket;
-        this.value = startValue;
+    public BLXEventManager(Map<BLXSocket,Boolean> startSignals, int delayTime) {
+        // store the signals as an array of BLXSignals
+        signals = new BLXSignal[startSignals.size()];
+        int index = 0;
+        for (Map.Entry<BLXSocket,Boolean> signal : startSignals.entrySet()) {
+            signals[index++] = (new BLXSignal(signal.getKey(),signal.getValue(),0));
+        }
+        // initialize the signal queue and define its behavior for each iteration
         this.queue = new BLXSignalQueue(delayTime, (components) -> {
             JSONArray socketMap = JSONBuilder.buildSocketMap(components);
             /* TODO fill this in with Alex -
@@ -34,7 +39,8 @@ public class BLXEventManager {
     }
 
     public void start() {
-        queue.signal(new BLXSignal(startSocket,value,0));
+        // load signals into signal queue and start
+        queue.signal(signals);
     }
 
     public void stop() {

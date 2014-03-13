@@ -40,10 +40,11 @@ public class BLXSignalQueue {
         setCallback(callback);
     }
 
-    public void signal(BLXSignal signal) {
-        if (signal != null) {
+    public void signal(BLXSignal[] signals) {
+        if (signals != null) {
             interrupted = false;
-            add(signal);
+            for (BLXSignal signal : signals)
+                add(signal);
             while (!queue.isEmpty() && !interrupted) {
                 Set<BLXSignalReceiver> receivers = signalZeroes();
                 decrementChain();

@@ -34,20 +34,39 @@ public abstract class BLXGate implements BLXSignalReceiver {
     }
 
     public void setInputSocket(int index, Boolean value) {
+        setInputSocket(index, null, value);
+    }
+      
+    public void setInputSocket(int index, String id, Boolean value) {
         if (index >= 0) {
-            BLXSocket socket = new BLXSocket(value);
+            BLXSocket socket = new BLXSocket(id, value);
+            setInputSocket(index,socket);
+        }
+    }
+
+    public void setInputSocket(int index, BLXSocket socket) {
+        if (socket != null && index >= 0) {
             socket.addTarget(this);
             if (index >= inputSockets.size())
                 inputSockets.add(index, socket);
             else
                 inputSockets.set(index, socket);
         }
-
     }
 
     public void setOutputSocket(int index, Boolean value) {
+        setOutputSocket(index, null, value);
+    }
+
+    public void setOutputSocket(int index, String id, Boolean value) {
         if (index >= 0) {
-            BLXSocket socket = new BLXSocket(value);
+            BLXSocket socket = new BLXSocket(id, value);
+            setOutputSocket(index, socket);
+        }
+    }
+
+    public void setOutputSocket(int index, BLXSocket socket) {
+        if (socket != null && index >= 0) {
             if (index >= outputSockets.size())
                 outputSockets.add(index, socket);
             else
@@ -59,12 +78,12 @@ public abstract class BLXGate implements BLXSignalReceiver {
         if (gate != null) {
             BLXSocket inputSocket = gate.getInputSocket(toIndex);
             if (inputSocket == null) {
-                gate.setInputSocket(toIndex, null);
+                gate.setInputSocket(toIndex, (Boolean)null);
                 inputSocket = gate.getInputSocket(toIndex);
             }
             BLXSocket outputSocket = getOutputSocket(fromIndex);
             if (outputSocket == null) {
-                setOutputSocket(fromIndex, null);
+                setOutputSocket(fromIndex, (Boolean)null);
                 outputSocket = getOutputSocket(fromIndex);
             }
             outputSocket.addTarget(inputSocket);
