@@ -7,25 +7,35 @@ import boolex.logic.elements.standard.*;
 
 import java.util.*;
 
+import static boolex.logic.elements.helpers.PrettyPrintHelper.arrayToString;
+
 /**
  * Created by dani on 3/13/14.
  */
 public class BLXCircuit {
-    class DuplicateIdException extends RuntimeException {
+    public static class DuplicateIdException extends RuntimeException {
         public DuplicateIdException(String id) {
             super("two different output sockets were assigned id "+id);
         }
     }
 
-    class MissingIdException extends RuntimeException {
+    public static class MissingIdException extends RuntimeException {
         public MissingIdException() {
             super("received null id as input to gate");
         }
     }
 
-    class MissingIntegratedCircuitException extends RuntimeException {
+    public static class MissingIntegratedCircuitException extends RuntimeException {
         public MissingIntegratedCircuitException() {
             super("received null integrated circuit as input to a gate");
+        }
+    }
+
+    public static class UnresolvedCircuitInputsException extends Exception {
+        public UnresolvedCircuitInputsException(Set<String> unresolvedInputs) {
+            super("your circuit expects inputs " + arrayToString(
+                    unresolvedInputs.toArray(new String[unresolvedInputs.size()])
+            ) + " but will never receive them");
         }
     }
 
@@ -44,32 +54,31 @@ public class BLXCircuit {
         load(firstInputId);
     }
 
-    public BLXCircuit load(String id) {
-        if (id == null)
+    public BLXCircuit load(String socketId) {
+        if (socketId == null)
             throw new MissingIdException();
-        else if (claimedOutputSockets.containsKey(id)) {
-            currentOutputSocket = claimedOutputSockets.get(id);
-        }
-        else if (unclaimedOutputSockets.containsKey(id)) {
-            currentOutputSocket = unclaimedOutputSockets.get(id);
-        }
-        else {
-            currentOutputSocket = new BLXSocket(id, defaultValue);
-            unclaimedOutputSockets.put(id, currentOutputSocket);
-        }
+        currentOutputSocket = getOrCreateSocket(this,socketId);
         return this;
     }
 
-    public Set<String> getMissingInputs() {
+    public Set<String> getUnresolvedInputs() {
         return unclaimedOutputSockets.keySet();
     }
 
     public BLXCircuit not(String outputId) {
-        if (outputId == null)
-            return this;
-        BLXNotGate gate = new BLXNotGate();
-        linkOutputSocketToGateInput(currentOutputSocket, 0, gate);
-        claimOutputSocket(gate, 0, outputId);
+        if (outputId != null) {
+            currentOutputSocket = configureUnaryGate(new BLXNotGate(), currentOutputSocket, this, outputId);
+        }
+        return this;
+    }
+
+    public BLXCircuit not(BLXCircuit targetCircuit, String targetId) throws UnresolvedCircuitInputsException {
+        if (targetCircuit != null && targetId != null) {
+            configureUnaryGate(new BLXNotGate(), currentOutputSocket, targetCircuit, targetId);
+            if (!targetCircuit.getUnresolvedInputs().isEmpty())
+                throw new UnresolvedCircuitInputsException(targetCircuit.getUnresolvedInputs());
+            currentOutputSocket = targetCircuit.currentOutputSocket;
+        }
         return this;
     }
 
@@ -81,8 +90,23 @@ public class BLXCircuit {
         return binaryJoin(new BLXAndGate(), constValue, outputId);
     }
 
-    public BLXCircuit and(BLXCircuit circuit, String outputId) {
-        return binaryJoin(new BLXAndGate(), circuit, outputId);
+    public BLXCircuit and(BLXCircuit inputCircuit, String outputId) {
+        return binaryJoin(new BLXAndGate(), inputCircuit, outputId);
+    }
+
+    public BLXCircuit and(String secondInputId, BLXCircuit targetCircuit, String targetId)
+                          throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXAndGate(), secondInputId, targetCircuit, targetId);
+    }
+
+    public BLXCircuit and(boolean constValue, BLXCircuit targetCircuit, String targetId)
+                          throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXAndGate(), constValue, targetCircuit, targetId);
+    }
+
+    public BLXCircuit and(BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+                          throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXAndGate(), inputCircuit, targetCircuit, targetId);
     }
 
     public BLXCircuit or(String secondInputId, String outputId) {
@@ -93,8 +117,23 @@ public class BLXCircuit {
         return binaryJoin(new BLXOrGate(), constValue, outputId);
     }
 
-    public BLXCircuit or(BLXCircuit circuit, String outputId) {
-        return binaryJoin(new BLXOrGate(), circuit, outputId);
+    public BLXCircuit or(BLXCircuit inputCircuit, String outputId) {
+        return binaryJoin(new BLXOrGate(), inputCircuit, outputId);
+    }
+
+    public BLXCircuit or(String secondInputId, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXOrGate(), secondInputId, targetCircuit, targetId);
+    }
+
+    public BLXCircuit or(boolean constValue, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXOrGate(), constValue, targetCircuit, targetId);
+    }
+
+    public BLXCircuit or(BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXOrGate(), inputCircuit, targetCircuit, targetId);
     }
 
     public BLXCircuit xor(String secondInputId, String outputId) {
@@ -105,8 +144,23 @@ public class BLXCircuit {
         return binaryJoin(new BLXXorGate(), constValue, outputId);
     }
 
-    public BLXCircuit xor(BLXCircuit circuit, String outputId) {
-        return binaryJoin(new BLXXorGate(), circuit, outputId);
+    public BLXCircuit xor(BLXCircuit inputCircuit, String outputId) {
+        return binaryJoin(new BLXXorGate(), inputCircuit, outputId);
+    }
+
+    public BLXCircuit xor(String secondInputId, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXXorGate(), secondInputId, targetCircuit, targetId);
+    }
+
+    public BLXCircuit xor(boolean constValue, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXXorGate(), constValue, targetCircuit, targetId);
+    }
+
+    public BLXCircuit xor(BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXXorGate(), inputCircuit, targetCircuit, targetId);
     }
 
     public BLXCircuit nand(String secondInputId, String outputId) {
@@ -117,8 +171,23 @@ public class BLXCircuit {
         return binaryJoin(new BLXNandGate(), constValue, outputId);
     }
 
-    public BLXCircuit nand(BLXCircuit circuit, String outputId) {
-        return binaryJoin(new BLXNandGate(), circuit, outputId);
+    public BLXCircuit nand(BLXCircuit inputCircuit, String outputId) {
+        return binaryJoin(new BLXNandGate(), inputCircuit, outputId);
+    }
+
+    public BLXCircuit nand(String secondInputId, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXNandGate(), secondInputId, targetCircuit, targetId);
+    }
+
+    public BLXCircuit nand(boolean constValue, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXNandGate(), constValue, targetCircuit, targetId);
+    }
+
+    public BLXCircuit nand(BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXNandGate(), inputCircuit, targetCircuit, targetId);
     }
 
     public BLXCircuit nor(String secondInputId, String outputId) {
@@ -129,8 +198,23 @@ public class BLXCircuit {
         return binaryJoin(new BLXNorGate(), constValue, outputId);
     }
 
-    public BLXCircuit nor(BLXCircuit circuit, String outputId) {
-        return binaryJoin(new BLXNorGate(), circuit, outputId);
+    public BLXCircuit nor(BLXCircuit inputCircuit, String outputId) {
+        return binaryJoin(new BLXNorGate(), inputCircuit, outputId);
+    }
+
+    public BLXCircuit nor(String secondInputId, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXNorGate(), secondInputId, targetCircuit, targetId);
+    }
+
+    public BLXCircuit nor(boolean constValue, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXNorGate(), constValue, targetCircuit, targetId);
+    }
+
+    public BLXCircuit nor(BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXNorGate(), inputCircuit, targetCircuit, targetId);
     }
 
     public BLXCircuit xnor(String secondInputId, String outputId) {
@@ -141,8 +225,23 @@ public class BLXCircuit {
         return binaryJoin(new BLXXnorGate(), constValue, outputId);
     }
 
-    public BLXCircuit xnor(BLXCircuit circuit, String outputId) {
-        return binaryJoin(new BLXXnorGate(), circuit, outputId);
+    public BLXCircuit xnor(BLXCircuit inputCircuit, String outputId) {
+        return binaryJoin(new BLXXnorGate(), inputCircuit, outputId);
+    }
+
+    public BLXCircuit xnor(String secondInputId, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXXnorGate(), secondInputId, targetCircuit, targetId);
+    }
+
+    public BLXCircuit xnor(boolean constValue, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXXnorGate(), constValue, targetCircuit, targetId);
+    }
+
+    public BLXCircuit xnor(BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+            throws UnresolvedCircuitInputsException {
+        return binaryJoin(new BLXXnorGate(), inputCircuit, targetCircuit, targetId);
     }
 
     //-----------------------------------------------------------------------------------
@@ -152,54 +251,101 @@ public class BLXCircuit {
     private BLXCircuit binaryJoin(BLXGate gate, String secondInputId, String outputId) {
         if (secondInputId == null)
             throw new MissingIdException();
-        BLXSocket secondOutputSocket;
-        if (claimedOutputSockets.containsKey(secondInputId))
-            secondOutputSocket = claimedOutputSockets.get(secondInputId);
-        else if (unclaimedOutputSockets.containsKey(secondInputId))
-            secondOutputSocket = unclaimedOutputSockets.get(secondInputId);
-        else {
-            secondOutputSocket = new BLXSocket(secondInputId, defaultValue);
-            unclaimedOutputSockets.put(secondInputId,secondOutputSocket);
-        }
-        return binaryJoin(gate, secondOutputSocket, outputId);
+        return binaryJoin(gate, getOrCreateSocket(this, secondInputId), outputId);
     }
 
     private BLXCircuit binaryJoin(BLXGate gate, boolean constValue, String outputId) {
         return binaryJoin(gate, constValue ? trueSocket : falseSocket, outputId);
     }
 
-    private BLXCircuit binaryJoin(BLXGate gate, BLXCircuit circuit, String outputId) {
-        if (circuit == null)
+    private BLXCircuit binaryJoin(BLXGate gate, BLXCircuit inputCircuit, String outputId) {
+        if (inputCircuit == null)
             throw new MissingIntegratedCircuitException();
-        return binaryJoin(gate, circuit.currentOutputSocket, outputId);
+        return binaryJoin(gate, inputCircuit.currentOutputSocket, outputId);
     }
 
     private BLXCircuit binaryJoin(BLXGate gate, BLXSocket secondOutputSocket, String outputId) {
-        if (outputId == null)
-            return this;
-        linkOutputSocketToGateInput(currentOutputSocket, 0, gate);
-        linkOutputSocketToGateInput(secondOutputSocket,  1, gate);
-        claimOutputSocket(gate, 0, outputId);
+        if (outputId != null)
+            currentOutputSocket = configureBinaryGate(gate, currentOutputSocket, secondOutputSocket, this, outputId);
         return this;
     }
 
-    private void linkOutputSocketToGateInput(BLXSocket outputSocket, int inputIndex, BLXGate gate) {
+    private BLXCircuit binaryJoin(BLXGate gate, String secondInputId, BLXCircuit targetCircuit, String targetId)
+                                  throws UnresolvedCircuitInputsException {
+        if (secondInputId == null)
+            throw new MissingIdException();
+        return binaryJoin(gate, getOrCreateSocket(this, secondInputId), targetCircuit, targetId);
+    }
+
+    private BLXCircuit binaryJoin(BLXGate gate, boolean constValue, BLXCircuit targetCircuit, String targetId)
+                                  throws UnresolvedCircuitInputsException {
+        return binaryJoin(gate, constValue ? trueSocket : falseSocket, targetCircuit, targetId);
+    }
+
+    private BLXCircuit binaryJoin(BLXGate gate, BLXCircuit inputCircuit, BLXCircuit targetCircuit, String targetId)
+                                  throws UnresolvedCircuitInputsException {
+        if (inputCircuit == null)
+            throw new MissingIntegratedCircuitException();
+        return binaryJoin(gate, inputCircuit.currentOutputSocket, targetCircuit, targetId);
+    }
+
+    private BLXCircuit binaryJoin(BLXGate gate, BLXSocket secondOutputSocket, BLXCircuit targetCircuit,
+                                  String targetId) throws UnresolvedCircuitInputsException {
+        if (targetCircuit != null && targetId != null) {
+            configureBinaryGate(gate, currentOutputSocket, secondOutputSocket, targetCircuit, targetId);
+            if (!targetCircuit.getUnresolvedInputs().isEmpty())
+                throw new UnresolvedCircuitInputsException(targetCircuit.getUnresolvedInputs());
+            currentOutputSocket = targetCircuit.currentOutputSocket;
+        }
+        return this;
+    }
+
+    private static BLXSocket getOrCreateSocket(BLXCircuit circuit, String socketId) {
+        BLXSocket socket;
+        if (circuit.claimedOutputSockets.containsKey(socketId))
+            socket = circuit.claimedOutputSockets.get(socketId);
+        else if (circuit.unclaimedOutputSockets.containsKey(socketId))
+            socket = circuit.unclaimedOutputSockets.get(socketId);
+        else {
+            socket = new BLXSocket(socketId, circuit.defaultValue);
+            circuit.unclaimedOutputSockets.put(socketId,socket);
+        }
+        return socket;
+    }
+
+    private static BLXSocket configureUnaryGate(BLXGate gate, BLXSocket input,
+                                                BLXCircuit outputSource, String outputId) {
+        linkOutputSocketToGateInput(input, 0, gate);
+        BLXSocket gateOutputSocket = claimOutputSocket(outputSource, outputId);
+        gate.setOutputSocket(0, gateOutputSocket);
+        return gateOutputSocket;
+    }
+
+    private static BLXSocket configureBinaryGate(BLXGate gate, BLXSocket input0, BLXSocket input1,
+                                                 BLXCircuit outputSource, String outputId) {
+        linkOutputSocketToGateInput(input0, 0, gate);
+        linkOutputSocketToGateInput(input1, 1, gate);
+
+        BLXSocket gateOutputSocket = claimOutputSocket(outputSource, outputId);
+        gate.setOutputSocket(0, gateOutputSocket);
+        return gateOutputSocket;
+    }
+
+    private static void linkOutputSocketToGateInput(BLXSocket outputSocket, int inputIndex, BLXGate gate) {
         BLXSocket inputSocket = new BLXSocket(outputSocket.getId(), outputSocket.getValue());
         outputSocket.addTarget(inputSocket);
         gate.setInputSocket(inputIndex, inputSocket);
     }
 
-    private void claimOutputSocket(BLXGate gate, int outputIndex, String outputId) {
-        BLXSocket gateOutputSocket;
-        if (claimedOutputSockets.containsKey(outputId))
+    private static BLXSocket claimOutputSocket(BLXCircuit circuit, String outputId) {
+        BLXSocket outputSocket;
+        if (circuit.claimedOutputSockets.containsKey(outputId))
             throw new DuplicateIdException(outputId);
-        else if (unclaimedOutputSockets.containsKey(outputId))
-            gateOutputSocket = unclaimedOutputSockets.remove(outputId);
+        else if (circuit.unclaimedOutputSockets.containsKey(outputId))
+            outputSocket = circuit.unclaimedOutputSockets.remove(outputId);
         else
-            gateOutputSocket = new BLXSocket(outputId, defaultValue);
-
-        gate.setOutputSocket(outputIndex, gateOutputSocket);
-        claimedOutputSockets.put(outputId, gateOutputSocket);
-        currentOutputSocket = gateOutputSocket;
+            outputSocket = new BLXSocket(outputId, circuit.defaultValue);
+        circuit.claimedOutputSockets.put(outputId, outputSocket);
+        return outputSocket;
     }
 }
