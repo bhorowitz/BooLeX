@@ -13,8 +13,8 @@ public class BLXNotGate extends BLXGate {
 
     public BLXNotGate() {
         super();
-        setInputSocket(0,null);
-        setOutputSocket(0, null);
+        setInputSocket(0, (Boolean)null);
+        setOutputSocket(0, (Boolean)null);
     }
 
     @Override

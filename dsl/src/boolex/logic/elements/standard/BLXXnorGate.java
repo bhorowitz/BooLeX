@@ -13,9 +13,9 @@ public class BLXXnorGate extends BLXGate {
 
     public BLXXnorGate() {
         super();
-        setInputSocket(0,null);
-        setInputSocket(1,null);
-        setOutputSocket(0, null);
+        setInputSocket(0, (Boolean)null);
+        setInputSocket(1, (Boolean)null);
+        setOutputSocket(0, (Boolean)null);
     }
 
     @Override
