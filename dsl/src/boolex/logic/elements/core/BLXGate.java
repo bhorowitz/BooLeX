@@ -33,9 +33,9 @@ public abstract class BLXGate implements BLXSignalReceiver {
             return outputSockets.get(index);
     }
 
-    public void setInputSocket(int index, Boolean defaultValue) {
+    public void setInputSocket(int index, Boolean value) {
         if (index >= 0) {
-            BLXSocket socket = new BLXSocket(defaultValue);
+            BLXSocket socket = new BLXSocket(value);
             socket.addTarget(this);
             if (index >= inputSockets.size())
                 inputSockets.add(index, socket);
@@ -45,9 +45,9 @@ public abstract class BLXGate implements BLXSignalReceiver {
 
     }
 
-    public void setOutputSocket(int index, Boolean defaultValue) {
+    public void setOutputSocket(int index, Boolean value) {
         if (index >= 0) {
-            BLXSocket socket = new BLXSocket(defaultValue);
+            BLXSocket socket = new BLXSocket(value);
             if (index >= outputSockets.size())
                 outputSockets.add(index, socket);
             else
@@ -73,12 +73,12 @@ public abstract class BLXGate implements BLXSignalReceiver {
 
     @Override
     public void receive(BLXSignal signal, BLXSignalQueue queue) {
-        if (queue != null) {
+        if (queue != null && signal != null) {
             for (int i = 0; i < outputSockets.size(); i++) {
                 queue.add(computeSignalForOutputSocket(signal, getOutputSocket(i)));
             }
         }
     }
 
-    protected abstract BLXSignal computeSignalForOutputSocket(BLXSignal incomingSignal, BLXSocket socket);
+    protected abstract BLXSignal computeSignalForOutputSocket(BLXSignal incomingSignal, BLXSocket outputSocket);
 }

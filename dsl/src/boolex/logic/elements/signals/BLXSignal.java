@@ -3,13 +3,15 @@ package boolex.logic.elements.signals;
 /**
  * Created by dani on 2/11/14.
  */
-public abstract class BLXSignal implements Comparable<BLXSignal> {
+public class BLXSignal implements Comparable<BLXSignal> {
     private BLXSignalReceiver target;
     private BLXSignalReceiver origin;
+    private Boolean value;
     private int propagationDelay;
 
-    public BLXSignal(BLXSignalReceiver target, int delay) {
+    public BLXSignal(BLXSignalReceiver target, Boolean value, int delay) {
         setTarget(target);
+        setValue(value);
         setDelay(delay);
     }
 
@@ -21,6 +23,10 @@ public abstract class BLXSignal implements Comparable<BLXSignal> {
 
     public void decrement() {
         propagationDelay = Math.max(propagationDelay-1,0);
+    }
+
+    public Boolean getValue() {
+        return value;
     }
 
     public int getDelay() {
@@ -47,11 +53,18 @@ public abstract class BLXSignal implements Comparable<BLXSignal> {
         this.origin = origin;
     }
 
+    public void setValue(Boolean value) {
+        this.value = value;
+    }
+
     @Override
-    public int compareTo(BLXSignal other) {
+     public int compareTo(BLXSignal other) {
         return propagationDelay - other.propagationDelay;
     }
 
-    public abstract BLXSignal propagate(BLXSignalReceiver newTarget, int delay);
-
+    public BLXSignal propagate(BLXSignalReceiver newTarget, Boolean value, int delay) {
+        BLXSignal signal = new BLXSignal(newTarget,value,delay);
+        signal.setOrigin(getTarget());
+        return signal;
+    }
 }

@@ -7,48 +7,43 @@ package boolex.logic.elements.core;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXSignalQueue;
 import boolex.logic.elements.signals.BLXSignalReceiver;
-import boolex.logic.elements.signals.BLXValueSignal;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class BLXSocket implements BLXSignalReceiver {
     private Boolean value;
-    private Boolean defaultValue;
-    private Boolean cache;
+    private String id;
     private Set<BLXSignalReceiver> targets;
 
-    public BLXSocket(Boolean defaultValue) {
-        this.value = this.defaultValue = defaultValue;
+    public BLXSocket(String id) {
+        this(id,null);
+    }
+
+    public BLXSocket(Boolean value) {
+        this(null,value);
+    }
+
+    public BLXSocket(String id, Boolean value) {
+        this.id = id;
+        this.value = value;
         this.targets = new HashSet<>();
     }
 
+    public String getId() {
+        return id;
+    }
+    
     public Boolean getValue() {
         return value;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public void setValue(Boolean value) {
         this.value = value;
-    }
-
-    public void restore() {
-        value = cache;
-        cache = null;
-    }
-
-    public void store() {
-        cache = value;
-        value = defaultValue;
-    }
-
-    public void signal(Boolean value) {
-        BLXSignalQueue queue = new BLXSignalQueue(false);
-        queue.signal(new BLXValueSignal(this,value,0));
-    }
-
-    public void testSignal(Boolean value) {
-        BLXSignalQueue testQueue = new BLXSignalQueue(true);
-        testQueue.signal(new BLXValueSignal(this,value,0));
     }
 
     public void addTarget(BLXSignalReceiver target) {
@@ -58,9 +53,9 @@ public class BLXSocket implements BLXSignalReceiver {
     @Override
     public void receive(BLXSignal signal, BLXSignalQueue queue) {
         if (queue != null) {
-            BLXSocketActionFactory.getSocketAction(signal).accept(this);
+            setValue(signal.getValue());
             for (BLXSignalReceiver target : targets) {
-                queue.add(signal.propagate(target,0));
+                queue.add(signal.propagate(target, signal.getValue(), 0));
             }
         }
     }
