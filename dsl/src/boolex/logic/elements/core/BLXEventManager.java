@@ -25,7 +25,7 @@ public class BLXEventManager {
         signals = new BLXSignal[startSignals.size()];
         int index = 0;
         for (Map.Entry<BLXSocket,Boolean> signal : startSignals.entrySet()) {
-            signals[index++] = (new BLXSignal(signal.getKey(),signal.getValue(),0));
+            signals[index++] = new BLXSignal(signal.getKey(),signal.getValue(),0);
         }
         // initialize the signal queue and define its behavior for each iteration
         this.queue = new BLXSignalQueue(delayTime, (components) -> {
