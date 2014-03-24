@@ -22,10 +22,12 @@ public class BLXEventManager {
 
     public BLXEventManager(Map<BLXSocket,Boolean> startSignals, int delayTime) {
         // store the signals as an array of BLXSignals
-        signals = new BLXSignal[startSignals.size()];
-        int index = 0;
-        for (Map.Entry<BLXSocket,Boolean> signal : startSignals.entrySet()) {
-            signals[index++] = new BLXSignal(signal.getKey(),signal.getValue(),0);
+        if (startSignals != null) {
+            signals = new BLXSignal[startSignals.size()];
+            int index = 0;
+            for (Map.Entry<BLXSocket, Boolean> signal : startSignals.entrySet()) {
+                signals[index++] = new BLXSignal(signal.getKey(), signal.getValue(), 0);
+            }
         }
         // initialize the signal queue and define its behavior for each iteration
         this.queue = new BLXSignalQueue(delayTime, (components) -> {
@@ -36,6 +38,11 @@ public class BLXEventManager {
              *   out gates from sockets
              */
         });
+    }
+
+    public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
+        for (Map.Entry<BLXSocket,Boolean> signal : updateSignals.entrySet())
+            queue.add(new BLXSignal(signal.getKey(), signal.getValue(), 0));
     }
 
     public void start() {
@@ -52,10 +59,12 @@ public class BLXEventManager {
 class JSONBuilder {
     public static JSONArray buildSocketMap(Set<BLXSignalReceiver> components) {
         HashMap<String,Boolean> socketMap = new HashMap<>();
-        for (BLXSignalReceiver component : components) {
-            if (component instanceof BLXSocket) {
-                BLXSocket socket = (BLXSocket)component;
-                socketMap.put(socket.getId(),socket.getValue());
+        if (components != null) {
+            for (BLXSignalReceiver component : components) {
+                if (component instanceof BLXSocket) {
+                    BLXSocket socket = (BLXSocket) component;
+                    socketMap.put(socket.getId(), socket.getValue());
+                }
             }
         }
         return JSONArray.fromObject(socketMap);

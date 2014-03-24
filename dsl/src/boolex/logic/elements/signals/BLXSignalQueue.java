@@ -43,8 +43,10 @@ public class BLXSignalQueue {
     public void signal(BLXSignal[] signals) {
         if (signals != null) {
             interrupted = false;
-            for (BLXSignal signal : signals)
-                add(signal);
+            if (signals != null) {
+                for (BLXSignal signal : signals)
+                    add(signal);
+            }
             while (!queue.isEmpty() && !interrupted) {
                 Set<BLXSignalReceiver> receivers = signalZeroes();
                 decrementChain();
@@ -64,7 +66,8 @@ public class BLXSignalQueue {
     }
 
     public void add(BLXSignal signal) {
-        queue.add(signal);
+        if (signal != null)
+            queue.add(signal);
     }
 
     private Set<BLXSignalReceiver> signalZeroes() {
@@ -94,6 +97,7 @@ public class BLXSignalQueue {
     public int getDelayTime() {
         return delayTime;
     } 
+
     public void stop() {
         interrupted = true;
     }
