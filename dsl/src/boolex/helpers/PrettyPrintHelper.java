@@ -1,4 +1,4 @@
-package boolex.logic.elements.helpers;
+package boolex.helpers;
 
 /**
  * Created by dani on 3/14/14.

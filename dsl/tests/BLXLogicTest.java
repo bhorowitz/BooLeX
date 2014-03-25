@@ -37,8 +37,8 @@ public class BLXLogicTest {
         beta.connectTo(and,0,1);
         beta.connectTo(or,0,1);
 
-        alpha.setInputSocket(0,null);
-        beta.setInputSocket(0,null);
+//        alpha.setInputSocket(0,null);
+//        beta.setInputSocket(0,null);
 
         i1 = alpha.getInputSocket(0);
         i2 = beta.getInputSocket(0);
@@ -54,19 +54,19 @@ public class BLXLogicTest {
     public void testBLXLogic() throws Exception {
         assertEquals("Output must initially be null.", o1.getValue(), null);
 
-        i1.signal(true);
+//        i1.signal(true);
         assertEquals("i1 should not determine the circuit.", o1.getValue(), null);
 
-        i2.signal(true);
+//        i2.signal(true);
         assertFalse("i1 and i2 => not o1", o1.getValue());
 
-        i1.signal(false);
+//        i1.signal(false);
         assertTrue("not i1 and i2 => o1", o1.getValue());
 
-        i2.signal(false);
+//        i2.signal(false);
         assertFalse("not i1 and not i2 => not o2", o1.getValue());
 
-        i1.signal(true);
+//        i1.signal(true);
         assertTrue("i1 and not i2 => o1", o1.getValue());
     }
 }

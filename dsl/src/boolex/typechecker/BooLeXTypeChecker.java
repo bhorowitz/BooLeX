@@ -5,10 +5,11 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static boolex.antlr.BooLeXParser.*;
+import static boolex.helpers.ANTLRHelper.flattenExpressionList;
+import static boolex.helpers.ANTLRHelper.flattenIdentifierList;
 
 public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     private BooLeXScope scopes = new BooLeXScope();
@@ -158,6 +159,11 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         for (EvaluationsContext evaluation : evaluations)
             ok &= visitEvaluations(evaluation);
 
+        if(scopes.getSymbol("main") == null) {
+            ok = false;
+            System.err.println("Error! No 'main' circuit.");
+        }
+
         // Destroy the scope
         scopes.endScope();
         return ok;
@@ -201,7 +207,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         try {
             scopes.insertSymbol(name, circuitType);
         } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error! " + e.getMessage());
             return false;
         }
 
@@ -216,7 +222,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             try {
                 scopes.insertSymbol(id, new SymbolType());
             } catch (ParseException e) {
-                System.err.println("Warning: " + e.getMessage());
+                System.err.println("Warning! " + e.getMessage());
             }
         }
 
@@ -240,7 +246,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
     @Override
     public Boolean visitExpressionList(@NotNull ExpressionListContext ctx) {
-        List<ExpressionContext> expressions = flattenExpList(ctx);
+        List<ExpressionContext> expressions = flattenExpressionList(ctx);
         boolean ok = true;
         for (ExpressionContext expression : expressions) {
             ok &= visitExpression(expression);
@@ -326,15 +332,6 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         return true;
     }
 
-    private List<String> flattenIdentifierList(IdentifierListContext identifierListContext) {
-        List<String> names = new ArrayList<>();
-        while (identifierListContext != null) {
-            names.add(identifierListContext.Identifier().toString());
-            identifierListContext = identifierListContext.identifierList();
-        }
-        return names;
-    }
-
     @Override
     public Boolean visitTerminal(@NotNull TerminalNode node) {
         return true;
@@ -347,7 +344,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             BooLeXType circuit = scopes.getSymbol(callee);
             if (circuit == null)
                 throw new ParseException(
-                        "Error: '" + callee + "' is not defined",
+                        callee + "' is not defined",
                         identifier.getSymbol().getLine(),
                         identifier.getSymbol().getCharPositionInLine());
             if (circuit instanceof CircuitType)
@@ -379,17 +376,8 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
     private int expressionListLength(ExpressionListContext ctx) throws ParseException {
         int size = 0;
-        for (ExpressionContext exp : flattenExpList(ctx))
+        for (ExpressionContext exp : flattenExpressionList(ctx))
             size += countExpressionOutputs(exp);
         return size;
-    }
-
-    private List<ExpressionContext> flattenExpList(@NotNull ExpressionListContext ctx) {
-        List<ExpressionContext> exps = new ArrayList<>();
-        while (ctx != null) {
-            exps.add(ctx.expression());
-            ctx = ctx.expressionList();
-        }
-        return exps;
     }
 }

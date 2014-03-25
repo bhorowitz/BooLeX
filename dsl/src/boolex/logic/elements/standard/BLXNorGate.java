@@ -4,8 +4,8 @@ import boolex.logic.elements.core.BLXGate;
 import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignal;
 
-import static boolex.logic.elements.helpers.LogicHelper.isTrue;
-import static boolex.logic.elements.helpers.LogicHelper.isFalse;
+import static boolex.helpers.LogicHelper.isTrue;
+import static boolex.helpers.LogicHelper.isFalse;
 
 /**
  * Created by dani on 2/10/14.

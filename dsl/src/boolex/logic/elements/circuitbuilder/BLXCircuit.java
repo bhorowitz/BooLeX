@@ -5,7 +5,7 @@ import boolex.logic.elements.core.BLXGate;
 import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.standard.*;
 
-import static boolex.logic.elements.helpers.PrettyPrintHelper.arrayToString;
+import static boolex.helpers.PrettyPrintHelper.arrayToString;
 
 import java.util.*;
 
@@ -33,7 +33,7 @@ import java.util.*;
  * @version 0.1
  */
 public class BLXCircuit {
-    
+
     /**
      * A runtime exception should two different output sockets in the circuit be assigned the same id.  This should be
      * an error caught by the type-checker, so an exception is thrown if it is detected at this stage.
@@ -79,6 +79,7 @@ public class BLXCircuit {
 
     private Map<String,BLXSocket> unclaimedOutputSockets;
     private Map<String,BLXSocket> claimedOutputSockets;
+    private Map<String,BLXSocket> markedOutputSockets;
     private BLXSocket currentOutputSocket;
     private Boolean defaultValue;
 
@@ -95,6 +96,7 @@ public class BLXCircuit {
         unclaimedOutputSockets = new HashMap<>();
         claimedOutputSockets = new HashMap<>();
         defaultValue = initializeToFalse ? false : null;
+        markedOutputSockets = new HashMap<>();
         load(firstInputId);
     }
 
@@ -201,9 +203,9 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    public BLXCircuit and(boolean constValue, String outputId) {
-        return binaryJoin(new BLXAndGate(), constValue, outputId);
-    }
+    //public BLXCircuit and(boolean constValue, String outputId) {
+    //    return binaryJoin(new BLXAndGate(), constValue, outputId);
+    //}
 
     /**
      * Attach an AND gate to the currently stored socket, and store the gate's output socket.
@@ -237,9 +239,9 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    public BLXCircuit or(boolean constValue, String outputId) {
-        return binaryJoin(new BLXOrGate(), constValue, outputId);
-    }
+    //public BLXCircuit or(boolean constValue, String outputId) {
+    //    return binaryJoin(new BLXOrGate(), constValue, outputId);
+    //}
 
     /**
      * Attach an OR gate to the currently stored socket, and store the gate's output socket.
@@ -268,9 +270,9 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    public BLXCircuit xor(boolean constValue, String outputId) {
-        return binaryJoin(new BLXXorGate(), constValue, outputId);
-    }
+    //public BLXCircuit xor(boolean constValue, String outputId) {
+    //    return binaryJoin(new BLXXorGate(), constValue, outputId);
+    //}
 
     /**
      * Attach an XOR gate to the currently stored socket, and store the gate's output socket.
@@ -304,10 +306,10 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    public BLXCircuit nand(boolean constValue, String outputId) {
-        return binaryJoin(new BLXNandGate(), constValue, outputId);
-    }
-
+    //public BLXCircuit nand(boolean constValue, String outputId) {
+    //    return binaryJoin(new BLXNandGate(), constValue, outputId);
+    //}
+    //
     /**
      * Attach a NAND gate to the currently stored socket, and store the gate's output socket.
      * @param inputCircuit The output of the socket that is currently stored by inputCircuit will be passed as the
@@ -340,9 +342,9 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    public BLXCircuit nor(boolean constValue, String outputId) {
-        return binaryJoin(new BLXNorGate(), constValue, outputId);
-    }
+    //public BLXCircuit nor(boolean constValue, String outputId) {
+    //    return binaryJoin(new BLXNorGate(), constValue, outputId);
+    //}
 
     /**
      * Attach a NOR gate to the currently stored socket, and store the gate's output socket.
@@ -371,9 +373,9 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    public BLXCircuit xnor(boolean constValue, String outputId) {
-        return binaryJoin(new BLXXnorGate(), constValue, outputId);
-    }
+    //public BLXCircuit xnor(boolean constValue, String outputId) {
+    //    return binaryJoin(new BLXXnorGate(), constValue, outputId);
+    //}
 
     /**
      * Attach an XNOR gate to the currently stored socket, and store the gate's output socket.
@@ -411,9 +413,70 @@ public class BLXCircuit {
         return this;
     }
 
+    /**
+     * Specify the inputs to this circuit by a mapping of names of sockets in this circuit to external output sockets
+     * @param inputSocketMap A mapping of input socket ids to their external sources
+     * @return This BLXCircuit object
+     */
+    public BLXCircuit input(Map<String, BLXSocket> inputSocketMap) {
+        for (Map.Entry<String, BLXSocket> socketConnection : inputSocketMap.entrySet()) {
+            String socketId = socketConnection.getKey();
+            BLXSocket inputSocket = socketConnection.getValue();
+            BLXSocket outputSocket = claimOutputSocket(socketId);
+            inputSocket.addTarget(outputSocket);
+        }
+        return this;
+    }
+
+    public BLXCircuit remarkOutputSocket(String oldSocketId, String newSocketId) {
+        return unmarkOutputSocket(oldSocketId).markOutputSocket(newSocketId);
+    }
+
+    public BLXCircuit markOutputSocket(String socketId) {
+        markedOutputSockets.put(socketId, getOrCreateSocket(socketId));
+        return this;
+    }
+
+    public BLXCircuit markOutputSockets(List<String> socketIds) {
+        socketIds.forEach(this::markOutputSocket);
+        return this;
+    }
+
+    public BLXCircuit unmarkOutputSocket(String socketId) {
+        markedOutputSockets.remove(socketId);
+        return this;
+    }
+
+    public BLXCircuit unmarkOutputSockets(List<String> socketIds) {
+        socketIds.forEach(this::unmarkOutputSocket);
+        return this;
+    }
+
+    public Map<String,BLXSocket> getMarkedOutputSockets() {
+        return markedOutputSockets;
+    }
+
+    /**
+     * Precondition: There are no sockets in the parameter circuit that share ids with the sockets in this one.
+     * @param circuit The circuit to consume into this circuit
+     * @return This BLXCircuit object
+     */
+    public BLXCircuit consume(BLXCircuit circuit) {
+        unclaimedOutputSockets.putAll(circuit.unclaimedOutputSockets);
+        claimedOutputSockets.putAll(circuit.claimedOutputSockets);
+        markedOutputSockets.putAll(circuit.markedOutputSockets);
+        mergeConstantSockets(circuit);
+        return this;
+    }
+
     //------------------------------------------------------------------------------------\\
     //                             Private Methods Begin Here                             \\
     //------------------------------------------------------------------------------------\\
+
+    private void mergeConstantSockets(BLXCircuit circuit) {
+        trueSocket.addTargets(circuit.trueSocket.getTargets());
+        falseSocket.addTargets(circuit.falseSocket.getTargets());
+    }
 
     /**
      * Join the stored socket and a second input socket with a binary gate, and store the gate's output socket
@@ -436,9 +499,9 @@ public class BLXCircuit {
      * @param outputId The id of the output socket for this gate
      * @return This BLXCircuit object
      */
-    private BLXCircuit binaryJoin(BLXGate gate, boolean constValue, String outputId) {
-        return binaryJoin(gate, constValue ? trueSocket : falseSocket, outputId);
-    }
+    //private BLXCircuit binaryJoin(BLXGate gate, boolean constValue, String outputId) {
+    //    return binaryJoin(gate, constValue ? trueSocket : falseSocket, outputId);
+    //}
 
     /**
      * Join the stored socket of this circuit and of the parameter circuit, and store the gate's output socket
@@ -451,6 +514,7 @@ public class BLXCircuit {
     private BLXCircuit binaryJoin(BLXGate gate, BLXCircuit inputCircuit, String outputId) {
         if (inputCircuit == null)
             throw new MissingIntegratedCircuitException();
+        mergeConstantSockets(inputCircuit);
         return binaryJoin(gate, inputCircuit.currentOutputSocket, outputId);
     }
 
