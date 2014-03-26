@@ -15,6 +15,10 @@ $(document).ready ->
     window.boolexStage.update()
   )
 
+  $(window).on('refreshDSL', ->
+    console.log(Gate.createDSL())
+  )
+
 $gateSize = 50
 $halfGateSize = $gateSize/2
 $socketSize = 4
@@ -33,12 +37,13 @@ distance = (x1, y1, x2, y2) ->
 class Collectable
   # Collectable is an abstract class that keeps track of all instances
   # it gives all instances a universally-unique identifier (uuid)
-  constructor: ->
+  constructor: (@klass) ->
     @id = Collectable.createUuid()
-    @constructor.add(this)
+    @klass ||= @constructor
+    @klass.add(this)
 
   destroy: ->
-    @constructor.remove(this)
+    @klass.remove(this)
 
   @add: (obj) ->
     unless @all?
@@ -46,6 +51,9 @@ class Collectable
       @hash = {}
     @all.push(obj)
     @hash[obj.id] = obj
+
+  @collection: ->
+    @all
 
   @remove: (obj) ->
     if @all?
@@ -92,9 +100,8 @@ class Wire extends Collectable
     @initGraphics()
     @target = null
     super()
-    if @socket1?
+    if @socket1? and @socket2?
       @socket1.wires.push(@id)
-    if @socket2?
       @socket2.wires.push(@id)
 
   initGraphics: ->
@@ -133,7 +140,8 @@ class Wire extends Collectable
   stopDrag: (e) =>
     if @target
       @socket2 = @target
-      @socket2.wires.push(@id)
+      Socket.connect(@socket1, @socket2, @)
+      $(window).trigger('refreshDSL')
     else
       # we didn't make it to a second socket, destroy this
       @destroy()
@@ -159,6 +167,7 @@ class Socket extends Collectable
     @initGraphics()
     @initEvents()
     @wires = []
+    @name = Socket.randomName()
     super()
 
   initGraphics: ->
@@ -179,12 +188,24 @@ class Socket extends Collectable
   y: ->
     @graphics.localToGlobal(0, 0).y
 
+  @randomName: ->
+    possible = 'abcdefghijklmnopqrstuvwxyz'
+    name = ''
+    for i in [0..4]
+      name += possible[Math.floor(Math.random() * 26)]
+    name
+
+  @connect: (socket1, socket2, wire) ->
+    socket1.wires.push(wire.id)
+    socket2.wires.push(wire.id)
+    socket2.name = socket1.name
+
 class Gate extends Collectable
   constructor: (@numIns, @numOuts) ->
     @initSockets()
     @initGraphics()
     @initEvents()
-    super()
+    super(Gate)
 
   initSockets: ->
     @inputSockets = (new Socket(this, i, 'in') for i in [1..@numIns])
@@ -227,6 +248,9 @@ class Gate extends Collectable
         Wire.find(wireId).redraw()
     # window.boolexStage.update()
 
+  createDSL: ->
+    # abstract method, must be overrided
+
   # helper function to create a Gate's DisplayObject. Helps to easily build toolbox display.
   @createGraphics: ->
     container = new createjs.Container()
@@ -250,10 +274,28 @@ class Gate extends Collectable
   @registerType: (gateClass) ->
     @types.push(gateClass)
 
+  @createDSL: ->
+    inputs = []
+    for gate in @all
+      for socket in gate.inputSockets
+        if socket.wires.length < 1
+          inputs.push(socket)
+    dsl = "circuit project(#{[s.name for s in inputs].join(',')})\n"
+    for gate in @all
+      dsl += '  ' + gate.createDSL() + '\n'
+    dsl += 'end'
+    dsl
+
 
 class AndGate extends Gate
   constructor: ->
     super(2, 1)
+
+  createDSL: ->
+    in1 = @inputSockets[0]
+    in2 = @inputSockets[1]
+    out = @outputSockets[0]
+    "#{out.name} = #{in1.name} * #{in2.name}"
 
   @displayName: 'AND'
   @bitmap: '/assets/images/and_gate.png'
@@ -263,12 +305,23 @@ class OrGate extends Gate
   constructor: ->
     super(2, 1)
 
+  createDSL: ->
+    in1 = @inputSockets[0]
+    in2 = @inputSockets[1]
+    out = @outputSockets[0]
+    "#{out.name} = #{in1.name} + #{in2.name}"
+
   @displayName: 'OR'
 
 
 class NotGate extends Gate
   constructor: ->
     super(1, 1)
+
+  createDSL: ->
+    in1 = @inputSockets[0]
+    out = @outputSockets[0]
+    "#{out.name} = #{in1.name}'"
 
   @displayName: 'NOT'
 
@@ -277,9 +330,18 @@ class XorGate extends Gate
   constructor: ->
     super(2, 1)
 
+  createDSL: ->
+    in1 = @inputSockets[0]
+    in2 = @inputSockets[1]
+    out = @outputSockets[0]
+    "#{out.name} = #{in1.name} ^ #{in2.name}"
+
   @displayName: 'XOR'
 
 Gate.registerType(AndGate)
 Gate.registerType(OrGate)
 Gate.registerType(NotGate)
 Gate.registerType(XorGate)
+
+window.Gate = Gate
+window.Collectable = Collectable
