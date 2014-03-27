@@ -32,7 +32,11 @@ distanceSquared = (x1, y1, x2, y2) ->
 distance = (x1, y1, x2, y2) ->
   Math.sqrt(distanceSquared(x1, y1, x2, y2))
 
+window.cometMessage = (message) ->
+  console.log("Event received: #{message}")
 
+window.echo = (message) ->
+  $('#echoer').attr('src', "/echo/#{encodeURIComponent(message)}")
 
 class Collectable
   # Collectable is an abstract class that keeps track of all instances
