@@ -1,7 +1,9 @@
 package boolex.logic.elements.circuitbuilder;
 
 import boolex.antlr.BooLeXBaseVisitor;
+import boolex.antlr.BooLeXParser;
 import boolex.logic.elements.core.BLXSocket;
+import boolex.logic.elements.signals.BLXSignalReceiver;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -16,9 +18,10 @@ import static boolex.helpers.ANTLRHelper.flattenIdentifierList;
  * Created by ajr64 on 3/24/14.
  */
 public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
-    Map<String, CircuitDeclarationContext> knownCircuits = new HashMap<>();
-    Map<String, BLXCircuit> currentScope;
-    boolean initializeToFalse;
+    private Map<String, CircuitDeclarationContext> knownCircuits = new HashMap<>();
+    private Map<String, BLXCircuit> currentScope;
+    private BLXCircuitBuilder circuitBuilder;
+    private Boolean defaultValue;
 
     private int nameIncrement = 0;
 
@@ -31,57 +34,48 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return "%o" + nameIncrement;
     }
 
-
     public BLXModelGenerator(boolean initializeToFalse) {
-        super();
-        this.initializeToFalse = initializeToFalse;
+        this.defaultValue = initializeToFalse ? false : null;
+        circuitBuilder = new BLXCircuitBuilder(this.defaultValue);
     }
 
     @Override
     public BLXCircuit visitCircuitCall(@NotNull CircuitCallContext ctx) {
-        String circuitName = ctx.Identifier().toString();
-        CircuitDeclarationContext resolvedCircuit = knownCircuits.get(circuitName);
+        BLXCircuit arguments = visitExpressionList(ctx.expressionList());
+        BLXCircuit subCircuit = visitCircuitDeclaration(knownCircuits.get(ctx.Identifier().toString()));
+        return circuitBuilder.chain(arguments, subCircuit);
+    }
 
-        List<String> formals = flattenIdentifierList(resolvedCircuit.identifierList());
-        List<ExpressionContext> argumentList = flattenExpressionList(ctx.expressionList());
-
-        Map<String, BLXSocket> inputSocketMap = new HashMap<>();
-
-        int i = 0;
-        for (ExpressionContext argumentExpression : argumentList) {
-            BLXCircuit argument = visitExpression(argumentExpression);
-            assert(argument != null);
-
-            for (BLXSocket outputSocket : argument.getMarkedOutputSockets().values()) {
-                inputSocketMap.put(formals.get(i), outputSocket);
-                i++;
-            }
-        }
-
-        BLXCircuit subCircuit = visitCircuitDeclaration(resolvedCircuit);
-        subCircuit.input(inputSocketMap);
-        return subCircuit;
+    @Override
+    public BLXCircuit visitExpressionList(@NotNull ExpressionListContext ctx) {
+        return circuitBuilder.merge(flattenExpressionList(ctx).stream().map(this::visitExpression).collect(Collectors.toList()));
     }
 
     @Override
     public BLXCircuit visitExpression(@NotNull ExpressionContext ctx) {
-        String nameToUnmark = getLastName();
         if(ctx.factor() != null)
             return visitFactor(ctx.factor());
+
+        ExpressionContext lhs = ctx.expression(0);
+        String outName = getNextName();
+
         if(ctx.PostNot() != null || ctx.Not() != null)
-            return visitExpression(ctx.expression(0)).not(getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.not(visitExpression(lhs));
+
+        ExpressionContext rhs = ctx.expression(1);
         if(ctx.And() != null)
-            return visitExpression(ctx.expression(0)).and(visitExpression(ctx.expression(1)), getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.and(visitExpression(lhs), visitExpression(rhs));
         if(ctx.NAnd() != null)
-            return visitExpression(ctx.expression(0)).nand(visitExpression(ctx.expression(1)), getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.nand(visitExpression(lhs), visitExpression(rhs));
         if(ctx.Or() != null)
-            return visitExpression(ctx.expression(0)).or(visitExpression(ctx.expression(1)), getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.or(visitExpression(lhs), visitExpression(rhs));
         if(ctx.Nor() != null)
-            return visitExpression(ctx.expression(0)).nor(visitExpression(ctx.expression(1)), getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.nor(visitExpression(lhs), visitExpression(rhs));
         if(ctx.Xor() != null)
-            return visitExpression(ctx.expression(0)).xor(visitExpression(ctx.expression(1)), getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.xor(visitExpression(lhs), visitExpression(rhs));
         if(ctx.XNor() != null)
-            return visitExpression(ctx.expression(0)).xnor(visitExpression(ctx.expression(1)), getNextName()).remarkOutputSocket(nameToUnmark, getLastName());
+            return circuitBuilder.xnor(visitExpression(lhs), visitExpression(rhs));
+
         System.err.println("Error! Your computer is broken, please buy a new one.");
         return null;
     }
@@ -94,17 +88,15 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
             return visitCircuitCall(ctx.circuitCall());
         if(ctx.BooleanValue() != null) {
             boolean value = ctx.BooleanValue().toString().equals("true") || ctx.BooleanValue().toString().equals("t");
-            return new BLXCircuit(getNextName(), initializeToFalse).input(value, getLastName()).markOutputSocket(getLastName());
+            BLXCircuit constCircuit = new BLXCircuit("true", defaultValue);
+            constCircuit.driveInputByConstant(value, 0);
+            return constCircuit;
         }
-        if(ctx.Identifier() != null)
-            return currentScope.get(ctx.Identifier().toString());
+        if(ctx.Identifier() != null) {
+            return getOrCreateInScope(ctx.Identifier().toString());
+        }
         System.err.println("Error! Your computer is broken, please buy a new one.");
         return null;
-    }
-
-    @Override
-    public BLXCircuit visitTerminal(@NotNull TerminalNode node) {
-        return super.visitTerminal(node);
     }
 
     @Override
@@ -119,30 +111,26 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         Map<String, BLXCircuit> previousScope = currentScope;
         currentScope = new HashMap<>();
 
-        List<String> formals = flattenIdentifierList(ctx.identifierList());
-        formals.forEach(formal -> currentScope.put(formal, new BLXCircuit(formal, initializeToFalse)));
+        List<BLXCircuit> arguments = flattenIdentifierList(ctx.identifierList()).stream().map(this::getOrCreateInScope).collect(Collectors.toList());
+        BLXCircuit argumentsCircuit = circuitBuilder.merge(arguments);
 
         for (AssignmentContext assignment : ctx.assignment()) {
-            List<String> names = flattenIdentifierList(assignment.identifierList());
-            int i = 0;
-            for (ExpressionContext expression : flattenExpressionList(assignment.expressionList())) {
-                BLXCircuit expressionCircuit = visitExpression(expression);
-                for (BLXSocket blxSocket : expressionCircuit.getMarkedOutputSockets().values()) {
-                    currentScope.put(names.get(i), expressionCircuit);
-                    i++;
-                }
-            }
+            List<String> lhsNames = flattenIdentifierList(assignment.identifierList());
+            List<BLXCircuit> variablesCircuits = lhsNames.stream().map(this::getOrCreateInScope).collect(Collectors.toList());
+            BLXCircuit valuesCircuit = visitExpressionList(assignment.expressionList());
+            circuitBuilder.chain(valuesCircuit, circuitBuilder.merge(variablesCircuits));
         }
 
-        List<BLXCircuit> outputs = flattenExpressionList(ctx.outStatement().expressionList())
-                .stream().map(this::visitExpression).collect(Collectors.toList());
-
-        BLXCircuit finalCircuit = outputs.get(0);
-        outputs.remove(0);
-
-        outputs.forEach(finalCircuit::consume);
+        BLXCircuit outputCircuit = visitExpressionList(ctx.outStatement().expressionList());
+        BLXCircuit finalCircuit = circuitBuilder.buildCircuit(argumentsCircuit, outputCircuit);
 
         currentScope = previousScope;
         return finalCircuit;
+    }
+
+    private BLXCircuit getOrCreateInScope(String name) {
+        if(!currentScope.containsKey(name))
+            currentScope.put(name, new BLXCircuit(name, defaultValue));
+        return currentScope.get(name);
     }
 }

@@ -1,7 +1,10 @@
-circuit HA(a,b)
-	sum = (a ^ b)'' # unnecessary, but cool for parsing!
-	carry = a and b
-	# carry = true # this is invalid
+#circuit main(a)
+#    out not a
+#end
+
+circuit HA(d,e)
+	sum = (d ^ e)'' # unnecessary, but cool for parsing!
+	carry = d and e
 	out sum, carry
 end
 

@@ -9,10 +9,9 @@ import boolex.logic.elements.signals.BLXSignal;
  */
 public class BLXNotGate extends BLXGate {
 
-    public BLXNotGate() {
-        super();
-        setInputSocket(0, (Boolean)null);
-        setOutputSocket(0, (Boolean)null);
+    public BLXNotGate(Boolean defaultValue) {
+        setInputSocket(0, defaultValue);
+        setOutputSocket(0, defaultValue);
     }
 
     @Override

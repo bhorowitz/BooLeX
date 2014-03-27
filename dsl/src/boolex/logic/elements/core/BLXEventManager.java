@@ -31,12 +31,13 @@ public class BLXEventManager {
         }
         // initialize the signal queue and define its behavior for each iteration
         this.queue = new BLXSignalQueue(delayTime, (components) -> {
-            JSONArray socketMap = JSONBuilder.buildSocketMap(components);
-            /* TODO fill this in with Alex -
-             *   also find out if we want to make this class
-             *   or the queue class responsible for weeding
-             *   out gates from sockets
-             */
+            //JSONArray socketMap = JSONBuilder.buildSocketMap(components);
+            for (BLXSignalReceiver component : components) {
+                if (component instanceof BLXSocket) {
+                    BLXSocket socket = (BLXSocket) component;
+                    System.out.println(socket.getId() + ": " + socket.getValue());
+                }
+            }
         });
     }
 

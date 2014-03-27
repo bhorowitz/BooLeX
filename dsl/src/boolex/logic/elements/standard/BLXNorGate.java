@@ -12,11 +12,10 @@ import static boolex.helpers.LogicHelper.isFalse;
  */
 public class BLXNorGate extends BLXGate {
 
-    public BLXNorGate() {
-        super();
-        setInputSocket(0, (Boolean)null);
-        setInputSocket(1, (Boolean)null);
-        setOutputSocket(0, (Boolean)null);
+    public BLXNorGate(Boolean defaultValue) {
+        setInputSocket(0, defaultValue);
+        setInputSocket(1, defaultValue);
+        setOutputSocket(0, defaultValue);
     }
 
     @Override

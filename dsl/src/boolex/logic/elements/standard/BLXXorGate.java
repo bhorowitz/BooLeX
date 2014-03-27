@@ -11,11 +11,10 @@ import static boolex.helpers.LogicHelper.isNull;
  */
 public class BLXXorGate extends BLXGate {
 
-    public BLXXorGate() {
-        super();
-        setInputSocket(0, (Boolean)null);
-        setInputSocket(1, (Boolean)null);
-        setOutputSocket(0, (Boolean)null);
+    public BLXXorGate(Boolean defaultValue) {
+        setInputSocket(0, defaultValue);
+        setInputSocket(1, defaultValue);
+        setOutputSocket(0, defaultValue);
     }
 
     @Override
