@@ -19,7 +19,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="json-lib-2.4-jdk15" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -29,6 +28,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="gson-2.2.4-javadoc" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

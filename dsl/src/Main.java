@@ -4,6 +4,7 @@ import boolex.logic.elements.circuitbuilder.BLXCircuit;
 import boolex.logic.elements.circuitbuilder.BLXModelGenerator;
 import boolex.logic.elements.core.BLXEventManager;
 import boolex.logic.elements.core.BLXSocket;
+import boolex.logic.elements.standard.BLXXorGate;
 import boolex.typechecker.BooLeXTypeChecker;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -14,8 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Main {
+    static private final boolean INITIALIZE_TO_FALSE = false; // TODO get this value from the user
+
     static private BooLeXTypeChecker typeChecker = new BooLeXTypeChecker();
-    static private BLXModelGenerator modelGenerator = new BLXModelGenerator(false);
+    static private BLXModelGenerator modelGenerator = new BLXModelGenerator(INITIALIZE_TO_FALSE);
 
     public static void main(String[] args) {
         try {
@@ -36,8 +39,9 @@ public class Main {
             Map<BLXSocket, Boolean> valueMap = new HashMap<>();
             List<BLXSocket> inputs = mainCircuit.getInputSockets();
             valueMap.put(inputs.get(0), false);
-            valueMap.put(inputs.get(0), true);
-            valueMap.put(inputs.get(0), true);
+            valueMap.put(inputs.get(1), false);
+            valueMap.put(inputs.get(2), false);
+
             BLXEventManager eventManager = new BLXEventManager(valueMap, 500);
             eventManager.start();
 
