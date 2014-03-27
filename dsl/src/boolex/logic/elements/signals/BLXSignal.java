@@ -58,7 +58,7 @@ public class BLXSignal implements Comparable<BLXSignal> {
     }
 
     @Override
-     public int compareTo(BLXSignal other) {
+    public int compareTo(BLXSignal other) {
         return propagationDelay - other.propagationDelay;
     }
 

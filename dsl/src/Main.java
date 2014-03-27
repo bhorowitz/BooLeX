@@ -4,7 +4,6 @@ import boolex.logic.elements.circuitbuilder.BLXCircuit;
 import boolex.logic.elements.circuitbuilder.BLXModelGenerator;
 import boolex.logic.elements.core.BLXEventManager;
 import boolex.logic.elements.core.BLXSocket;
-import boolex.logic.elements.standard.BLXXorGate;
 import boolex.typechecker.BooLeXTypeChecker;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;

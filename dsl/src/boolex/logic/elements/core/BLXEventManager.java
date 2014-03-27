@@ -3,9 +3,10 @@ package boolex.logic.elements.core;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXSignalQueue;
 import boolex.logic.elements.signals.BLXSignalReceiver;
-import com.google.gson.Gson;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by dani on 2/17/14.
@@ -28,9 +29,7 @@ public class BLXEventManager {
             }
         }
         // initialize the signal queue and define its behavior for each iteration
-        this.queue = new BLXSignalQueue(delayTime, (components) -> {
-            FrontEndIntegrator.integrate(components);
-        });
+        this.queue = new BLXSignalQueue(delayTime, FrontEndIntegrator::integrate);
     }
 
     public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
@@ -59,13 +58,13 @@ class FrontEndIntegrator {
     public static Map<String, Boolean> getSocketMap(Set<BLXSignalReceiver> components) {
         Map<String, Boolean> socketMap = new HashMap<>();
         if (components != null) {
-            for (BLXSignalReceiver component : components) {
-                if (component instanceof BLXSocket) {
-                    BLXSocket socket = (BLXSocket) component;
-                    if (socket.getId() != null && !socket.getId().equals("_")) //TODO remove _ part after Alex adds this as feature
-                        socketMap.put(socket.getId(), socket.getValue());
-                }
-            }
+            //TODO remove _ part after Alex adds this as feature
+            components.stream().filter(component -> component instanceof BLXSocket).forEach(component -> {
+                BLXSocket socket = (BLXSocket) component;
+                //TODO remove _ part after Alex adds this as feature
+                if (socket.getId() != null && !socket.getId().equals("_"))
+                    socketMap.put(socket.getId(), socket.getValue());
+            });
         }
         return socketMap;
     }

@@ -10,8 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static boolex.helpers.ListHelper.exclude;
-
 /**
  * Created by ajr64 on 3/26/14.
  */
@@ -19,7 +17,7 @@ public class BLXCircuitBuilder {
     public class UnchainableCircuitsException extends RuntimeException {
         public UnchainableCircuitsException(int numOutputs, int numInputs) {
             super("attempted to chain a circuit with " + numOutputs + " outputs " +
-                  "to a circuit with " + numInputs + " inputs");
+                    "to a circuit with " + numInputs + " inputs");
         }
     }
 
@@ -30,7 +28,7 @@ public class BLXCircuitBuilder {
     }
 
     public BLXCircuit buildCircuit(BLXCircuit startCircuit, BLXCircuit endCircuit) {
-        List<BLXSocket> inputSockets  = startCircuit.getInputSockets();
+        List<BLXSocket> inputSockets = startCircuit.getInputSockets();
         List<BLXSocket> outputSockets = endCircuit.getOutputSockets();
         Set<BLXSignalReceiver> trueTargets = startCircuit.getTrueSocket().getTargets();
         Set<BLXSignalReceiver> falseTargets = startCircuit.getFalseSocket().getTargets();
@@ -98,12 +96,12 @@ public class BLXCircuitBuilder {
     public BLXCircuit chain(BLXCircuit source, BLXCircuit destination) {
         if (source.getOutputSockets().size() != destination.getInputSockets().size()) {
             throw new UnchainableCircuitsException(source.getOutputSockets().size(),
-                                                   destination.getInputSockets().size());
+                    destination.getInputSockets().size());
         }
         for (int i = 0; i < source.getOutputSockets().size(); i++) {
             source.getOutputSockets().get(i).addTarget(destination.getInputSockets().get(i));
         }
-        List<BLXSocket> inputSockets  = source.getInputSockets();
+        List<BLXSocket> inputSockets = source.getInputSockets();
         List<BLXSocket> outputSockets = destination.getOutputSockets();
         Set<BLXSignalReceiver> trueTargets = new HashSet<>();
         Set<BLXSignalReceiver> falseTargets = new HashSet<>();
@@ -148,7 +146,7 @@ public class BLXCircuitBuilder {
         gate.setInputSocket(1, inputSocket1);
         outputSockets.add(gate.getOutputSocket(0));
 
-        Set<BLXSignalReceiver> trueTargets  = input0.getTrueSocket().getTargets();
+        Set<BLXSignalReceiver> trueTargets = input0.getTrueSocket().getTargets();
         Set<BLXSignalReceiver> falseTargets = input0.getFalseSocket().getTargets();
         trueTargets.addAll(input1.getTrueSocket().getTargets());
         falseTargets.addAll(input1.getFalseSocket().getTargets());

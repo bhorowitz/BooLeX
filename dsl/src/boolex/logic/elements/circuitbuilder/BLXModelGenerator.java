@@ -1,13 +1,11 @@
 package boolex.logic.elements.circuitbuilder;
 
 import boolex.antlr.BooLeXBaseVisitor;
-import boolex.antlr.BooLeXParser;
-import boolex.logic.elements.core.BLXSocket;
-import boolex.logic.elements.signals.BLXSignalReceiver;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static boolex.antlr.BooLeXParser.*;
@@ -57,7 +55,6 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
             return visitFactor(ctx.factor());
 
         ExpressionContext lhs = ctx.expression(0);
-        String outName = getNextName();
 
         if(ctx.PostNot() != null || ctx.Not() != null)
             return circuitBuilder.not(visitExpression(lhs));
