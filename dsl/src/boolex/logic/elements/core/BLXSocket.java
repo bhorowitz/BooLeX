@@ -52,7 +52,7 @@ public class BLXSocket implements BLXSignalReceiver {
     }
 
     public void addTargets(Set<BLXSignalReceiver> targets) {
-        targets.forEach((BLXSignalReceiver target) -> { addTarget(target); });
+        targets.forEach(this::addTarget);
     }
 
     public Set<BLXSignalReceiver> getTargets() {
@@ -61,7 +61,6 @@ public class BLXSocket implements BLXSignalReceiver {
 
     @Override
     public void receive(BLXSignal signal, BLXSignalQueue queue) {
-        assert(queue != null);
         if (queue != null) {
             Boolean receivedValue = signal.getValue();
             setValue(receivedValue);

@@ -48,10 +48,8 @@ public class BLXSignalQueue {
             if (callback != null) {
                 try {
                     Thread.sleep(delayTime);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 } finally {
-                    //TODO confirm that this should happen even on an interrupted exception
-                    //TODO find out when an "interrupted exception" would occur.
                     callback.onSignalEvent(receivers);
                 }
             }

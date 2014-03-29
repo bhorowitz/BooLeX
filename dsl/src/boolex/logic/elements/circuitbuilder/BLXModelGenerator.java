@@ -3,7 +3,6 @@ package boolex.logic.elements.circuitbuilder;
 import boolex.antlr.BooLeXBaseVisitor;
 import org.antlr.v4.runtime.misc.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
