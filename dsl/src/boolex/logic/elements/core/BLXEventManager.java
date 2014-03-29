@@ -29,7 +29,12 @@ public class BLXEventManager {
             }
         }
         // initialize the signal queue and define its behavior for each iteration
-        this.queue = new BLXSignalQueue(delayTime, FrontEndIntegrator::integrate);
+        this.queue = new BLXSignalQueue(delayTime, new BLXSignalQueue.BLXSignalQueueCallback() {
+            @Override
+            public void onSignalEvent(Set<BLXSignalReceiver> components) {
+                FrontEndIntegrator.integrate(components);
+            }
+        });
     }
 
     public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
@@ -51,7 +56,9 @@ public class BLXEventManager {
 class FrontEndIntegrator {
     public static void integrate(Set<BLXSignalReceiver> components) {
         Map<String, Boolean> socketMap = getSocketMap(components);
-        socketMap.forEach((socketId, value) -> System.out.println(socketId+": "+value));
+        for(Map.Entry<String, Boolean> socket : socketMap.entrySet()) {
+            System.out.println(socket.getKey() + ": " + socket.getValue());
+        }
         System.out.println("---");
     }
 
@@ -59,12 +66,15 @@ class FrontEndIntegrator {
         Map<String, Boolean> socketMap = new HashMap<>();
         if (components != null) {
             //TODO remove _ part after Alex adds this as feature
-            components.stream().filter(component -> component instanceof BLXSocket).forEach(component -> {
-                BLXSocket socket = (BLXSocket) component;
-                //TODO remove _ part after Alex adds this as feature
-                if (socket.getId() != null && !socket.getId().equals("_"))
-                    socketMap.put(socket.getId(), socket.getValue());
-            });
+
+            for (BLXSignalReceiver component : components) {
+                if(component instanceof BLXSocket) {
+                    BLXSocket socket = (BLXSocket) component;
+                    //TODO remove _ part after Alex adds this as feature
+                    if (socket.getId() != null && !socket.getId().equals("_"))
+                        socketMap.put(socket.getId(), socket.getValue());
+                }
+            }
         }
         return socketMap;
     }

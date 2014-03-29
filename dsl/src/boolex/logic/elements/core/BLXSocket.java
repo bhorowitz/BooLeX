@@ -51,7 +51,9 @@ public class BLXSocket implements BLXSignalReceiver {
     }
 
     public void addTargets(Set<BLXSignalReceiver> targets) {
-        targets.forEach(this::addTarget);
+        for (BLXSignalReceiver target : targets) {
+            addTarget(target);
+        }
     }
 
     public Set<BLXSignalReceiver> getTargets() {

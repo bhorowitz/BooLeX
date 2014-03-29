@@ -14,12 +14,12 @@ public class BooLeXScope {
     }
 
     public void startScope() {
-        scopes.addFirst(new HashMap<>());
+        scopes.addFirst(new HashMap<String, BooLeXType>());
         owners.push(null);
     }
 
     public void startScope(String parent) {
-        scopes.addFirst(new HashMap<>());
+        scopes.addFirst(new HashMap<String, BooLeXType>());
         owners.push(parent);
     }
 

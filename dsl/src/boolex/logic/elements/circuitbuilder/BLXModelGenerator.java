@@ -3,10 +3,10 @@ package boolex.logic.elements.circuitbuilder;
 import boolex.antlr.BooLeXBaseVisitor;
 import org.antlr.v4.runtime.misc.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static boolex.antlr.BooLeXParser.*;
 import static boolex.helpers.ANTLRHelper.flattenExpressionList;
@@ -20,17 +20,6 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
     private Map<String, BLXCircuit> currentScope;
     private BLXCircuitBuilder circuitBuilder;
     private Boolean defaultValue;
-
-    private int nameIncrement = 0;
-
-    private String getNextName() {
-        nameIncrement++;
-        return "%o" + nameIncrement;
-    }
-
-    private String getLastName() {
-        return "%o" + nameIncrement;
-    }
 
     public BLXModelGenerator(boolean initializeToFalse) {
         this.defaultValue = initializeToFalse ? false : null;
@@ -46,7 +35,13 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
 
     @Override
     public BLXCircuit visitExpressionList(@NotNull ExpressionListContext ctx) {
-        return circuitBuilder.merge(flattenExpressionList(ctx).stream().map(this::visitExpression).collect(Collectors.toList()));
+
+        List<ExpressionContext> expressionContexts = flattenExpressionList(ctx);
+        List<BLXCircuit> circuits = new ArrayList<>();
+        for (ExpressionContext expressionContext : expressionContexts) {
+            circuits.add(visitExpression(expressionContext));
+        }
+        return circuitBuilder.merge(circuits);
     }
 
     @Override
@@ -108,12 +103,20 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         Map<String, BLXCircuit> previousScope = currentScope;
         currentScope = new HashMap<>();
 
-        List<BLXCircuit> arguments = flattenIdentifierList(ctx.identifierList()).stream().map(this::getOrCreateInScope).collect(Collectors.toList());
+        List<BLXCircuit> arguments = new ArrayList<>();
+        for (String s : flattenIdentifierList(ctx.identifierList())) {
+            arguments.add(getOrCreateInScope(s));
+        }
+
         BLXCircuit argumentsCircuit = circuitBuilder.merge(arguments);
 
         for (AssignmentContext assignment : ctx.assignment()) {
             List<String> lhsNames = flattenIdentifierList(assignment.identifierList());
-            List<BLXCircuit> variablesCircuits = lhsNames.stream().map(this::getOrCreateInScope).collect(Collectors.toList());
+            List<BLXCircuit> variablesCircuits = new ArrayList<>();
+            for (String lhsName : lhsNames) {
+                variablesCircuits.add(getOrCreateInScope(lhsName));
+            }
+
             BLXCircuit valuesCircuit = visitExpressionList(assignment.expressionList());
             circuitBuilder.chain(valuesCircuit, circuitBuilder.merge(variablesCircuits));
         }
