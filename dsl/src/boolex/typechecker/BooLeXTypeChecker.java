@@ -60,6 +60,13 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             if (scopes.getSymbol(name) != null) {
                 System.err.println("Error: Duplicate symbol '" + name + "'");
                 ok = false;
+            } else {
+                try {
+                    scopes.insertSymbol(name, new SymbolType());
+                } catch (ParseException e) {
+                    System.err.println("Error! Failed to insert symbol: " + name);
+                    ok = false;
+                }
             }
         }
         return ok;
@@ -117,9 +124,6 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         if (!visitExpressionList(ctx.expressionList()))
             return false;
 
-        if (!visitIdentifierList(ctx.identifierList()))
-            return false;
-
         List<String> identifiers = flattenIdentifierList(ctx.identifierList());
 
         try {
@@ -128,14 +132,6 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return false;
-        }
-
-        for (String identifier : identifiers) {
-            try {
-                scopes.insertSymbol(identifier, new SymbolType());
-            } catch (ParseException e) {
-                System.err.println(e.getMessage());
-            }
         }
         return true;
     }
@@ -228,6 +224,11 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
 
         // Check the assignments
         for (AssignmentContext assignmentContext : ctx.assignment()) {
+            visitIdentifierList(assignmentContext.identifierList());
+        }
+
+        // Check the assignments
+        for (AssignmentContext assignmentContext : ctx.assignment()) {
             ok &= visitAssignment(assignmentContext);
         }
 
@@ -262,8 +263,13 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
             return visitCircuitIndex(ctx.circuitIndex());
         else if (ctx.expression() != null)
             return visitExpression(ctx.expression());
-        else if (ctx.Identifier() != null)
-            return scopes.getSymbol(ctx.Identifier().toString()) != null;
+        else if (ctx.Identifier() != null) {
+            String name = ctx.Identifier().toString();
+            boolean symbolExists = scopes.getSymbol(name) != null;
+            if(!symbolExists)
+                System.err.println("Error: '" + name + "' does not exist.");
+            return symbolExists;
+        }
         else if (ctx.BooleanValue() != null)
             return true;
 
