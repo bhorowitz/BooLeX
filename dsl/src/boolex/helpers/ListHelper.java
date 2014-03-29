@@ -8,11 +8,6 @@ import java.util.List;
  */
 public class ListHelper {
     public static <E> List<E> exclude(List<E> list, E undesirable) {
-        List<E> result = new ArrayList<>();
-        for (E element : list) {
-            if(element != undesirable)
-                result.add(element);
-        }
-        return result;
+        return list.stream().filter(element -> element != undesirable).map(element -> element).collect(java.util.stream.Collectors.toList());
     }
 }

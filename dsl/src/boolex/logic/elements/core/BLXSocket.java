@@ -43,6 +43,7 @@ public class BLXSocket implements BLXSignalReceiver {
     }
 
     public void setValue(Boolean value) {
+//        System.err.println("Now setting " + id + " to " + value);
         this.value = value;
     }
 
@@ -51,9 +52,7 @@ public class BLXSocket implements BLXSignalReceiver {
     }
 
     public void addTargets(Set<BLXSignalReceiver> targets) {
-        for (BLXSignalReceiver target : targets) {
-            addTarget(target);
-        }
+        targets.forEach((BLXSignalReceiver target) -> { addTarget(target); });
     }
 
     public Set<BLXSignalReceiver> getTargets() {
@@ -62,10 +61,13 @@ public class BLXSocket implements BLXSignalReceiver {
 
     @Override
     public void receive(BLXSignal signal, BLXSignalQueue queue) {
+        assert(queue != null);
         if (queue != null) {
-            setValue(signal.getValue());
+            Boolean receivedValue = signal.getValue();
+            setValue(receivedValue);
             for (BLXSignalReceiver target : targets) {
-                queue.add(signal.propagate(target, signal.getValue(), 0));
+                queue.add(signal.propagate(target, receivedValue, 0));
+                assert(getValue() == receivedValue);
             }
         }
     }

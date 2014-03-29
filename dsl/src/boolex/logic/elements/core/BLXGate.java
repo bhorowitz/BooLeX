@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public abstract class BLXGate implements BLXSignalReceiver {
     private ArrayList<BLXSocket> inputSockets;
     private ArrayList<BLXSocket> outputSockets;
+    private boolean heisenberg;
 
     public BLXGate() {
         inputSockets = new ArrayList<>();
@@ -27,7 +28,7 @@ public abstract class BLXGate implements BLXSignalReceiver {
     }
 
     public BLXSocket getOutputSocket(int index) {
-        if (index < 0 || index >= inputSockets.size())
+        if (index < 0 || index >= outputSockets.size())
             return null;
         else
             return outputSockets.get(index);
@@ -71,22 +72,6 @@ public abstract class BLXGate implements BLXSignalReceiver {
                 outputSockets.add(index, socket);
             else
                 outputSockets.set(index, socket);
-        }
-    }
-
-    public void connectTo(BLXGate gate, int fromIndex, int toIndex) {
-        if (gate != null) {
-            BLXSocket inputSocket = gate.getInputSocket(toIndex);
-            if (inputSocket == null) {
-                gate.setInputSocket(toIndex, (Boolean)null);
-                inputSocket = gate.getInputSocket(toIndex);
-            }
-            BLXSocket outputSocket = getOutputSocket(fromIndex);
-            if (outputSocket == null) {
-                setOutputSocket(fromIndex, (Boolean)null);
-                outputSocket = getOutputSocket(fromIndex);
-            }
-            outputSocket.addTarget(inputSocket);
         }
     }
 

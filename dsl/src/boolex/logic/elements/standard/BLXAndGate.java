@@ -23,8 +23,10 @@ public class BLXAndGate extends BLXGate {
         BLXSocket input0 = getInputSocket(0);
         BLXSocket input1 = getInputSocket(1);
         // If something went wrong, return unknown value signal
-        if (input0 == null || input1 == null)
+        if (input0 == null || input1 == null) {
+            assert false;
             return new BLXSignal(outputSocket, null, 1);
+        }
         else {
             Boolean value0 = input0.getValue();
             Boolean value1 = input1.getValue();

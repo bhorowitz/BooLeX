@@ -4,18 +4,10 @@ package boolex.logic.elements.signals;
  * Created by dani on 2/11/14.
  */
 
-import java.util.Queue;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 public class BLXSignalQueue {
     public final static int DEFAULT_DELAY_TIME = 100; //milliseconds
-
-    public interface BLXSignalQueueCallback {
-        public void onSignalEvent(Set<BLXSignalReceiver> components);
-    }
-
     private Queue<BLXSignal> queue;
     private BLXSignalQueueCallback callback;
     private int delayTime; // milliseconds
@@ -25,14 +17,6 @@ public class BLXSignalQueue {
         this(DEFAULT_DELAY_TIME, null);
     }
 
-    public BLXSignalQueue(int delayTime) {
-        this(delayTime,null);
-    }
-
-    public BLXSignalQueue(BLXSignalQueueCallback callback) {
-        this(DEFAULT_DELAY_TIME, callback);
-    }
-
     public BLXSignalQueue(int delayTime, BLXSignalQueueCallback callback) {
         queue = new PriorityQueue<>();
         interrupted = false;
@@ -40,26 +24,35 @@ public class BLXSignalQueue {
         setCallback(callback);
     }
 
+    public void setCallback(BLXSignalQueueCallback callback) {
+        this.callback = callback;
+    }
+
+    public BLXSignalQueue(int delayTime) {
+        this(delayTime, null);
+    }
+
+    public BLXSignalQueue(BLXSignalQueueCallback callback) {
+        this(DEFAULT_DELAY_TIME, callback);
+    }
+
     public void signal(BLXSignal[] signals) {
-        if (signals != null) {
-            interrupted = false;
-            if (signals != null) {
-                for (BLXSignal signal : signals)
-                    add(signal);
-            }
-            while (!queue.isEmpty() && !interrupted) {
-                Set<BLXSignalReceiver> receivers = signalZeroes();
-                decrementChain();
-                if (callback != null) {
-                    try {
-                        Thread.sleep(delayTime);
-                    }
-                    catch (InterruptedException e) { }
-                    finally {
-                        //TODO confirm that this should happen even on an interrupted exception
-                        //TODO find out when an "interrupted exception" would occur.
-                        callback.onSignalEvent(receivers);
-                    }
+        interrupted = false;
+        if(signals != null) {
+            for (BLXSignal signal : signals)
+                add(signal);
+        }
+        while (!queue.isEmpty() && !interrupted) {
+            Set<BLXSignalReceiver> receivers = signalZeroes();
+            decrementChain();
+            if (callback != null) {
+                try {
+                    Thread.sleep(delayTime);
+                } catch (InterruptedException e) {
+                } finally {
+                    //TODO confirm that this should happen even on an interrupted exception
+                    //TODO find out when an "interrupted exception" would occur.
+                    callback.onSignalEvent(receivers);
                 }
             }
         }
@@ -72,10 +65,22 @@ public class BLXSignalQueue {
 
     private Set<BLXSignalReceiver> signalZeroes() {
         Set<BLXSignalReceiver> receivers = new HashSet<>();
+        Stack<BLXSignal> nullStack = new Stack<>();
         while (queue.peek() != null && queue.peek().getDelay() == 0) {
             BLXSignal nextSignal = queue.poll();
-            nextSignal.signal(this);
-            receivers.add(nextSignal.getTarget());
+            if (nextSignal.getValue() == null) {
+                nullStack.push(nextSignal);
+            } else {
+                nextSignal.signal(this);
+                receivers.add(nextSignal.getTarget());
+            }
+        }
+        if (!nullStack.empty()) {
+            BLXSignal nextSignal = nullStack.pop();
+            if (!receivers.contains(nextSignal.getTarget())) {
+                nextSignal.signal(this);
+                receivers.add(nextSignal.getTarget());
+            }
         }
         return receivers;
     }
@@ -86,19 +91,19 @@ public class BLXSignalQueue {
         }
     }
 
-    public void setCallback(BLXSignalQueueCallback callback) {
-        this.callback = callback;
+    public int getDelayTime() {
+        return delayTime;
     }
 
     public void setDelayTime(int delayTime) {
-        this.delayTime = Math.max(delayTime,0);
+        this.delayTime = Math.max(delayTime, 0);
     }
-
-    public int getDelayTime() {
-        return delayTime;
-    } 
 
     public void stop() {
         interrupted = true;
+    }
+
+    public interface BLXSignalQueueCallback {
+        public void onSignalEvent(Set<BLXSignalReceiver> components);
     }
 }

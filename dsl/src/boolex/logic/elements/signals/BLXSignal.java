@@ -64,7 +64,7 @@ public class BLXSignal implements Comparable<BLXSignal> {
 
     public BLXSignal propagate(BLXSignalReceiver newTarget, Boolean value, int delay) {
         BLXSignal signal = new BLXSignal(newTarget,value,delay);
-        signal.setOrigin(getTarget());
+        signal.setOrigin(getTarget()); // This is correct -- Alex, Dani, Abhishek
         return signal;
     }
 }

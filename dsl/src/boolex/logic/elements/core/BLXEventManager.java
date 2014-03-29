@@ -29,12 +29,7 @@ public class BLXEventManager {
             }
         }
         // initialize the signal queue and define its behavior for each iteration
-        this.queue = new BLXSignalQueue(delayTime, new BLXSignalQueue.BLXSignalQueueCallback() {
-            @Override
-            public void onSignalEvent(Set<BLXSignalReceiver> components) {
-                FrontEndIntegrator.integrate(components);
-            }
-        });
+        this.queue = new BLXSignalQueue(delayTime, FrontEndIntegrator::integrate);
     }
 
     public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
@@ -67,14 +62,13 @@ class FrontEndIntegrator {
         if (components != null) {
             //TODO remove _ part after Alex adds this as feature
 
-            for (BLXSignalReceiver component : components) {
-                if(component instanceof BLXSocket) {
-                    BLXSocket socket = (BLXSocket) component;
-                    //TODO remove _ part after Alex adds this as feature
-                    if (socket.getId() != null && !socket.getId().equals("_"))
-                        socketMap.put(socket.getId(), socket.getValue());
-                }
-            }
+            //TODO remove _ part after Alex adds this as feature
+            components.stream().filter(component -> component instanceof BLXSocket).forEach((BLXSignalReceiver component) -> {
+                BLXSocket socket = (BLXSocket) component;
+                //TODO remove _ part after Alex adds this as feature
+                if (socket.getId() != null && !socket.getId().equals("_"))
+                    socketMap.put(socket.getId(), socket.getValue());
+            });
         }
         return socketMap;
     }
