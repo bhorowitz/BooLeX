@@ -37,9 +37,15 @@ public class Main {
             //---------------------------------------------------
             Map<BLXSocket, Boolean> valueMap = new HashMap<>();
             List<BLXSocket> inputs = mainCircuit.getInputSockets();
-            valueMap.put(inputs.get(0), false);
+            valueMap.put(inputs.get(0), false);     //high
             valueMap.put(inputs.get(1), false);
             valueMap.put(inputs.get(2), false);
+            valueMap.put(inputs.get(3), true);      //low
+
+            valueMap.put(inputs.get(4), false);     //high
+            valueMap.put(inputs.get(5), false);
+            valueMap.put(inputs.get(6), false);
+            valueMap.put(inputs.get(7), true);      //low
 
             BLXEventManager eventManager = new BLXEventManager(valueMap, 500);
             eventManager.start();
