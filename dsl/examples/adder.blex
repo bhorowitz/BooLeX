@@ -1,7 +1,3 @@
-#circuit main(a)
-#    out not a
-#end
-
 circuit HA(d,e)
 	half_sum = (d ^ e)'' # unnecessary, but cool for parsing!
 	half_carry = d and e

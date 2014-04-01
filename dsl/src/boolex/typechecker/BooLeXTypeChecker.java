@@ -25,6 +25,9 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
         } else if (callee.getClass() != CircuitType.class) {
             System.err.println("Error: '" + calleeName + "' is not a circuit");
             return false;
+        } else if (scopes.inContext(calleeName)) {
+            System.err.println("Error: cannot recursively call a circuit.");
+            return false;
         }
 
         CircuitType circuit = (CircuitType) callee;

@@ -7,6 +7,7 @@ import boolex.logic.elements.signals.BLXSignalReceiver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Created by dani on 2/17/14.
@@ -49,20 +50,23 @@ public class BLXEventManager {
 }
 
 class FrontEndIntegrator {
+    private static Map<String, Boolean> currentValues = new TreeMap<>();
+
     public static void integrate(Set<BLXSignalReceiver> components) {
-        Map<String, Boolean> socketMap = getSocketMap(components);
-        for(Map.Entry<String, Boolean> socket : socketMap.entrySet()) {
-            System.out.println(socket.getKey() + ": " + socket.getValue());
-        }
-        System.out.println("---");
+        String output = "";
+        currentValues.putAll(getSocketMap(components));
+
+        for(Map.Entry<String, Boolean> socket : currentValues.entrySet())
+            if (!socket.getKey().equals(""))
+                output += socket.getKey() + ": " + socket.getValue() + ", ";
+
+        if(!output.equals(""))
+            System.out.println("[" + output + "]");
     }
 
     public static Map<String, Boolean> getSocketMap(Set<BLXSignalReceiver> components) {
         Map<String, Boolean> socketMap = new HashMap<>();
         if (components != null) {
-            //TODO remove _ part after Alex adds this as feature
-
-            //TODO remove _ part after Alex adds this as feature
             components.stream().filter(component -> component instanceof BLXSocket).forEach((BLXSignalReceiver component) -> {
                 BLXSocket socket = (BLXSocket) component;
                 //TODO remove _ part after Alex adds this as feature

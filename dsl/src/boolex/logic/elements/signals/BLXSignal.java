@@ -1,5 +1,7 @@
 package boolex.logic.elements.signals;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by dani on 2/11/14.
  */
@@ -58,7 +60,7 @@ public class BLXSignal implements Comparable<BLXSignal> {
     }
 
     @Override
-    public int compareTo(BLXSignal other) {
+    public int compareTo(@NotNull BLXSignal other) {
         return propagationDelay - other.propagationDelay;
     }
 

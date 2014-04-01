@@ -32,6 +32,8 @@ public class BooLeXScope {
         return owners.peek();
     }
 
+    public boolean inContext(String parent) { return owners.contains(parent); }
+
     public BooLeXType getSymbol(String name) {
         for (HashMap<String, BooLeXType> scope : scopes) {
             if (scope.containsKey(name))

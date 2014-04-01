@@ -1,11 +1,13 @@
 package boolex.logic.elements.circuitbuilder;
 
 import boolex.antlr.BooLeXBaseVisitor;
+import boolex.logic.elements.core.BLXSocket;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static boolex.antlr.BooLeXParser.*;
 import static boolex.helpers.ANTLRHelper.flattenExpressionList;
@@ -19,22 +21,26 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
     private Map<String, BLXCircuit> currentScope;
     private BLXCircuitBuilder circuitBuilder;
     private Boolean defaultValue;
+    private boolean inTopLevel;
 
     public BLXModelGenerator(boolean initializeToFalse) {
-        this.defaultValue = initializeToFalse ? false : null;
+        defaultValue = initializeToFalse ? false : null;
         circuitBuilder = new BLXCircuitBuilder(this.defaultValue);
+        inTopLevel = true;
     }
 
     @Override
     public BLXCircuit visitCircuitCall(@NotNull CircuitCallContext ctx) {
+        boolean wasInTopLevel = inTopLevel;
+        inTopLevel = false;
         BLXCircuit arguments = visitExpressionList(ctx.expressionList());
         BLXCircuit subCircuit = visitCircuitDeclaration(knownCircuits.get(ctx.Identifier().toString()));
+        inTopLevel = wasInTopLevel;
         return circuitBuilder.chain(arguments, subCircuit);
     }
 
     @Override
     public BLXCircuit visitExpressionList(@NotNull ExpressionListContext ctx) {
-
         List<ExpressionContext> expressionContexts = flattenExpressionList(ctx);
         List<BLXCircuit> circuits = expressionContexts.stream().map(this::visitExpression).collect(java.util.stream.Collectors.toList());
         return circuitBuilder.merge(circuits);
@@ -99,19 +105,30 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         Map<String, BLXCircuit> previousScope = currentScope;
         currentScope = new HashMap<>();
 
-        List<BLXCircuit> arguments = flattenIdentifierList(ctx.identifierList()).stream().map(this::getOrCreateInScope).collect(java.util.stream.Collectors.toList());
+        List<BLXCircuit> arguments = flattenIdentifierList(ctx.identifierList()).stream().map(this::getOrCreateInScope).collect(Collectors.toList());
 
         BLXCircuit argumentsCircuit = circuitBuilder.merge(arguments);
 
         for (AssignmentContext assignment : ctx.assignment()) {
             List<String> lhsNames = flattenIdentifierList(assignment.identifierList());
-            List<BLXCircuit> variablesCircuits = lhsNames.stream().map(this::getOrCreateInScope).collect(java.util.stream.Collectors.toList());
+            List<BLXCircuit> variablesCircuits = lhsNames.stream().map(this::getOrCreateInScope).collect(Collectors.toList());
 
+            // TODO: Figure out what to change to support "_" removal.
             BLXCircuit valuesCircuit = visitExpressionList(assignment.expressionList());
             circuitBuilder.chain(valuesCircuit, circuitBuilder.merge(variablesCircuits));
         }
 
         BLXCircuit outputCircuit = visitExpressionList(ctx.outStatement().expressionList());
+        List<BLXSocket> outputSockets = outputCircuit.getOutputSockets();
+
+        // automatically assign names if they aren't given already.
+        int num = outputSockets.size();
+        for (BLXSocket blxSocket : outputSockets) {
+            if(blxSocket.getId().equals("") && inTopLevel)
+                blxSocket.setId("%o" + num);
+            num--;
+        }
+
         BLXCircuit finalCircuit = circuitBuilder.buildCircuit(argumentsCircuit, outputCircuit);
 
         currentScope = previousScope;
@@ -119,8 +136,9 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
     }
 
     private BLXCircuit getOrCreateInScope(String name) {
+//        if(name.equals("_")) return null;
         if(!currentScope.containsKey(name))
-            currentScope.put(name, new BLXCircuit(name, defaultValue));
+            currentScope.put(name, new BLXCircuit((inTopLevel) ? name : "", defaultValue));
         return currentScope.get(name);
     }
 }
