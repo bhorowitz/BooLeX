@@ -33,14 +33,16 @@ public class BLXEventManager {
         this.queue = new BLXSignalQueue(delayTime, FrontEndIntegrator::integrate);
     }
 
-    public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
-        for (Map.Entry<BLXSocket,Boolean> signal : updateSignals.entrySet())
-            queue.add(new BLXSignal(signal.getKey(), signal.getValue(), 0));
+    public void update(BLXSocket socket, Boolean value) {
+        queue.signal(new BLXSignal(socket, value, queue.getDelayTime()));
     }
 
     public void start() {
         // load signals into signal queue and start
-        queue.signal(signals);
+        if (signals != null) {
+            for (BLXSignal signal : signals)
+                queue.signal(signal);
+        }
     }
 
     public void stop() {
@@ -50,6 +52,7 @@ public class BLXEventManager {
 }
 
 class FrontEndIntegrator {
+    //TODO why are we using a TreeMap rather than HashMap?
     private static Map<String, Boolean> currentValues = new TreeMap<>();
 
     public static void integrate(Set<BLXSignalReceiver> components) {

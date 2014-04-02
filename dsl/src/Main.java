@@ -21,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples/rslatch.blex"));
+            BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples/dlatch.blex"));
             BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
             BooLeXParser.ModuleContext module = bp.module();
@@ -35,27 +35,62 @@ public class Main {
 
             BLXCircuit mainCircuit = modelGenerator.visit(module);
             //---------------------------------------------------
-            Map<BLXSocket, Boolean> valueMap = new HashMap<>();
             List<BLXSocket> inputs = mainCircuit.getInputSockets();
-            valueMap.put(inputs.get(0), true);     //high
-            valueMap.put(inputs.get(1), false);
-//            valueMap.put(inputs.get(2), false);
-//            valueMap.put(inputs.get(3), true);      //low
-//
-//            valueMap.put(inputs.get(4), false);     //high
-//            valueMap.put(inputs.get(5), false);
-//            valueMap.put(inputs.get(6), false);
-//            valueMap.put(inputs.get(7), true);      //low
-
-            BLXEventManager eventManager = new BLXEventManager(valueMap, 500);
-            eventManager.start();
-
-            System.out.println("We didn't die... Hooray!");
+            DLatchTest test = new DLatchTest(inputs.get(0), inputs.get(1));
+            test.start();
         } catch (IOException e) {
             System.err.println("[error] Could not open example program.");
         } catch (Exception e) {
             System.err.println("[error] " + e.getMessage());
             e.printStackTrace();
         }
+    }
+}
+
+class DLatchTest {
+    private BLXSocket dataSocket;
+    private BLXSocket clockSocket;
+    private boolean dataValue;
+    private boolean clockValue;
+    private BLXEventManager eventManager;
+
+    public DLatchTest(BLXSocket dataSocket, BLXSocket clockSocket) {
+        Map<BLXSocket, Boolean> initialMap = new HashMap<>();
+        this.dataSocket = dataSocket;
+        this.clockSocket = clockSocket;
+        this.dataValue = true;
+        this.clockValue = false;
+        initialMap.put(dataSocket, dataValue);
+        initialMap.put(clockSocket, clockValue);
+        this.eventManager = new BLXEventManager(initialMap, 250);
+    }
+
+    public void start() {
+        System.out.println("Simulating: data = " + dataValue + ", clock = " + clockValue);
+        new Thread(() -> {eventManager.start();}).start();
+        for (int i = 0; i < 10; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (!clockValue)
+                clockValue = true;
+            else {
+                dataValue = !dataValue;
+                clockValue = false;
+            }
+            System.out.println("Simulating: data = " + dataValue + ", clock = " + clockValue);
+            new Thread(() -> {
+                eventManager.update(dataSocket, dataValue);
+                eventManager.update(clockSocket, clockValue);
+            }).start();
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        new Thread(() -> eventManager.stop()).start();
     }
 }
