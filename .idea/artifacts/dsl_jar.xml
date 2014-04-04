@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="dsl:jar">
+    <output-path>$PROJECT_DIR$/website/lib</output-path>
+    <root id="archive" name="dsl.jar">
+      <element id="module-output" name="dsl" />
+      <element id="extracted-dir" path="$APPLICATION_HOME_DIR$/lib/annotations.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dsl/gson-2.2.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$APPLICATION_HOME_DIR$/lib/junit-4.11.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dsl/antlr-4.2-complete.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

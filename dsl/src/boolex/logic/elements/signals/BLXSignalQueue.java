@@ -4,11 +4,13 @@ package boolex.logic.elements.signals;
  * Created by dani on 2/11/14.
  */
 
+import boolex.helpers.StablePriorityQueue;
+
 import java.util.*;
 
 public class BLXSignalQueue {
     public final static int DEFAULT_DELAY_TIME = 100; //milliseconds
-    private Queue<BLXSignal> queue;
+    private StablePriorityQueue<BLXSignal> queue;
     private BLXSignalQueueCallback callback;
     private int delayTime; // milliseconds
     private boolean interrupted;
@@ -18,7 +20,7 @@ public class BLXSignalQueue {
     }
 
     public BLXSignalQueue(int delayTime, BLXSignalQueueCallback callback) {
-        queue = new PriorityQueue<>();
+        queue = new StablePriorityQueue<>();
         interrupted = false;
         setDelayTime(delayTime);
         setCallback(callback);
@@ -47,7 +49,7 @@ public class BLXSignalQueue {
             decrementChain();
             if (callback != null) {
                 try {
-                    Thread.sleep(delayTime);
+                    Thread.sleep(getDelayTime());
                 } catch (InterruptedException ignored) {
                 } finally {
                     callback.onSignalEvent(receivers);
@@ -63,22 +65,10 @@ public class BLXSignalQueue {
 
     private Set<BLXSignalReceiver> signalZeroes() {
         Set<BLXSignalReceiver> receivers = new HashSet<>();
-        Stack<BLXSignal> nullStack = new Stack<>();
         while (queue.peek() != null && queue.peek().getDelay() == 0) {
             BLXSignal nextSignal = queue.poll();
-            if (nextSignal.getValue() == null) {
-                nullStack.push(nextSignal);
-            } else {
-                nextSignal.signal(this);
-                receivers.add(nextSignal.getTarget());
-            }
-        }
-        if (!nullStack.empty()) {
-            BLXSignal nextSignal = nullStack.pop();
-            if (!receivers.contains(nextSignal.getTarget())) {
-                nextSignal.signal(this);
-                receivers.add(nextSignal.getTarget());
-            }
+            nextSignal.signal(this);
+            receivers.add(nextSignal.getTarget());
         }
         return receivers;
     }

@@ -21,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples/rslatch.blex"));
+            BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples/adder.blex"));
             BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
             BooLeXParser.ModuleContext module = bp.module();
@@ -37,8 +37,8 @@ public class Main {
             //---------------------------------------------------
             Map<BLXSocket, Boolean> valueMap = new HashMap<>();
             List<BLXSocket> inputs = mainCircuit.getInputSockets();
-            valueMap.put(inputs.get(0), true);     //high
-            valueMap.put(inputs.get(1), false);
+            valueMap.put(inputs.get(0), false);     //high
+//            valueMap.put(inputs.get(1), false);
 //            valueMap.put(inputs.get(2), false);
 //            valueMap.put(inputs.get(3), true);      //low
 //
