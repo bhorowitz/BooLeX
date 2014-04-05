@@ -124,6 +124,8 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         // automatically assign names if they aren't given already.
         int num = outputSockets.size();
         for (BLXSocket blxSocket : outputSockets) {
+            if(blxSocket.getId() == null)
+                blxSocket.setId("");
             if(blxSocket.getId().equals("") && inTopLevel)
                 blxSocket.setId("%o" + num);
             num--;

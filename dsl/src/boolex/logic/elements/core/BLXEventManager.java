@@ -21,6 +21,10 @@ public class BLXEventManager {
     }
 
     public BLXEventManager(Map<BLXSocket,Boolean> startSignals, int delayTime) {
+        this(startSignals, delayTime, FrontEndIntegrator::integrate);
+    }
+
+    public BLXEventManager(Map<BLXSocket, Boolean> startSignals, int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
         // store the signals as an array of BLXSignals
         if (startSignals != null) {
             signals = new BLXSignal[startSignals.size()];
@@ -30,7 +34,7 @@ public class BLXEventManager {
             }
         }
         // initialize the signal queue and define its behavior for each iteration
-        this.queue = new BLXSignalQueue(delayTime, FrontEndIntegrator::integrate);
+        this.queue = new BLXSignalQueue(delayTime, callback);
     }
 
     public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
