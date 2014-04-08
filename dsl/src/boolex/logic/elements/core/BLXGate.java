@@ -79,7 +79,7 @@ public abstract class BLXGate implements BLXSignalReceiver {
     public void receive(BLXSignal signal, BLXSignalQueue queue) {
         if (queue != null && signal != null) {
             for (int i = 0; i < outputSockets.size(); i++) {
-                queue.add(computeSignalForOutputSocket(signal, getOutputSocket(i)));
+                queue.signal(computeSignalForOutputSocket(signal, getOutputSocket(i)));
             }
         }
     }

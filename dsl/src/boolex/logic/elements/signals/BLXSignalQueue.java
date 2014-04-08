@@ -14,6 +14,7 @@ public class BLXSignalQueue {
     private BLXSignalQueueCallback callback;
     private int delayTime; // milliseconds
     private boolean interrupted;
+    private boolean animating;
 
     public BLXSignalQueue() {
         this(DEFAULT_DELAY_TIME, null);
@@ -22,6 +23,7 @@ public class BLXSignalQueue {
     public BLXSignalQueue(int delayTime, BLXSignalQueueCallback callback) {
         queue = new StablePriorityQueue<>();
         interrupted = false;
+        animating = false;
         setDelayTime(delayTime);
         setCallback(callback);
     }
@@ -38,13 +40,17 @@ public class BLXSignalQueue {
         this(DEFAULT_DELAY_TIME, callback);
     }
 
-    public void signal(BLXSignal[] signals) {
-        interrupted = false;
-        if(signals != null) {
-            for (BLXSignal signal : signals)
-                add(signal);
+    public void signal(BLXSignal signal) {
+        if (!interrupted && signal != null && signal.getValue() != null) {
+            queue.add(signal);
+            if (!animating)
+                animate();
         }
-        while (!queue.isEmpty() && !interrupted) {
+    }
+
+    private void animate() {
+        animating = true;
+        while (!interrupted && !queue.isEmpty()) {
             Set<BLXSignalReceiver> receivers = signalZeroes();
             decrementChain();
             if (callback != null) {
@@ -56,11 +62,7 @@ public class BLXSignalQueue {
                 }
             }
         }
-    }
-
-    public void add(BLXSignal signal) {
-        if (signal != null)
-            queue.add(signal);
+        animating = false;
     }
 
     private Set<BLXSignalReceiver> signalZeroes() {

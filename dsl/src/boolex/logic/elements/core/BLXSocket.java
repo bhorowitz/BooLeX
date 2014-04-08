@@ -65,7 +65,7 @@ public class BLXSocket implements BLXSignalReceiver {
             Boolean receivedValue = signal.getValue();
             setValue(receivedValue);
             for (BLXSignalReceiver target : targets) {
-                queue.add(signal.propagate(target, receivedValue, 0));
+                queue.signal(signal.propagate(target, receivedValue, 0));
                 assert(getValue() == receivedValue);
             }
         }
