@@ -24,8 +24,6 @@
       <sourceFolder url="file://$MODULE_DIR$/conf" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/target/scala-2.10/resource_managed/test" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/test/resources" type="java-test-resource" />
-      <excludeFolder url="file://$MODULE_DIR$/project/project/target" />
-      <excludeFolder url="file://$MODULE_DIR$/project/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
