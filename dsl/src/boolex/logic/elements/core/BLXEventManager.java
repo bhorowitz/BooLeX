@@ -37,6 +37,10 @@ public class BLXEventManager {
         this.queue = new BLXSignalQueue(delayTime, callback);
     }
 
+    public void update(BLXSocket socket, Boolean value) {
+        queue.signal(new BLXSignal(socket, value, queue.getDelayTime()));
+    }
+
     public void update(Map<BLXSocket,Boolean> updateSignals, int delayTime) {
         for (Map.Entry<BLXSocket,Boolean> signal : updateSignals.entrySet())
             queue.add(new BLXSignal(signal.getKey(), signal.getValue(), 0));
