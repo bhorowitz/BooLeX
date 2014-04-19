@@ -1,0 +1,7 @@
+.controls {
+  position: absolute;
+  width: 200px;
+  right: 10px;
+  top: 50%;
+  margin-top: -100px;
+}
