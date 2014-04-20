@@ -86,6 +86,13 @@ class DSLRunner extends Actor {
   var circuit : BLXCircuit = null
   var eventManager : BLXEventManager = null
 
+  def update(sockAssign : SocketAssignment) = sockAssign match {
+    case SocketAssignment(name, value) =>
+      val sockets: List[BLXSocket] = circuit.getInputSockets.toList
+      val socketMap : Map[String, BLXSocket] = (sockets map { sock => (sock.getId, sock) }).toMap
+      eventManager.update(socketMap.get(name).get, value.asInstanceOf[java.lang.Boolean])
+  }
+
   def receive = {
     case Initialize(dsl) =>
       val bl: BooLeXLexer = new BooLeXLexer(new ANTLRInputStream(dsl))
@@ -103,17 +110,13 @@ class DSLRunner extends Actor {
 
     case BeginEvaluation(initialValues) =>
       if(circuit != null && eventManager == null) {
-        val sockets: List[BLXSocket] = circuit.getInputSockets.toList
-        val socketMap : Map[String, BLXSocket] = (sockets map { sock => (sock.getId, sock) }).toMap
-        val inits = initialValues.map({
-          case SocketAssignment(name, value) => (socketMap.get(name).get, value.asInstanceOf[java.lang.Boolean])
-        }).toMap
-
-        eventManager = new BLXEventManager(inits, 250, new CircuitHandler)
+        eventManager = new BLXEventManager(250, new CircuitHandler)
         eventManager.start()
+
+        initialValues.foreach(update)
       }
 
-    case UpdateSocket(socket) => //TODO: implement
+    case UpdateSocket(socket) => update(socket)
 
     case Die() =>
       if (outputChannel != null) {
