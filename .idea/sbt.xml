@@ -6,8 +6,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$/website" />
         <option name="modules">
           <set>
-            <option value="C:\Users\Alex Reinking\Idea Projects\BooLeX\website" />
-            <option value="C:\Users\Alex Reinking\Idea Projects\BooLeX\website/project" />
+            <option value="$PROJECT_DIR$/website" />
+            <option value="$PROJECT_DIR$/website/project" />
           </set>
         </option>
         <option name="useAutoImport" value="true" />
