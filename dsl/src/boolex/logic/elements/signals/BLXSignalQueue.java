@@ -6,15 +6,15 @@ package boolex.logic.elements.signals;
 
 import boolex.helpers.StablePriorityQueue;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BLXSignalQueue {
     public final static int DEFAULT_DELAY_TIME = 100; //milliseconds
     private StablePriorityQueue<BLXSignal> queue;
     private BLXSignalQueueCallback callback;
     private int delayTime; // milliseconds
-    private boolean interrupted;
-    private boolean animating;
+    private Thread animation;
 
     public BLXSignalQueue() {
         this(DEFAULT_DELAY_TIME, null);
@@ -22,8 +22,7 @@ public class BLXSignalQueue {
 
     public BLXSignalQueue(int delayTime, BLXSignalQueueCallback callback) {
         queue = new StablePriorityQueue<>();
-        interrupted = false;
-        animating = false;
+        animation = new Thread(this::animate);
         setDelayTime(delayTime);
         setCallback(callback);
     }
@@ -41,16 +40,16 @@ public class BLXSignalQueue {
     }
 
     public void signal(BLXSignal signal) {
-        if (!interrupted && signal != null && signal.getValue() != null) {
+        if(signal != null && signal.getValue() != null)
             queue.add(signal);
-            if (!animating)
-                animate();
+        if(!animation.isAlive()) {
+            System.err.println("Starting animation!");
+            animation.start();
         }
     }
 
     private void animate() {
-        animating = true;
-        while (!interrupted && !queue.isEmpty()) {
+        while (!Thread.interrupted() && !queue.isEmpty()) {
             Set<BLXSignalReceiver> receivers = signalZeroes();
             decrementChain();
             if (callback != null) {
@@ -62,7 +61,6 @@ public class BLXSignalQueue {
                 }
             }
         }
-        animating = false;
     }
 
     private Set<BLXSignalReceiver> signalZeroes() {
@@ -90,7 +88,8 @@ public class BLXSignalQueue {
     }
 
     public void stop() {
-        interrupted = true;
+        queue.clear();
+        animation.interrupt();
     }
 
     public interface BLXSignalQueueCallback {

@@ -8,63 +8,85 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by dani on 2/17/14.
  */
 public class BLXEventManager {
-    private BLXSignalQueue queue;
-    private BLXSignal[] signals;
+    private EventRunner runner;
+    private Thread runnerThread;
 
-    public BLXEventManager(Map<BLXSocket,Boolean> startSignals) {
-        this(startSignals,BLXSignalQueue.DEFAULT_DELAY_TIME);
+    public BLXEventManager() {
+        this(BLXSignalQueue.DEFAULT_DELAY_TIME);
     }
 
-    public BLXEventManager(Map<BLXSocket,Boolean> startSignals, int delayTime) {
-        this(startSignals, delayTime, FrontEndIntegrator::integrate);
+    public BLXEventManager(int delayTime) {
+        this(delayTime, FrontEndIntegrator::integrate);
     }
 
-    public BLXEventManager(Map<BLXSocket, Boolean> startSignals, int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
-        // store the signals as an array of BLXSignals
-        if (startSignals != null) {
-            signals = new BLXSignal[startSignals.size()];
-            int index = 0;
-            for (Map.Entry<BLXSocket, Boolean> signal : startSignals.entrySet()) {
-                signals[index++] = new BLXSignal(signal.getKey(), signal.getValue(), 0);
-            }
-        }
-        // initialize the signal queue and define its behavior for each iteration
-        this.queue = new BLXSignalQueue(delayTime, callback);
+    public BLXEventManager(int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
+        runner = new EventRunner(delayTime, callback);
+        runnerThread = new Thread(runner);
     }
 
     public void update(BLXSocket socket, Boolean value) {
-        queue.signal(new BLXSignal(socket, value, queue.getDelayTime()));
-    }
-
-    public void update(BLXSocket socket, Boolean value) {
-        queue.signal(new BLXSignal(socket, value, queue.getDelayTime()));
+        runner.update(socket, value);
     }
 
     public void start() {
-        // load signals into signal queue and start
-        if (signals != null) {
-            for (BLXSignal signal : signals)
-                queue.signal(signal);
-        }
+        runnerThread.start();
     }
 
     public void stop() {
-        queue.stop();
+        runnerThread.interrupt();
     }
 
 }
 
+class EventRunner implements Runnable {
+    private BLXSignalQueue queue;
+    private final int delayTime;
+    BlockingQueue<BLXSignal> signals = new LinkedBlockingQueue<>();
+
+    public EventRunner(int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
+        this.queue = new BLXSignalQueue(delayTime, callback);
+        this.delayTime = delayTime;
+    }
+
+    @Override
+    public void run() {
+        while(!Thread.interrupted()) {
+            try {
+                BLXSignal signal = signals.take();
+                queue.signal(signal);
+            } catch (InterruptedException e) {
+                this.stop();
+            }
+        }
+        this.stop();
+    }
+
+    public void update(BLXSocket socket, Boolean value) {
+        try {
+            signals.put(new BLXSignal(socket, value, this.delayTime));
+        } catch (InterruptedException e) {
+            System.err.println("This shouldn't happen");
+        }
+    }
+
+    private void stop() {
+        signals.clear();
+        queue.stop();
+    }
+}
+
 class FrontEndIntegrator {
-    //TODO why are we using a TreeMap rather than HashMap?
     private static Map<String, Boolean> currentValues = new TreeMap<>();
 
     public static void integrate(Set<BLXSignalReceiver> components) {
-        String output = "";
+        String output = "(" + components.size() + ") ";
         currentValues.putAll(getSocketMap(components));
 
         for(Map.Entry<String, Boolean> socket : currentValues.entrySet())
