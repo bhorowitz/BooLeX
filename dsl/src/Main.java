@@ -9,9 +9,7 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Main {
     static private final boolean INITIALIZE_TO_FALSE = false; // TODO get this value from the user
@@ -55,42 +53,36 @@ class DLatchTest {
     private BLXEventManager eventManager;
 
     public DLatchTest(BLXSocket dataSocket, BLXSocket clockSocket) {
-        Map<BLXSocket, Boolean> initialMap = new HashMap<>();
         this.dataSocket = dataSocket;
         this.clockSocket = clockSocket;
         this.dataValue = true;
         this.clockValue = false;
-        initialMap.put(dataSocket, dataValue);
-        initialMap.put(clockSocket, clockValue);
-        this.eventManager = new BLXEventManager(initialMap, 250);
+        this.eventManager = new BLXEventManager(250);
     }
 
     public void start() {
+        eventManager.start();
+        eventManager.update(dataSocket, dataValue);
+        eventManager.update(clockSocket, clockValue);
         System.out.println("Simulating: data = " + dataValue + ", clock = " + clockValue);
-        new Thread(() -> {eventManager.start();}).start();
         for (int i = 0; i < 10; i++) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             if (!clockValue)
                 clockValue = true;
             else {
                 dataValue = !dataValue;
                 clockValue = false;
             }
+
             System.out.println("Simulating: data = " + dataValue + ", clock = " + clockValue);
-            new Thread(() -> {
-                eventManager.update(dataSocket, dataValue);
-                eventManager.update(clockSocket, clockValue);
-            }).start();
+            eventManager.update(dataSocket, dataValue);
+            eventManager.update(clockSocket, clockValue);
         }
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        new Thread(() -> eventManager.stop()).start();
+        eventManager.stop();
     }
 }

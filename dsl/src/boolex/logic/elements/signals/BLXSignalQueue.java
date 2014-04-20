@@ -4,24 +4,25 @@ package boolex.logic.elements.signals;
  * Created by dani on 2/11/14.
  */
 
-import java.util.*;
+import boolex.helpers.StablePriorityQueue;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class BLXSignalQueue {
     public final static int DEFAULT_DELAY_TIME = 100; //milliseconds
-    private Queue<BLXSignal> queue;
+    private StablePriorityQueue<BLXSignal> queue;
     private BLXSignalQueueCallback callback;
     private int delayTime; // milliseconds
-    private boolean interrupted;
-    private boolean animating;
+    private Thread animation;
 
     public BLXSignalQueue() {
         this(DEFAULT_DELAY_TIME, null);
     }
 
     public BLXSignalQueue(int delayTime, BLXSignalQueueCallback callback) {
-        queue = new PriorityQueue<>();
-        interrupted = false;
-        animating = false;
+        queue = new StablePriorityQueue<>();
+        animation = new Thread(this::animate);
         setDelayTime(delayTime);
         setCallback(callback);
     }
@@ -39,49 +40,35 @@ public class BLXSignalQueue {
     }
 
     public void signal(BLXSignal signal) {
-        if (!interrupted && signal != null && signal.getValue() != null) {
+        if(signal != null && signal.getValue() != null)
             queue.add(signal);
-            if (!animating)
-                animate();
+        if(!animation.isAlive()) {
+            System.err.println("Starting animation!");
+            animation.start();
         }
     }
 
     private void animate() {
-        animating = true;
-        while (!interrupted && !queue.isEmpty()) {
+        while (!Thread.interrupted() && !queue.isEmpty()) {
             Set<BLXSignalReceiver> receivers = signalZeroes();
             decrementChain();
             if (callback != null) {
                 try {
-                    Thread.sleep(delayTime);
+                    Thread.sleep(getDelayTime());
                 } catch (InterruptedException ignored) {
                 } finally {
                     callback.onSignalEvent(receivers);
                 }
             }
         }
-        animating = false;
     }
 
     private Set<BLXSignalReceiver> signalZeroes() {
         Set<BLXSignalReceiver> receivers = new HashSet<>();
-        Stack<BLXSignal> nullStack = new Stack<>();
         while (queue.peek() != null && queue.peek().getDelay() == 0) {
             BLXSignal nextSignal = queue.poll();
-            if (nextSignal.getValue() == null) {
-                nullStack.push(nextSignal);
-            } else {
-                nextSignal.signal(this);
-                receivers.add(nextSignal.getTarget());
-            }
-        }
-        assert(nullStack.empty());
-        if (!nullStack.empty()) {
-            BLXSignal nextSignal = nullStack.pop();
-            if (!receivers.contains(nextSignal.getTarget())) {
-                nextSignal.signal(this);
-                receivers.add(nextSignal.getTarget());
-            }
+            nextSignal.signal(this);
+            receivers.add(nextSignal.getTarget());
         }
         return receivers;
     }
@@ -101,7 +88,8 @@ public class BLXSignalQueue {
     }
 
     public void stop() {
-        interrupted = true;
+        queue.clear();
+        animation.interrupt();
     }
 
     public interface BLXSignalQueueCallback {
