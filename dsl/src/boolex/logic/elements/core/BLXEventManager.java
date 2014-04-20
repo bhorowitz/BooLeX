@@ -46,8 +46,8 @@ public class BLXEventManager {
 }
 
 class EventRunner implements Runnable {
-    private BLXSignalQueue queue;
     BlockingQueue<BLXSignal> signals = new LinkedBlockingQueue<>();
+    private BLXSignalQueue queue;
 
     public EventRunner(int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
         this.queue = new BLXSignalQueue(delayTime, callback);
@@ -55,15 +55,24 @@ class EventRunner implements Runnable {
 
     @Override
     public void run() {
-        while(!Thread.interrupted()) {
-            try {
+        try {
+            while (!Thread.interrupted()) {
                 BLXSignal signal = signals.take();
+                if (signal.getTarget() == null) // Poison Pill
+                    throw new InterruptedException();
                 queue.signal(signal);
-            } catch (InterruptedException e) {
-                this.stop();
             }
+        } catch (InterruptedException e) {
+            this.stop();
+        } finally {
+            this.stop();
         }
-        this.stop();
+    }
+
+    private void stop() {
+        signals.clear();
+        update(null, null); // Poison Pill
+        queue.stop();
     }
 
     public void update(BLXSocket socket, Boolean value) {
@@ -72,11 +81,6 @@ class EventRunner implements Runnable {
         } catch (InterruptedException e) {
             System.err.println("This shouldn't happen");
         }
-    }
-
-    private void stop() {
-        signals.clear();
-        queue.stop();
     }
 }
 
@@ -87,11 +91,11 @@ class FrontEndIntegrator {
         String output = "(" + components.size() + ") ";
         currentValues.putAll(getSocketMap(components));
 
-        for(Map.Entry<String, Boolean> socket : currentValues.entrySet())
+        for (Map.Entry<String, Boolean> socket : currentValues.entrySet())
             if (!socket.getKey().equals(""))
                 output += socket.getKey() + ": " + socket.getValue() + ", ";
 
-        if(!output.equals(""))
+        if (!output.equals(""))
             System.out.println("[" + output + "]");
     }
 
