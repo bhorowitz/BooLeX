@@ -10,6 +10,5 @@ circuit DLatch(d,clk)
 end
 
 circuit main(d,clk)
-    #out DLatch(d,clk)
-    out not d, clk
+    out DLatch(d,clk)
 end

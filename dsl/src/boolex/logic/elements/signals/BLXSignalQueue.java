@@ -43,7 +43,7 @@ public class BLXSignalQueue {
         if(signal != null && signal.getValue() != null)
             queue.add(signal);
         if(!animation.isAlive()) {
-            System.err.println("Starting animation!");
+            animation = new Thread(this::animate);
             animation.start();
         }
     }

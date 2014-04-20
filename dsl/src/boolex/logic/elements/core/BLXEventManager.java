@@ -47,12 +47,10 @@ public class BLXEventManager {
 
 class EventRunner implements Runnable {
     private BLXSignalQueue queue;
-    private final int delayTime;
     BlockingQueue<BLXSignal> signals = new LinkedBlockingQueue<>();
 
     public EventRunner(int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
         this.queue = new BLXSignalQueue(delayTime, callback);
-        this.delayTime = delayTime;
     }
 
     @Override
@@ -70,7 +68,7 @@ class EventRunner implements Runnable {
 
     public void update(BLXSocket socket, Boolean value) {
         try {
-            signals.put(new BLXSignal(socket, value, this.delayTime));
+            signals.put(new BLXSignal(socket, value, 1));
         } catch (InterruptedException e) {
             System.err.println("This shouldn't happen");
         }
