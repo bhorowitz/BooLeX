@@ -6,8 +6,8 @@ import play.api.libs.iteratee._
 import play.api.libs.concurrent.Promise
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import boolex.typechecker.BooLeXTypeChecker
-import boolex.logic.elements.circuitbuilder.BLXModelGenerator
+// import boolex.typechecker.BooLeXTypeChecker
+import boolex.logic.elements.circuitbuilder._
 import play.api.libs.json.JsValue
 import models.DSLRunner
 

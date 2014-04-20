@@ -1,0 +1,3 @@
+SCRIPTPATH=$(dirname "$0")
+
+coffee -bcw -j $SCRIPTPATH/../../public/javascripts/main.js $SCRIPTPATH/coffeescripts/*.coffee
