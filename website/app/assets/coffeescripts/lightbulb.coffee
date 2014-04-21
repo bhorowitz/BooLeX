@@ -1,14 +1,21 @@
 class Lightbulb extends IODevice
   constructor: ->
-    @bitmap = 
     super(1, 0)
 
-  @createGraphics: ->
+  @createGraphics: (device) ->
     container = new createjs.Container()
-    bitmapOff = new createjs.Bitmap(@bitmapOff)
+    bitmapOff = new createjs.Bitmap(@bitmapOffPath)
     bitmapOff.x = -$gateSize * 0.5
     bitmapOff.y = -$gateSize * 0.5
+    bitmapOn = new createjs.Bitmap(@bitmapOnPath)
+    bitmapOn.x = -$gateSize * 0.5
+    bitmapOn.y = -$gateSize * 0.5
+    bitmapOn.visible = false
     container.addChild(bitmapOff)
+    container.addChild(bitmapOn)
+    if device?
+      device.bitmapOff = bitmapOff
+      device.bitmapOn = bitmapOn
     box = new createjs.Shape()
     box.graphics.beginFill(createjs.Graphics.getRGB(255,0,0));
     box.graphics.rect(0, 0, $gateSize, $gateSize)
@@ -18,15 +25,16 @@ class Lightbulb extends IODevice
     container
 
   draw: ->
-    if @inputSocket[0].on
-      unless @graphics.contains(@light)
-        @graphics.addChild(@light)
+    if Socket.states[@inputSockets[0].name] == 'on'
+      @bitmapOn.visible = true
+      @bitmapOff.visible = false
     else
-      @graphics.removeChild(@light)
+      @bitmapOn.visible = false
+      @bitmapOff.visible = true
 
   @displayName: 'BULB'
-  @bitmapOff: '/assets/images/Lightbulb_off.png'
-  @bitmapOn: '/assets/images/Lightbulb_on.png'
+  @bitmapOffPath: '/assets/images/lightbulb_off.png'
+  @bitmapOnPath: '/assets/images/lightbulb_on.png'
 
 IODevice.registerType(Lightbulb)
 

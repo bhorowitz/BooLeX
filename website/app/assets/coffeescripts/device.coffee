@@ -14,8 +14,12 @@ class Device extends Collectable
 
   initGraphics: ->
     @graphics = new createjs.Container()
-    @box = @constructor.createGraphics()
+    @box = @constructor.createGraphics(@)
     @graphics.addChild(@box)
+    @sockets = @drawSockets()
+    window.boolexStage.addChild(@graphics)  
+
+  drawSockets: ->
     for socket, i in @inputSockets
       socket.graphics.x = -$socketPadding
       socket.graphics.y = ($gateSize / (@numIns + 1)) * (i + 1) - $halfGateSize
@@ -24,7 +28,6 @@ class Device extends Collectable
       socket.graphics.x = $socketPadding
       socket.graphics.y = ($gateSize / (@numOuts + 1)) * (i + 1) - $halfGateSize
       @graphics.addChild(socket.graphics)
-    window.boolexStage.addChild(@graphics)
 
   initEvents: ->
     self = this
@@ -54,7 +57,7 @@ class Device extends Collectable
     # window.boolexStage.update()
 
   # helper function to create a device's DisplayObject. Helps to easily build toolbox display.
-  @createGraphics: ->
+  @createGraphics: (device) ->
     container = new createjs.Container()
     box = new createjs.Shape()
     box.graphics.beginFill('black').drawRect(0, 0, $gateSize, $gateSize)

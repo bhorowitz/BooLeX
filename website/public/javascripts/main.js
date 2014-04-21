@@ -95,10 +95,15 @@ Device = (function(_super) {
   };
 
   Device.prototype.initGraphics = function() {
-    var i, socket, _i, _j, _len, _len1, _ref, _ref1;
     this.graphics = new createjs.Container();
-    this.box = this.constructor.createGraphics();
+    this.box = this.constructor.createGraphics(this);
     this.graphics.addChild(this.box);
+    this.sockets = this.drawSockets();
+    return window.boolexStage.addChild(this.graphics);
+  };
+
+  Device.prototype.drawSockets = function() {
+    var i, socket, _i, _j, _len, _len1, _ref, _ref1, _results;
     _ref = this.inputSockets;
     for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
       socket = _ref[i];
@@ -107,13 +112,14 @@ Device = (function(_super) {
       this.graphics.addChild(socket.graphics);
     }
     _ref1 = this.outputSockets;
+    _results = [];
     for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
       socket = _ref1[i];
       socket.graphics.x = $socketPadding;
       socket.graphics.y = ($gateSize / (this.numOuts + 1)) * (i + 1) - $halfGateSize;
-      this.graphics.addChild(socket.graphics);
+      _results.push(this.graphics.addChild(socket.graphics));
     }
-    return window.boolexStage.addChild(this.graphics);
+    return _results;
   };
 
   Device.prototype.initEvents = function() {
@@ -176,7 +182,7 @@ Device = (function(_super) {
     return _results;
   };
 
-  Device.createGraphics = function() {
+  Device.createGraphics = function(device) {
     var bounds, box, container, text;
     container = new createjs.Container();
     box = new createjs.Shape();
@@ -209,7 +215,7 @@ Gate = (function(_super) {
     return this.types.push(gateClass);
   };
 
-  Gate.createGraphics = function() {
+  Gate.createGraphics = function(device) {
     var bitmap, box, container;
     container = new createjs.Container();
     bitmap = new createjs.Bitmap(this.bitmap);
@@ -521,16 +527,25 @@ Lightbulb = (function(_super) {
   __extends(Lightbulb, _super);
 
   function Lightbulb() {
-    this.bitmap = Lightbulb.__super__.constructor.call(this, 1, 0);
+    Lightbulb.__super__.constructor.call(this, 1, 0);
   }
 
-  Lightbulb.createGraphics = function() {
-    var bitmapOff, box, container;
+  Lightbulb.createGraphics = function(device) {
+    var bitmapOff, bitmapOn, box, container;
     container = new createjs.Container();
-    bitmapOff = new createjs.Bitmap(this.bitmapOff);
+    bitmapOff = new createjs.Bitmap(this.bitmapOffPath);
     bitmapOff.x = -$gateSize * 0.5;
     bitmapOff.y = -$gateSize * 0.5;
+    bitmapOn = new createjs.Bitmap(this.bitmapOnPath);
+    bitmapOn.x = -$gateSize * 0.5;
+    bitmapOn.y = -$gateSize * 0.5;
+    bitmapOn.visible = false;
     container.addChild(bitmapOff);
+    container.addChild(bitmapOn);
+    if (device != null) {
+      device.bitmapOff = bitmapOff;
+      device.bitmapOn = bitmapOn;
+    }
     box = new createjs.Shape();
     box.graphics.beginFill(createjs.Graphics.getRGB(255, 0, 0));
     box.graphics.rect(0, 0, $gateSize, $gateSize);
@@ -541,20 +556,20 @@ Lightbulb = (function(_super) {
   };
 
   Lightbulb.prototype.draw = function() {
-    if (this.inputSocket[0].on) {
-      if (!this.graphics.contains(this.light)) {
-        return this.graphics.addChild(this.light);
-      }
+    if (Socket.states[this.inputSockets[0].name] === 'on') {
+      this.bitmapOn.visible = true;
+      return this.bitmapOff.visible = false;
     } else {
-      return this.graphics.removeChild(this.light);
+      this.bitmapOn.visible = false;
+      return this.bitmapOff.visible = true;
     }
   };
 
   Lightbulb.displayName = 'BULB';
 
-  Lightbulb.bitmapOff = '/assets/images/Lightbulb_off.png';
+  Lightbulb.bitmapOffPath = '/assets/images/lightbulb_off.png';
 
-  Lightbulb.bitmapOn = '/assets/images/Lightbulb_on.png';
+  Lightbulb.bitmapOnPath = '/assets/images/lightbulb_on.png';
 
   return Lightbulb;
 
@@ -647,6 +662,7 @@ Socket = (function(_super) {
     this.initEvents();
     this.wires = [];
     this.name = Socket.randomName();
+    Socket.states[this.name] = 'off';
     Socket.__super__.constructor.call(this);
   }
 
@@ -720,6 +736,8 @@ Socket = (function(_super) {
     toSocket.wires.push(wire);
     return toSocket.name = fromSocket.name;
   };
+
+  Socket.states = {};
 
   return Socket;
 

@@ -4,6 +4,7 @@ class Socket extends Collectable
     @initEvents()
     @wires = []
     @name = Socket.randomName()
+    Socket.states[@name] = 'off'
     super()
 
   initGraphics: ->
@@ -48,4 +49,6 @@ class Socket extends Collectable
     fromSocket.wires.push(wire)
     toSocket.wires.push(wire)
     toSocket.name = fromSocket.name
+
+  @states: {}
 

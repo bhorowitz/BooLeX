@@ -37,3 +37,5 @@ dsl/gen
 
 ## NFS
 .nfs*
+public/javascripts/main.js
+*.DS_Store

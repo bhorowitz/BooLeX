@@ -6,7 +6,7 @@ class Gate extends Device
     @types.push(gateClass)
 
   # helper function to create a Gate's DisplayObject. Helps to easily build toolbox display.
-  @createGraphics: ->
+  @createGraphics: (device) ->
     container = new createjs.Container()
     bitmap = new createjs.Bitmap(@bitmap)
     bitmap.x = -$gateSize * 0.5
