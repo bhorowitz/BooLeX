@@ -23,18 +23,24 @@ class Gate extends Device
   createDSL: ->
     # abstract method, must be overrided
 
+  @inputs: ->
+    $.grep(Socket.all, (socket) -> socket.type == 'in' && !socket.connectedToGate())
+
+  @outs: ->
+    $.grep(Socket.all, (socket) -> socket.type == 'out' && !socket.connectedToGate())
+
   @createDSL: ->
-    inputs = []
+    inputs = @inputs()
+    outs = @outs()
     unless Gate.all?
       return "circuit main()\nend"
     for gate in Gate.all
       for socket in gate.inputSockets
-        if socket.wires.length < 1
+        unless socket.connectedToGate()
           inputs.push(socket)
     dsl = "circuit main(#{[s.name for s in inputs].join(', ')})\n"
     for gate in @all
       dsl += '  ' + gate.createDSL() + '\n'
-    outs = $.grep(Socket.all, (socket) -> socket.type == 'out' && !socket.connectedToGate())
     dsl += '  out ' + [socket.name for socket in outs].join(', ') + '\n'
     dsl += 'end'
     dsl
