@@ -46,6 +46,10 @@ class Wire extends Collectable
 
   drawTo: (x1, y1, x2, y2) ->
     @line.graphics.clear()
+    if Socket.states[@fromSocket.name] == 'on'
+      @line.shadow = new createjs.Shadow("#00aaff", 0, 0, 5);
+    else
+      @line.shadow = null
     @line.graphics.beginStroke('black')
     @line.graphics.moveTo(x1, y1)
 

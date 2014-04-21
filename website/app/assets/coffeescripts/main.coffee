@@ -34,6 +34,8 @@ $(document).ready ->
     devices = IODevice.all
     for device in devices
       device.draw()
+    for wire in Wire.all
+      wire.redraw()
     if $openConnection? && socket?
       console.log(socket)
       console.log("Sending: "+JSON.stringify(
