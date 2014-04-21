@@ -53,8 +53,21 @@ sendBoolex = ->
   dsl = Gate.createDSL()
   connection = new WebSocket("ws://localhost:9000/boolex?dsl=#{encodeURIComponent(dsl)}", ['soap', 'xmpp']);
   connection.onopen = (msg) ->
-    connection.send('start')
-    connection.send('update')
+#    connection.send(JSON.stringify(
+#      command: 'start',
+#      initialValues: [{
+#        name: 'aksjh',
+#        value: true
+#      }]
+#    ))
+#
+#    connection.send(JSON.stringify(
+#      command: 'update',
+#      socket: {
+#        name: 'aksjh',
+#        value: true
+#      }
+#    ))
     console.log(msg)
   connection.onerror = (error) ->
     console.log('WebSocket Error ' + error)
