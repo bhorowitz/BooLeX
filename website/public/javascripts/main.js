@@ -624,8 +624,6 @@ sendBoolex = function() {
   dsl = Gate.createDSL();
   connection = new WebSocket("ws://localhost:9000/boolex?dsl=" + (encodeURIComponent(dsl)), ['soap', 'xmpp']);
   connection.onopen = function(msg) {
-    connection.send('start');
-    connection.send('update');
     return console.log(msg);
   };
   connection.onerror = function(error) {
@@ -725,27 +723,6 @@ Socket = (function(_super) {
 
 })(Collectable);
 
-Tool = (function() {
-  function Tool(deviceClass, index) {
-    this.deviceClass = deviceClass;
-    this.index = index;
-    this.graphics = new createjs.Container();
-    this.graphics.addChild(deviceClass.createGraphics());
-    this.graphics.y = this.index * ($gateSize + Toolbox.padding);
-    this.graphics.on('mousedown', function(e) {
-      var newGate, _ref;
-      newGate = new deviceClass();
-      _ref = (function(coord) {
-        return [coord.x, coord.y];
-      })(this.localToGlobal(0, 0)), newGate.graphics.x = _ref[0], newGate.graphics.y = _ref[1];
-      return newGate.startDrag(e);
-    });
-  }
-
-  return Tool;
-
-})();
-
 Toolbox = (function() {
   function Toolbox() {
     var device, i, tool, _i, _len, _ref;
@@ -775,6 +752,27 @@ Toolbox = (function() {
   Toolbox.padding = 5;
 
   return Toolbox;
+
+})();
+
+Tool = (function() {
+  function Tool(deviceClass, index) {
+    this.deviceClass = deviceClass;
+    this.index = index;
+    this.graphics = new createjs.Container();
+    this.graphics.addChild(deviceClass.createGraphics());
+    this.graphics.y = this.index * ($gateSize + Toolbox.padding);
+    this.graphics.on('mousedown', function(e) {
+      var newGate, _ref;
+      newGate = new deviceClass();
+      _ref = (function(coord) {
+        return [coord.x, coord.y];
+      })(this.localToGlobal(0, 0)), newGate.graphics.x = _ref[0], newGate.graphics.y = _ref[1];
+      return newGate.startDrag(e);
+    });
+  }
+
+  return Tool;
 
 })();
 
