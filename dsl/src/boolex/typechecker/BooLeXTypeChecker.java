@@ -222,6 +222,7 @@ public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
                 scopes.insertSymbol(id, new SymbolType());
             } catch (ParseException e) {
                 System.err.println("Warning! " + e.getMessage());
+                ok = false;
             }
         }
 

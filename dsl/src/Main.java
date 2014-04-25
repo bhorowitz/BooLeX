@@ -19,7 +19,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples/dlatch.blex"));
+            BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("examples/invalid.blex"));
             BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
             BooLeXParser.ModuleContext module = bp.module();

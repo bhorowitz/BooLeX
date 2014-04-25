@@ -104,7 +104,6 @@ class FrontEndIntegrator {
         if (components != null) {
             components.stream().filter(component -> component instanceof BLXSocket).forEach((BLXSignalReceiver component) -> {
                 BLXSocket socket = (BLXSocket) component;
-                //TODO remove _ part after Alex adds this as feature
                 if (socket.getId() != null && !socket.getId().equals("_"))
                     socketMap.put(socket.getId(), socket.getValue());
             });

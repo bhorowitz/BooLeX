@@ -1,0 +1,4 @@
+circuit main(uefzj,tobtj,uefzj,tobtj)
+  pqwqn = uefzj xnor tobtj
+  out pqwqn
+end

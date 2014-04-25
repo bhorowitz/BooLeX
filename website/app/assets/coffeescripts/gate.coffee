@@ -38,10 +38,10 @@ class Gate extends Device
       for socket in gate.inputSockets
         unless socket.connectedToGate()
           inputs.push(socket)
-    dsl = "circuit main(#{[s.name for s in inputs].join(', ')})\n"
+    dsl = "circuit main(#{(s.name for s in inputs).unique().join(', ')})\n" # TODO: Sort by y position or something for integrated circuits
     for gate in @all
       dsl += '  ' + gate.createDSL() + '\n'
-    dsl += '  out ' + [socket.name for socket in outs].join(', ') + '\n'
+    dsl += '  out ' + (socket.name for socket in outs).join(', ') + '\n'
     dsl += 'end'
     dsl
 
