@@ -6,18 +6,62 @@ Array::unique = ->
 $(document).ready ->
   # Create a stage by getting a reference to the canvas
 
-  canvas = $('#boolex-stage')
+  window.canvas = $('#boolex-stage')
   canvas[0].width = canvas.parent().innerWidth()
   canvas[0].height = $(window).innerHeight()
   canvas.mousedown (e) ->
     e.preventDefault()
 
+  initBoolexStage()
+
+initBoolexStage = ->
   window.boolexStage = new createjs.Stage("boolex-stage")
+
+  selectBox = null
+  stageArea = new createjs.Shape()
+  stageArea.graphics.beginFill('rgba(255,255,255,0.01)').drawRect(0, 0, canvas[0].width, canvas[0].height)
+
+  boolexStage.addChild(stageArea)
 
   toolbox = new Toolbox()
 
+  boolexStage.dragged = null
+
+  boolexStage.on('mousedown', (e) ->
+    if boolexStage.getObjectUnderPoint(e.stageX, e.stageY).id == stageArea.id
+      Device.deselectAll()
+      selectBox = new SelectBox(e.stageX, e.stageY)
+      boolexStage.addChild(selectBox.box)
+    # false
+  )
+
+  boolexStage.on('stagemousemove', (e) ->
+    if boolexStage.dragged?
+      boolexStage.dragged.drag(e)
+  )
+
+  boolexStage.on('stagemouseup', (e) ->
+    if boolexStage.dragged && boolexStage.dragged.stopDrag
+      boolexStage.dragged.stopDrag(e)
+    boolexStage.dragged = null
+  )
+
+  boolexStage.on('pressmove', (e) ->
+    if selectBox?
+      selectBox.endX = e.stageX
+      selectBox.endY = e.stageY
+      selectBox.draw()
+      selectBox.selectDevicesUnder()
+  )
+
+  boolexStage.on('pressup', (e) ->
+    if selectBox?
+      boolexStage.removeChild(selectBox.box)
+      selectBox = null
+  )
+
   createjs.Ticker.on('tick', ->
-    window.boolexStage.update()
+    boolexStage.update()
   )
 
   $(window).on('refreshDSL', ->
@@ -36,10 +80,10 @@ $(document).ready ->
       $this.data('running', true)
 
   $(window).bind('update', (e, isManual=true, socket=null) ->
-    devices = IODevice.all
+    devices = IODevice.all || []
     for device in devices
       device.draw()
-    for wire in Wire.all
+    for wire in Wire.all || []
       wire.redraw()
     if $openConnection? && socket?
       console.log(socket)
@@ -59,6 +103,7 @@ $halfGateSize = $gateSize/2
 $socketSize = 4
 $socketPadding = $halfGateSize + 4
 $openConnection = null
+$allDevices = []
 
 distanceSquared = (x1, y1, x2, y2) ->
   dx = x2 - x1
