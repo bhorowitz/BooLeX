@@ -11,19 +11,18 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.management.ManagementFactory;
 import java.util.*;
 
 import static org.junit.Assert.fail;
 
-public class DLatchTest {
-    private DLatchRunner dLatch;
+public class XorTest {
+    private XorRunner xorRunner;
     static private BooLeXTypeChecker typeChecker = new BooLeXTypeChecker();
     static private BLXModelGenerator modelGenerator = new BLXModelGenerator(false);
 
     @Before
     public void setUp() throws Exception {
-        BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("dsl/examples/dlatch.blex"));
+        BooLeXLexer bl = new BooLeXLexer(new ANTLRFileStream("dsl/examples/xor.blex"));
         BooLeXParser bp = new BooLeXParser(new CommonTokenStream(bl));
 
         BooLeXParser.ModuleContext module = bp.module();
@@ -36,30 +35,30 @@ public class DLatchTest {
         BLXCircuit mainCircuit = modelGenerator.visit(module);
 
         List<BLXSocket> inputs = mainCircuit.getInputSockets();
-        dLatch = new DLatchRunner(inputs.get(0), inputs.get(1));
+        xorRunner = new XorRunner(inputs.get(0), inputs.get(1));
     }
 
     @Test
-    public void testDLatch() throws Exception {
+    public void testXor() throws Exception {
         try {
-            dLatch.start();
+            xorRunner.start();
         } catch (Exception e) {
             fail(e.getMessage());
         }
     }
 
-    private class DLatchRunner {
-        private BLXSocket dataSocket;
-        private BLXSocket clockSocket;
-        private boolean dataValue;
-        private boolean clockValue;
+    private class XorRunner {
+        private BLXSocket aSocket;
+        private BLXSocket bSocket;
+        private boolean aValue;
+        private boolean bValue;
         private BLXEventManager eventManager;
 
-        public DLatchRunner(BLXSocket dataSocket, BLXSocket clockSocket) {
-            this.dataSocket = dataSocket;
-            this.clockSocket = clockSocket;
-            this.dataValue = true;
-            this.clockValue = false;
+        public XorRunner(BLXSocket aSocket, BLXSocket bSocket) {
+            this.aSocket = aSocket;
+            this.bSocket = bSocket;
+            this.aValue = true;
+            this.bValue = false;
         }
 
         private <K,V> boolean stable(Map<K, V> m1, Map<K, V> m2) {
@@ -84,7 +83,6 @@ public class DLatchTest {
         }
 
         private Map<String, Boolean> currentStates = new TreeMap<>();
-        private Map<String, Boolean> lastStates = null;
 
         private void printState(Map<String, Boolean> currentValues) {
             String output = "";
@@ -103,56 +101,27 @@ public class DLatchTest {
         public void start() throws Exception {
             this.eventManager = new BLXEventManager(10, components -> {
                 currentStates.putAll(getSocketMap(components));
-                if(lastStates == null) {
-                    lastStates = new TreeMap<>(currentStates);
-                    return;
-                }
-
-                boolean isStable = stable(lastStates, currentStates);
-                if(isStable)
-                    stableRun++;
-                if(isStable && stableRun == 10) {
-                    // testing invariants
-                    if(currentStates.get("d") && currentStates.get("clk"))
-                        if (!currentStates.get("%o1") || currentStates.get("%o2"))
-                            error = "d = true and clk = true should => o1 = true and o2 = false.";
-
-                    System.out.print("Stabilized! ");
-                    printState(currentStates);
-                    stableRun = 0;
-                }
-
-                lastStates = new TreeMap<>(currentStates);
             });
 
             eventManager.start();
-            eventManager.update(dataSocket, dataValue);
-            eventManager.update(clockSocket, clockValue);
 
-            for (int i = 0; i < 10; i++) {
+            boolean values[][] = {{true, true}, {true, false}, {false, true}, {false, false}};
+
+            for (int i = 0; i < 4; i++) {
                 try {
+                    eventManager.update(aSocket, values[i][0]);
+                    eventManager.update(bSocket, values[i][1]);
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                if (!clockValue)
-                    clockValue = true;
-                else {
-                    dataValue = !dataValue;
-                    clockValue = false;
-                }
-
-                if(!error.equals("")) {
+                if(aSocket.getValue() ^ bSocket.getValue() != currentStates.get("%o1")) {
                     eventManager.stop();
-                    throw new AssertionError(error);
+                    throw new AssertionError("XOR computation failed");
                 }
-
-                eventManager.update(dataSocket, dataValue);
-                eventManager.update(clockSocket, clockValue);
-
-                System.out.println(ManagementFactory.getThreadMXBean().getThreadCount());
             }
+
             eventManager.stop();
         }
     }
