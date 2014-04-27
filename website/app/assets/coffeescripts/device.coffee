@@ -1,8 +1,11 @@
 class Device extends Collectable
+  self = this
   constructor: (@numIns, @numOuts, klass) ->
     @initSockets()
     @initGraphics()
     @initEvents()
+    @dragged = false
+    $allDevices.push(@)
     super(klass)
 
   initSockets: ->
@@ -15,6 +18,13 @@ class Device extends Collectable
   initGraphics: ->
     @graphics = new createjs.Container()
     @box = @constructor.createGraphics(@)
+    @selected = new createjs.Shape()
+    @selected.graphics.beginFill('rgba(0, 0, 255, 0.1)')
+    @selected.graphics.beginStroke('rgba(0, 0, 255, 0.3)')
+    @selected.graphics.drawRect(0, 0, $gateSize + 20, $gateSize + 20)
+    @selected.x = @selected.y = -($gateSize * 0.5 + 10)
+    @selected.visible = false
+    @graphics.addChild(@selected)
     @graphics.addChild(@box)
     @sockets = @drawSockets()
     window.boolexStage.addChild(@graphics)  
@@ -30,13 +40,18 @@ class Device extends Collectable
       @graphics.addChild(socket.graphics)
 
   initEvents: ->
-    self = this
-    @box.on("mousedown", (e) ->
+    @box.on("mousedown", (e) =>
+      @dragged = false
       @offset =
-        x: self.graphics.x-e.stageX,
-        y: self.graphics.y-e.stageY
+        x: @graphics.x-e.stageX,
+        y: @graphics.y-e.stageY
     )
     @box.on("pressmove", @drag)
+    @box.on("click", (e) =>
+      unless @dragged
+        console.log(@id)
+        @click()
+    )
 
   inputDevices: ->
     #TODO
@@ -46,15 +61,31 @@ class Device extends Collectable
     @graphics.offset =
       x: @graphics.x-e.stageX
       y: @graphics.y-e.stageY
-    e.on('mousemove', @drag)
+    boolexStage.dragged = @
 
   drag: (e) =>
+    @dragged = true
     @graphics.x = e.stageX + @graphics.offset.x
     @graphics.y = e.stageY + @graphics.offset.y
     for socket in @inputSockets.concat(@outputSockets)
       for wire in socket.wires
         wire.redraw()
     # window.boolexStage.update()
+
+  select: ->
+    @selected.visible = true
+
+  deselect: ->
+    @selected.visible = false
+
+  click: ->
+    Device.deselectAll()
+    @select()
+    # abstract
+
+  destroy: ->
+    @graphics.parent.removeChild(@graphics)
+    $allDevices = $.grep($allDevices, (device) -> device.id != @id)
 
   # helper function to create a device's DisplayObject. Helps to easily build toolbox display.
   @createGraphics: (device) ->
@@ -70,3 +101,13 @@ class Device extends Collectable
     text.y = -bounds.height / 2
     container.addChild(text)
     container
+
+  @deselectAll: ->
+    for device in $allDevices
+      device.deselect()
+
+  x: ->
+    @graphics.x
+
+  y: ->
+    @graphics.y

@@ -2,14 +2,13 @@ class Switch extends IODevice
   constructor: ->
     super(0, 1)
     @outSocket = @outputSockets[0]
-    self = @
-    @graphics.on('click', ->
-      if Socket.states[self.outSocket.name] == 'on'
-        Socket.states[self.outSocket.name] = 'off'
-      else
-        Socket.states[self.outSocket.name] = 'on'
-      $(window).trigger('update', [true, self.outSocket])
-    )
+
+  click: ->
+    if Socket.states[@outSocket.name] == 'on'
+      Socket.states[@outSocket.name] = 'off'
+    else
+      Socket.states[@outSocket.name] = 'on'
+    $(window).trigger('update', [true, @outSocket])
 
   @createGraphics: (device) ->
     container = new createjs.Container()

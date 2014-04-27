@@ -7,6 +7,5 @@ class Toolbox
     @graphics.x = $halfGateSize
     @graphics.y = $halfGateSize
     window.boolexStage.addChild(@graphics)
-    window.boolexStage.update()
 
   @padding: 5

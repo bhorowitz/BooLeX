@@ -23,8 +23,7 @@ class Wire extends Collectable
     @line.graphics.clear()
     startSocketPos = @startSocket.graphics.localToGlobal(0, 0)
     @drawTo(startSocketPos.x, startSocketPos.y, e.stageX, e.stageY)
-    e.on('mousemove', @drag)
-    e.on('mouseup', @stopDrag)
+    boolexStage.dragged = @
 
   drag: (e) =>
     startSocketPos = @startSocket.graphics.localToGlobal(0, 0)
