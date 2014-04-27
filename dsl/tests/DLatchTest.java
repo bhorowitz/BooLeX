@@ -110,7 +110,7 @@ public class DLatchTest {
                 boolean isStable = stable(lastStates, currentStates);
                 if(isStable)
                     stableRun++;
-                if(isStable && stableRun == 10) {
+                if(isStable && stableRun == 25) {
                     // testing invariants
                     if(currentStates.get("d") && currentStates.get("clk"))
                         if (!currentStates.get("%o1") || currentStates.get("%o2"))
