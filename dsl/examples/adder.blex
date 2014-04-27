@@ -20,20 +20,6 @@ circuit rippleCarry(g1,g2,g3,g4,h1,h2,h3,h4)
    out s1, s2, s3, s4
 end
 
-circuit main(a)
-out not a
-end
-
-circuit main2(u1,u2,u3,u4,v1,v2,v3,v4)
+circuit main(u1,u2,u3,u4,v1,v2,v3,v4)
     out rippleCarry(u1,u2,u3,u4,v1,v2,v3,v4)
 end
-
-# evaluate
-#     fullAdder = new FA(true, false, true)
-#     print fullAdder(0)
-#     print fullAdder(1)
-#     fullAdder(0, false)
-#     fullAdder(1, true)
-#     fullAdder(2, true)
-#     print fullAdder(0), not fullAdder(2)
-# end

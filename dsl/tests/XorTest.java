@@ -50,24 +50,11 @@ public class XorTest {
     private class XorRunner {
         private BLXSocket aSocket;
         private BLXSocket bSocket;
-        private boolean aValue;
-        private boolean bValue;
         private BLXEventManager eventManager;
 
         public XorRunner(BLXSocket aSocket, BLXSocket bSocket) {
             this.aSocket = aSocket;
             this.bSocket = bSocket;
-            this.aValue = true;
-            this.bValue = false;
-        }
-
-        private <K,V> boolean stable(Map<K, V> m1, Map<K, V> m2) {
-            if (m1.size() != m2.size())
-                return false;
-            for (K key: m1.keySet())
-                if (!m1.get(key).equals(m2.get(key)))
-                    return false;
-            return true;
         }
 
         private Map<String, Boolean> getSocketMap(Set<BLXSignalReceiver> components) {
@@ -84,24 +71,8 @@ public class XorTest {
 
         private Map<String, Boolean> currentStates = new TreeMap<>();
 
-        private void printState(Map<String, Boolean> currentValues) {
-            String output = "";
-
-            for (Map.Entry<String, Boolean> socket : currentValues.entrySet())
-                if (!socket.getKey().equals(""))
-                    output += socket.getKey() + ": " + socket.getValue() + ", ";
-
-            if (!output.equals(""))
-                System.out.println("[" + output + "]");
-        }
-
-        private String error = "";
-        private int stableRun = 0;
-
         public void start() throws Exception {
-            this.eventManager = new BLXEventManager(10, components -> {
-                currentStates.putAll(getSocketMap(components));
-            });
+            this.eventManager = new BLXEventManager(10, components -> currentStates.putAll(getSocketMap(components)));
 
             eventManager.start();
 

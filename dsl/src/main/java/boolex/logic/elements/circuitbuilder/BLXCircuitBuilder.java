@@ -131,7 +131,7 @@ public class BLXCircuitBuilder {
     }
 
     private BLXCircuit connectToGate(BLXCircuit input0, BLXCircuit input1, BLXGate gate) {
-        List<BLXSocket> inputSockets = input0.getInputSockets();
+        List<BLXSocket> inputSockets = new ArrayList<>(input0.getInputSockets());
         BLXSocket sourceSocket0 = input0.getOutputSockets().get(0);
         List<BLXSocket> outputSockets = new ArrayList<>();
 

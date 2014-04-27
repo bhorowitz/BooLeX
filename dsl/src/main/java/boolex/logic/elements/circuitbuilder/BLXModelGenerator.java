@@ -138,7 +138,6 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
     }
 
     private BLXCircuit getOrCreateInScope(String name) {
-//        if(name.equals("_")) return null;
         if(!currentScope.containsKey(name))
             currentScope.put(name, new BLXCircuit((inTopLevel) ? name : "", defaultValue));
         return currentScope.get(name);

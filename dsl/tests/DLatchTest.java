@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.management.ManagementFactory;
 import java.util.*;
 
 import static org.junit.Assert.fail;
@@ -150,8 +149,6 @@ public class DLatchTest {
 
                 eventManager.update(dataSocket, dataValue);
                 eventManager.update(clockSocket, clockValue);
-
-                System.out.println(ManagementFactory.getThreadMXBean().getThreadCount());
             }
             eventManager.stop();
         }

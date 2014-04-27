@@ -4,18 +4,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Created by ajr64 on 3/31/14.
  */
 public class StablePriorityQueue<T extends Comparable<T>> implements Queue<T> {
-    private PriorityQueue<Entry<T>> priorityQueue;
+    private PriorityBlockingQueue<Entry<T>> priorityQueue;
     private Integer highestOrder;
 
     public StablePriorityQueue() {
-        priorityQueue = new PriorityQueue<>();
+        priorityQueue = new PriorityBlockingQueue<>(100);
         highestOrder = 0;
     }
 
