@@ -8,10 +8,15 @@ import static boolex.helpers.LogicHelper.isFalse;
 import static boolex.helpers.LogicHelper.isTrue;
 
 /**
- * Created by dani on 2/10/14.
+ * This class is designed to simulate a standard OR gate
+ * @author dani
  */
 public class BLXOrGate extends BLXGate {
 
+    /**
+     * Standard constructor for OR gate
+     * @param defaultValue The default value of the input sockets
+     */
     public BLXOrGate(Boolean defaultValue) {
         setInputSocket(0, defaultValue);
         setInputSocket(1, defaultValue);

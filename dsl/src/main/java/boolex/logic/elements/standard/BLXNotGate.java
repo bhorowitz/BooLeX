@@ -5,10 +5,15 @@ import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignal;
 
 /**
- * Created by dani on 2/10/14.
+ * This class is designed to simulate a standard NOT gate
+ * @author dani
  */
 public class BLXNotGate extends BLXGate {
 
+    /**
+     * Standard constructor for NOT gate
+     * @param defaultValue The default value of the input socket
+     */
     public BLXNotGate(Boolean defaultValue) {
         setInputSocket(0, defaultValue);
         setOutputSocket(0, defaultValue);

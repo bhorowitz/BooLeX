@@ -8,10 +8,15 @@ import static boolex.helpers.LogicHelper.isTrue;
 import static boolex.helpers.LogicHelper.isFalse;
 
 /**
- * Created by dani on 2/10/14.
+ * This class is designed to simulate a standard NAND gate
+ * @author dani
  */
 public class BLXNandGate extends BLXGate {
 
+    /**
+     * Standard constructor for NAND gate
+     * @param defaultValue The default value of the input sockets
+     */
     public BLXNandGate(Boolean defaultValue) {
         setInputSocket(0, defaultValue);
         setInputSocket(1, defaultValue);

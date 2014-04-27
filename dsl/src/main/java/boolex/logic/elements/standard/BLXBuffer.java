@@ -5,10 +5,15 @@ import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignal;
 
 /**
- * Created by dani on 2/17/14.
+ * This class is designed to simulate a standard buffer
+ * @author dani
  */
 public class BLXBuffer extends BLXGate {
 
+    /**
+     * Standard constructor for buffer
+     * @param defaultValue The default value of the input socket
+     */
     public BLXBuffer(Boolean defaultValue) {
         setInputSocket(0, defaultValue);
         setOutputSocket(0, defaultValue);
