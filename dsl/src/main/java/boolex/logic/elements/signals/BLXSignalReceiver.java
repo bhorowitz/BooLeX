@@ -1,8 +1,16 @@
 package boolex.logic.elements.signals;
 
 /**
- * Created by dani on 2/11/14.
+ * A BLXSignalReceiver is an object that can receive a BLXSignal.
+ * These are currently only BLXGates and BLXSockets.
+ *
+ * @author dani
  */
 public interface BLXSignalReceiver {
+    /**
+     * Perform a given action when a signal is received
+     * @param signal The received signal
+     * @param queue The queue from which the signal is sent
+     */
     public void receive(BLXSignal signal, BLXSignalQueue queue);
 }

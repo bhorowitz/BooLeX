@@ -104,7 +104,7 @@ class DSLRunner extends Actor {
       } else if (!typeChecker.visit(parseTree)) {
         sender ! TypeError("Error! Your code has semantic errors.")
       } else {
-        circuit = modelGenerator.visit(parseTree)
+        circuit = modelGenerator.visit(parseTree) // compile the dsl
         sender ! CodeOk(outSocket)
       }
 

@@ -8,10 +8,15 @@ import static boolex.helpers.LogicHelper.isFalse;
 import static boolex.helpers.LogicHelper.isTrue;
 
 /**
- * Created by dani on 2/10/14.
+ * This class is designed to simulate a standard AND gate
+ * @author dani
  */
 public class BLXAndGate extends BLXGate {
 
+    /**
+     * Standard constructor for AND gate
+     * @param defaultValue The default value of the input sockets
+     */
     public BLXAndGate(Boolean defaultValue) {
         setInputSocket(0, defaultValue);
         setInputSocket(1, defaultValue);

@@ -12,43 +12,60 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by dani on 2/17/14.
+ * A BLXEventManager is used to manage circuit events and start/stop the animation.
+ *
+ * @author dani
  */
 public class BLXEventManager {
     private EventRunner runner;
     private Thread runnerThread;
 
-    public BLXEventManager() {
-        this(BLXSignalQueue.DEFAULT_DELAY_TIME);
-    }
-
-    public BLXEventManager(int delayTime) {
-        this(delayTime, FrontEndIntegrator::integrate);
-    }
-
+    /**
+     * Constructor for BLXEventManager
+     * @param delayTime The amount of time (in milliseconds) to delay between simulated gate delays
+     * @param callback The callback function to invoke after each gate delay
+     */
     public BLXEventManager(int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
         runner = new EventRunner(delayTime, callback);
         runnerThread = new Thread(runner);
     }
 
+    /**
+     * Update a socket in the circuit with a new value and propagate the signal
+     * @param socket The socket to update
+     * @param value The new value
+     */
     public void update(BLXSocket socket, Boolean value) {
         runner.update(socket, value);
     }
 
+    /**
+     * Start the simulation
+     */
     public void start() {
         runnerThread.start();
     }
 
+    /**
+     * Stop the simulation
+     */
     public void stop() {
         runnerThread.interrupt();
     }
-
 }
 
+/**
+ * An EventRunner is used to spin off the circuit simulation
+ */
 class EventRunner implements Runnable {
     BlockingQueue<BLXSignal> signals = new LinkedBlockingQueue<>();
     private BLXSignalQueue queue;
 
+    /**
+     * Constructor for EventRunner
+     * @param delayTime The amount of time (in milliseconds) to delay between simulated gate delays
+     * @param callback The callback function to invoke after each gate delay
+     */
     public EventRunner(int delayTime, BLXSignalQueue.BLXSignalQueueCallback callback) {
         this.queue = new BLXSignalQueue(delayTime, callback);
     }
@@ -58,7 +75,7 @@ class EventRunner implements Runnable {
         try {
             while (!Thread.interrupted()) {
                 BLXSignal signal = signals.take();
-                if (signal.getTarget() == null) // Poison Pill
+                if (signal.getTarget() == null) // poison pill
                     throw new InterruptedException();
                 queue.signal(signal);
             }
@@ -69,45 +86,25 @@ class EventRunner implements Runnable {
         }
     }
 
+    /**
+     * Stop the simulation
+     */
     private void stop() {
         signals.clear();
         update(null, null); // Poison Pill
         queue.stop();
     }
 
+    /**
+     * Update a socket in the circuit with a new value and propagate the signal
+     * @param socket The socket to update
+     * @param value The new value
+     */
     public void update(BLXSocket socket, Boolean value) {
         try {
             signals.put(new BLXSignal(socket, value, 1));
         } catch (InterruptedException e) {
             System.err.println("This shouldn't happen");
         }
-    }
-}
-
-class FrontEndIntegrator {
-    private static Map<String, Boolean> currentValues = new TreeMap<>();
-
-    public static void integrate(Set<BLXSignalReceiver> components) {
-        String output = "(" + components.size() + ") ";
-        currentValues.putAll(getSocketMap(components));
-
-        for (Map.Entry<String, Boolean> socket : currentValues.entrySet())
-            if (!socket.getKey().equals(""))
-                output += socket.getKey() + ": " + socket.getValue() + ", ";
-
-        if (!output.equals(""))
-            System.out.println("[" + output + "]");
-    }
-
-    public static Map<String, Boolean> getSocketMap(Set<BLXSignalReceiver> components) {
-        Map<String, Boolean> socketMap = new HashMap<>();
-        if (components != null) {
-            components.stream().filter(component -> component instanceof BLXSocket).forEach((BLXSignalReceiver component) -> {
-                BLXSocket socket = (BLXSocket) component;
-                if (socket.getId() != null && !socket.getId().equals("_"))
-                    socketMap.put(socket.getId(), socket.getValue());
-            });
-        }
-        return socketMap;
     }
 }
