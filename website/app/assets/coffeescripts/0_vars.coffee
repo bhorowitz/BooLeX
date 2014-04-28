@@ -7,3 +7,5 @@ $allDevices = []
 $selectedDevices = {}
 $stageWidth = undefined
 $stageHeight = undefined
+$clockTime = 1500
+$clocks = []
