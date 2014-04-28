@@ -14,15 +14,19 @@ import models.DSLRunner
 object Application extends Controller {
 
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
-  }
-
-  def nothing = Action {
-    Ok("")
+    Ok(views.html.index())
   }
 
   def boolex(dsl : String) = WebSocket.async[JsValue] { request =>
     DSLRunner.addCircuit(dsl)
+  }
+
+  def save(dsl : String) = Action {
+    Ok(views.html.index())
+  }
+
+  def load(hash : String) = Action {
+    Ok(views.html.index())
   }
 
 }
