@@ -69,12 +69,14 @@ initBoolexStage = ->
       $openConnection.send(JSON.stringify(
                             command: 'heartbeat'
       ))
-    for clock in $clocks
-      if Socket.states[clock.outSocket.name] == 'on'
-        Socket.states[clock.outSocket.name] = 'off'
-      else
-        Socket.states[clock.outSocket.name] = 'on'
-      $(window).trigger('update', [false, clock.outSocket])
+      for clock in $clocks
+        if window.numTicks % clock.type == 0
+          if Socket.states[clock.outSocket.name] == 'on'
+            Socket.states[clock.outSocket.name] = 'off'
+          else
+            Socket.states[clock.outSocket.name] = 'on'
+          $(window).trigger('update', [false, clock.outSocket])
+      window.numTicks++
   , 1500)
 
   $(window).on('refreshDSL', ->
@@ -98,6 +100,7 @@ initBoolexStage = ->
       $this.removeClass('btn-danger').addClass('btn-primary').text('Start')
       $this.data('running', null)
     else
+      window.numTicks = 0
       startBoolex()
       $this.removeClass('btn-primary').addClass('btn-danger').text('Stop')
       $this.data('running', true)
@@ -124,6 +127,40 @@ initBoolexStage = ->
 
   $('#new-button').click ->
     device.destroy() for device in $allDevices
+
+  dslFactory = new DSLFactory()
+
+  $('#insert-rom').click ->
+    $('#rom-modal').modal('hide')
+    lines = $('#rom-rows').val().split("\n")
+    dsl = dslFactory.generateROM(lines)
+    unless dsl
+      alert("Invalid ROM size!")
+      return
+    ic = new IntegratedCircuit(dsl)
+    boolexStage.addChild(ic.graphics)
+    $(window).trigger('update')
+
+  $('#insert-decoder').click ->
+    $('#decoder-modal').modal('hide')
+    n = parseInt($('#decoder-n').val())
+    dsl = dslFactory.generateDecoder(n)
+    unless dsl
+      alert("Invalid decoder size!")
+      return
+    ic = new IntegratedCircuit(dsl)
+    boolexStage.addChild(ic.graphics)
+    $(window).trigger('update')
+
+  $('.load-premade-circuit').click ->
+    $this = $(this)
+    circuit = $this.data('circuit')
+    if circuit == 'rom'
+      $('#rom-modal').modal('show')
+    else if circuit == 'encoder'
+      $('#decoder-modal').modal('show')
+    else if circuit == 'decoder'
+      $('#decoder-modal').modal('show')
 
   $(window).bind('update', (e, isManual=true, socket=null) ->
     devices = IODevice.all || []
