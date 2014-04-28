@@ -20,14 +20,14 @@ class IntegratedCircuit extends Gate
       y = sumY/@gates.length
       # add all input sockets, maintaining connections
       for socket, i in ins
-        newSocket = new Socket(@, i, 'in', name)
+        newSocket = new Socket(@, i, 'in', socket.name)
         @inputSockets.push(newSocket)
         for fromSocket in inputConnections[i]
           wire = new Wire(fromSocket, newSocket)
 
       # add all output sockets, maintaining connections
       for socket, i in outs
-        newSocket = new Socket(@, i, 'out', name)
+        newSocket = new Socket(@, i, 'out', socket.name)
         @outputSockets.push(newSocket)
         for toSocket in outputConnections[i]
           wire = new Wire(newSocket, toSocket)

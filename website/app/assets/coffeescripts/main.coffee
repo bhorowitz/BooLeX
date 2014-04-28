@@ -65,6 +65,10 @@ initBoolexStage = ->
   )
 
   t = setInterval(->
+    if $openConnection
+      $openConnection.send(JSON.stringify(
+                            command: 'heartbeat'
+      ))
     for clock in $clocks
       if Socket.states[clock.outSocket.name] == 'on'
         Socket.states[clock.outSocket.name] = 'off'
