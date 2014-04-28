@@ -40,17 +40,23 @@ class Gate extends Device
   @createDSL: ->
     inputs = @inputs()
     outs = @outs()
-    integratedCircuits = ''
+    integratedCircuits = []
     unless Gate.all?
       return "circuit main()\nend"
-    main = "circuit main(#{(s.name for s in inputs).unique().join(', ')})\n" # TODO: Sort by y position or something for integrated circuits
+
+    concatenate = (items) -> [].concat.apply([], items)
+
+    main = "circuit main(#{(s.name for s in inputs).unique().join(', ')})\n"
     for gate in @all
       if gate instanceof IntegratedCircuit
-        integratedCircuits += gate.circuitDSL() + '\n\n'
+        integratedCircuits.push(gate.name)
+        integratedCircuits.push(concatenate(IntegratedDSL.getDependencies(gate.name)))
       main += '  ' + gate.createDSL() + '\n'
     main += '  out ' + (socket.name for socket in outs).join(', ') + '\n'
     main += 'end'
-    integratedCircuits + main
+
+    integratedCircuits = concatenate(integratedCircuits).reverse().unique().map((ic) -> IntegratedDSL.getDSL(ic)).join("\n\n")
+    integratedCircuits + (if integratedCircuits != "" then "\n\n" else "") + main
 
   @displayName: 'GATE'
   @bitmap: "" # path to png file with gate graphic TODO

@@ -30,11 +30,13 @@ class IntegratedCircuit extends Gate
       integratedDSL += internalDSL + "\n    out " + destinationNames.join(", ") + "\nend"
 
       IntegratedDSL.saveDSL(@name, integratedDSL);
-      @dsl = [@name]
+      @dsl = []
 
       for gate in @gates
         if gate instanceof IntegratedCircuit
-          @dsl.append(gate.name)
+          @dsl.push(gate.name)
+
+      IntegratedDSL.setDependencies(@name, @dsl);
 
       outConnections = []
       for name, i in destinationNames
@@ -76,7 +78,7 @@ class IntegratedCircuit extends Gate
       y = $stageHeight * 0.5
 
       IntegratedDSL.saveDSL(@name, @dsl);
-      @dsl = [@name]
+      @dsl = []
 
       super(inputs.length, outputs.length)
 

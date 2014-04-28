@@ -1,7 +1,10 @@
 Array::unique = ->
-  output = {}
-  output[@[key]] = @[key] for key in [0...@length]
-  value for key, value of output
+  seen = {}
+  res = []
+  for key in [0...@length]
+    res.push(@[key]) if !(@[key] of seen)
+    seen[@[key]] = true
+  return res
 
 $(document).ready ->
   # Create a stage by getting a reference to the canvas
