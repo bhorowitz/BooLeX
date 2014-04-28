@@ -7,7 +7,7 @@ class SevenSegment extends IODevice
   @prepareSegments: ->
     # BEGIN CREDIT to http://www.williammalone.com/articles/seven-segment-display/
     baseX = -10
-    baseY = -17
+    baseY = -18
     digitHeight = $gateSize/5
     thicknessRatio = 0.5
     paddingRatio = 0.2
@@ -78,21 +78,21 @@ class SevenSegment extends IODevice
 
   @createGraphics: (device) ->
     container = new createjs.Container()
+    box = new createjs.Shape()
+    box.graphics.beginFill('#fff')
+    box.graphics.rect(0, 0, $gateSize, @height)
+    box.x = -$gateSize * 0.5
+    box.y = -$gateSize
+    container.hitArea = box
     segments = @prepareSegments()
     if device
       device.segments = segments
     container.addChild(segment) for segment in segments
-    box = new createjs.Shape()
-    box.graphics.beginFill(createjs.Graphics.getRGB(255,0,0))
-    box.graphics.rect(0, 0, $gateSize, $gateSize * 2)
-    box.x = -$gateSize * 0.5
-    box.y = -$gateSize * 0.5
-    container.hitArea = box
     container
 
   draw: ->
     for i in [0..6]
-      @segments[i].visible = Socket.states[@inputSockets[i].name] == 'on'
+      @segments[i].alpha = if Socket.states[@inputSockets[i].name] == 'on' then 1 else 0.2
 
   @displayName: 'CHAR'
   @bitmapOffPath: '/assets/images/lightbulb_off.png'

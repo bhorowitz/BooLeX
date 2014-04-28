@@ -3,11 +3,12 @@
 # ~~~~
 
 # Home page
-GET        /                    controllers.Application.index
-GET        /null                controllers.Application.nothing
-GET        /boolex              controllers.Application.boolex(dsl : String)
+GET         /                    controllers.Application.index
+GET         /boolex              controllers.Application.boolex
+POST        /save                controllers.Application.save(dsl : String)
+POST        /load                controllers.Application.load(hash : String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file        controllers.Assets.at(path="/public", file)
+GET         /assets/*file        controllers.Assets.at(path="/public", file)
 
     

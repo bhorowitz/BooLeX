@@ -6,6 +6,8 @@ import play.api.libs.iteratee._
 import play.api.libs.concurrent.Promise
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import java.lang.management.ManagementFactory
+
 // import boolex.typechecker.BooLeXTypeChecker
 import boolex.logic.elements.circuitbuilder._
 import play.api.libs.json.JsValue
@@ -14,15 +16,20 @@ import models.DSLRunner
 object Application extends Controller {
 
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+    println("#threads = " + ManagementFactory.getThreadMXBean.getThreadCount)
+    Ok(views.html.index())
   }
 
-  def nothing = Action {
-    Ok("")
+  def boolex() = WebSocket.async[JsValue] { request =>
+    DSLRunner.addCircuit()
   }
 
-  def boolex(dsl : String) = WebSocket.async[JsValue] { request =>
-    DSLRunner.addCircuit(dsl)
+  def save(dsl : String) = Action {
+    Ok(views.html.index())
+  }
+
+  def load(hash : String) = Action {
+    Ok(views.html.index())
   }
 
 }

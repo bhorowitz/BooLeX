@@ -7,20 +7,20 @@ function DSLFactory() {
     // Public functions
     this.generateROM = function(valueMatrix) {
         var nWords = valueMatrix.length;
-        var wordSize = valueMatrix[0].replace(/[^01]/g, "").length;
+        var wordSize = valueMatrix[0].replace(/[^ft]/g, "").length;
         return fillInROM(createROMTemplate(nWords, wordSize), valueMatrix, nWords, wordSize);
     };
 
     this.generateAndChain = function(nInputs) {
         var inputs = rangeToList(0,nInputs).map(function(x) { return "i"+x });
-        var dsl = "circuit AND_CHAIN_" + nInputs + "(" + inputs.join(", ") + ")\n";
+        var dsl = "circuit ANDC_" + nInputs + "(" + inputs.join(", ") + ")\n";
         dsl += "    out " + inputs.join(" and ") + "\nend\n"
         return dsl;
     };
     
     this.generateOrChain = function(nInputs) {
         var inputs = rangeToList(0,nInputs).map(function(x) { return "i"+x });
-        var dsl = "circuit AND_CHAIN_" + nInputs + "(" + inputs.join(", ") + ")\n";
+        var dsl = "circuit ORC_" + nInputs + "(" + inputs.join(", ") + ")\n";
         dsl += "    out " + inputs.join(" or ") + "\nend\n"
         return dsl;
     };
@@ -83,7 +83,7 @@ function DSLFactory() {
     }
 
     function getHeader(type,inputs,nOutputs) {
-        return "circuit " + type.toUpperCase() + "_" + inputs.length + "_" +
+        return "circuit " + type[0].toUpperCase() + "_" + inputs.length + "_" +
             nOutputs + "(" + inputs.join(", ") + ")\n";
     }
     
@@ -139,11 +139,11 @@ function DSLFactory() {
     }
 
     function fillInROM(dsl, valueMatrix, nWords, wordSize) {
-        var values = valueMatrix.join("").replace(/[^01]/g, "");
+        var values = valueMatrix.join("").replace(/[^ft]/g, "");
 
         if (values.length !== (nWords * wordSize)) {
             console.log("ERROR: Wrong number of values");
-            return;
+            return undefined;
         }
 
         var wordNames = getWordNames(valueMatrix.length);

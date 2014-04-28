@@ -1,7 +1,10 @@
 Array::unique = ->
-  output = {}
-  output[@[key]] = @[key] for key in [0...@length]
-  value for key, value of output
+  seen = {}
+  res = []
+  for key in [0...@length]
+    res.push(@[key]) if !(@[key] of seen)
+    seen[@[key]] = true
+  return res
 
 $(document).ready ->
   # Create a stage by getting a reference to the canvas
@@ -64,6 +67,22 @@ initBoolexStage = ->
     boolexStage.update()
   )
 
+  t = setInterval(->
+    $(window).trigger('refreshDSL')
+    if $openConnection
+      $openConnection.send(JSON.stringify(
+                            command: 'heartbeat'
+      ))
+      for clock in $clocks
+        if window.numTicks % clock.type == 0
+          if Socket.states[clock.outSocket.name] == 'on'
+            Socket.states[clock.outSocket.name] = 'off'
+          else
+            Socket.states[clock.outSocket.name] = 'on'
+          $(window).trigger('update', [false, clock.outSocket])
+      window.numTicks++
+  , 1500)
+
   $(window).on('refreshDSL', ->
     dsl = Gate.createDSL()
     dsl = syntaxColor(dsl)
@@ -85,6 +104,7 @@ initBoolexStage = ->
       $this.removeClass('btn-danger').addClass('btn-primary').text('Start')
       $this.data('running', null)
     else
+      window.numTicks = 0
       startBoolex()
       $this.removeClass('btn-primary').addClass('btn-danger').text('Stop')
       $this.data('running', true)
@@ -124,8 +144,40 @@ initBoolexStage = ->
   $('#cancel-button').click ->
     stopTutorial()  
 
+  dslFactory = new DSLFactory()
 
+  $('#insert-rom').click ->
+    $('#rom-modal').modal('hide')
+    lines = $('#rom-rows').val().replace(/0/g, 'f').replace(/1/g, 't').split("\n")
+    dsl = dslFactory.generateROM(lines)
+    console.log(dsl)
+    unless dsl
+      alert("Invalid ROM size!")
+      return
+    ic = new IntegratedCircuit(dsl)
+    boolexStage.addChild(ic.graphics)
+    $(window).trigger('update')
 
+  $('#insert-decoder').click ->
+    $('#decoder-modal').modal('hide')
+    n = parseInt($('#decoder-n').val())
+    dsl = dslFactory.generateDecoder(n)
+    unless dsl
+      alert("Invalid decoder size!")
+      return
+    ic = new IntegratedCircuit(dsl)
+    boolexStage.addChild(ic.graphics)
+    $(window).trigger('update')
+
+  $('.load-premade-circuit').click ->
+    $this = $(this)
+    circuit = $this.data('circuit')
+    if circuit == 'rom'
+      $('#rom-modal').modal('show')
+    else if circuit == 'encoder'
+      $('#decoder-modal').modal('show')
+    else if circuit == 'decoder'
+      $('#decoder-modal').modal('show')
 
   $(window).bind('update', (e, isManual=true, socket=null) ->
     devices = IODevice.all || []
@@ -162,9 +214,14 @@ window.echo = (message) ->
 
 startBoolex = ->
   dsl = Gate.createDSL()
-  $openConnection = new WebSocket("ws://localhost:9000/boolex?dsl=#{encodeURIComponent(dsl)}", ['soap', 'xmpp'])
+  $openConnection = new WebSocket("ws://#{location.host}/boolex", ['soap', 'xmpp'])
   
   $openConnection.onopen = (msg) ->
+    $openConnection.send(JSON.stringify(
+      command: 'initialize',
+      dsl: dsl
+    ))
+
     $openConnection.send(JSON.stringify(
       command: 'start',
       initialValues: { name: socket.name, value: Socket.states[socket.name] == 'on'} for socket in Gate.inputs()

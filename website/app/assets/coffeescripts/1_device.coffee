@@ -1,6 +1,7 @@
 class Device extends Collectable
   self = this
   @height = $gateSize
+  @width = $gateSize
   constructor: (@numIns, @numOuts, klass) ->
     @initSockets()
     @initGraphics()
@@ -33,11 +34,11 @@ class Device extends Collectable
 
   drawSockets: ->
     for socket, i in @inputSockets
-      socket.graphics.x = -$socketPadding
+      socket.graphics.x = -$socketPadding * (@constructor.width / $gateSize)
       socket.graphics.y = (@constructor.height / (@numIns + 1)) * (i + 1) - @constructor.height*0.5
       @graphics.addChild(socket.graphics)
     for socket, i in @outputSockets
-      socket.graphics.x = $socketPadding
+      socket.graphics.x = $socketPadding * (@constructor.width / $gateSize)
       socket.graphics.y = (@constructor.height / (@numOuts + 1)) * (i + 1) - @constructor.height*0.5
       @graphics.addChild(socket.graphics)
 
@@ -94,9 +95,9 @@ class Device extends Collectable
         socket.destroy()
     if @graphics.parent
       @graphics.parent.removeChild(@graphics)
-    window.$allDevices = $.grep($allDevices, (device) -> device.id != @id)
-    @klass.remove(this)
+    window.$allDevices = $.grep($allDevices, (device) => device.id != @id)
     $(window).trigger('refreshDSL')
+    super()
 
   # helper function to create a device's DisplayObject. Helps to easily build toolbox display.
   @createGraphics: (device) ->

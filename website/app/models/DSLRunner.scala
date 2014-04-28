@@ -23,6 +23,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.language.postfixOps
+import java.lang.management.ManagementFactory
 
 /**
  * Created by ajr64 on 4/4/14.
@@ -31,14 +32,24 @@ import scala.language.postfixOps
 object DSLRunner {
   implicit val timeout = Timeout(3 seconds)
 
-  def addCircuit(dsl: String): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def addCircuit(): Future[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
     val evaluator: ActorRef = Akka.system.actorOf(Props[DSLRunner])
 
-    (evaluator ? Initialize(dsl)).map {
-      case CodeOk(enumerator) =>
+    (evaluator ? OpenConnection()).map {
+      case Ready(enumerator) =>
         val iteratee = Iteratee.foreach[JsValue] {
           event =>
             (event \ "command").as[String] match {
+              case "initialize" =>
+                val dslResult = (event \ "dsl").validate[String]
+                dslResult match {
+                  case JsSuccess(dsl, _) =>
+                    (evaluator ? Initialize(dsl)).map {
+                      case TypeError(error) => evaluator ! Die(error)
+                      case _ => /* ignore */
+                    }
+                  case _ => evaluator ! Die("Malformed initialization -- no dsl field.")
+                }
               case "start" =>
                 val request = (event \ "initialValues").validate[List[SocketAssignment]]
                 request match {
@@ -53,21 +64,10 @@ object DSLRunner {
                     evaluator ! UpdateSocket(socket)
                   case _ => /* ignore */
                 }
-              case "stop" => evaluator ! Die()
+              case "stop" => evaluator ! Die("")
               case _ => /* ignore */
             }
-        }.map {
-          _ => evaluator ! Die()
-        }
-
-        (iteratee, enumerator)
-
-      case TypeError(error) =>
-        evaluator ! Die()
-
-        val iteratee = Done[JsValue, Unit]((), Input.EOF)
-        val enumerator = Enumerator[JsValue](JsObject(Seq("error" -> JsString(error)))) >>> Enumerator.enumInput(Input.EOF)
-
+        }.map { _ => evaluator ! Die("") }
         (iteratee, enumerator)
     }
   }
@@ -94,6 +94,9 @@ class DSLRunner extends Actor {
   }
 
   def receive = {
+    case OpenConnection() =>
+      sender ! Ready(outSocket)
+
     case Initialize(dsl) =>
       val bl: BooLeXLexer = new BooLeXLexer(new ANTLRInputStream(dsl))
       val bp: BooLeXParser = new BooLeXParser(new CommonTokenStream(bl))
@@ -105,12 +108,12 @@ class DSLRunner extends Actor {
         sender ! TypeError("Error! Your code has semantic errors.")
       } else {
         circuit = modelGenerator.visit(parseTree) // compile the dsl
-        sender ! CodeOk(outSocket)
+        sender ! CodeOk()
       }
 
     case BeginEvaluation(initialValues) =>
       if(circuit != null && eventManager == null) {
-        eventManager = new BLXEventManager(250, new CircuitHandler)
+        eventManager = new BLXEventManager(100, new CircuitHandler)
         eventManager.start()
 
         initialValues.foreach(update)
@@ -118,8 +121,12 @@ class DSLRunner extends Actor {
 
     case UpdateSocket(socket) => update(socket)
 
-    case Die() =>
+    case Die(message : String) =>
+      if(eventManager != null)
+        eventManager.stop() // THIS IS IMPORTANT
       if (outputChannel != null) {
+        if (message != "")
+          outputChannel.push(Json.toJson(Map("error" -> message)))
         outputChannel.eofAndEnd()
       }
       context.stop(self)
@@ -144,9 +151,13 @@ class DSLRunner extends Actor {
 
 
 /* Initialization messages */
+case class OpenConnection()
+
 case class Initialize(dsl: String)
 
-case class CodeOk(enumerator: Enumerator[JsValue])
+case class Ready(enumerator: Enumerator[JsValue])
+
+case class CodeOk()
 
 case class TypeError(error: String)
 
@@ -162,4 +173,4 @@ object SocketAssignment extends ((String, Boolean) => SocketAssignment) {
 }
 
 /* Destruction message */
-case class Die()
+case class Die(message : String)
