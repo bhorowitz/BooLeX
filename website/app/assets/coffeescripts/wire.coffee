@@ -74,6 +74,8 @@ class Wire extends Collectable
 
   redraw: ->
     fromSocketPos = @fromSocket.graphics.localToGlobal(0, 0)
+    if !@toSocket
+      return
     toSocketPos = @toSocket.graphics.localToGlobal(0, 0)
     @drawTo(fromSocketPos.x, fromSocketPos.y, toSocketPos.x, toSocketPos.y)
 

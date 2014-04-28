@@ -32,6 +32,7 @@ class Switch extends IODevice
     container
 
   draw: ->
+    @outSocket ||= @outputSockets[0]
     if Socket.states[@outSocket.name] == 'on'
       @switcher.x = 5
     else

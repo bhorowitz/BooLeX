@@ -64,6 +64,15 @@ initBoolexStage = ->
     boolexStage.update()
   )
 
+  t = setInterval(->
+    for clock in $clocks
+      if Socket.states[clock.outSocket.name] == 'on'
+        Socket.states[clock.outSocket.name] = 'off'
+      else
+        Socket.states[clock.outSocket.name] = 'on'
+      $(window).trigger('update', [false, clock.outSocket])
+  , 1500)
+
   $(window).on('refreshDSL', ->
     dsl = Gate.createDSL()
     dsl = syntaxColor(dsl)
