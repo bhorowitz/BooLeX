@@ -132,6 +132,18 @@ initBoolexStage = ->
   $('#new-button').click ->
     device.destroy() for device in $allDevices
 
+  $('#tutorial-button').click ->
+     startTutorial()
+
+  $('#next-button').click ->
+    nextSlide()
+
+  $('#previous-button').click ->
+    previousSlide()  
+
+  $('#cancel-button').click ->
+    stopTutorial()  
+
   dslFactory = new DSLFactory()
 
   $('#insert-rom').click ->
