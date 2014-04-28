@@ -1,4 +1,6 @@
 class IntegratedCircuit extends Gate
+  height = $gateSize * 2
+
   constructor: (gates_or_dsl) -> # must be passed either a list of gates or dsl
     if gates_or_dsl instanceof Array
       # list of gates
@@ -93,9 +95,9 @@ class IntegratedCircuit extends Gate
   @createGraphics: (device) ->
     container = new createjs.Container()
     box = new createjs.Shape()
-    box.graphics.beginFill('black').drawRect(0, 0, $gateSize, $gateSize)
-    box.graphics.beginFill('white').drawRect(2, 2, $gateSize - 4, $gateSize - 4)
-    box.x = box.y = -$halfGateSize
+    box.graphics.beginFill('black').drawRect(0, 0, $gateSize * 2, $gateSize * 2)
+    box.graphics.beginFill('white').drawRect(2, 2, $gateSize * 2 - 4, $gateSize * 2 - 4)
+    box.x = box.y = -$gateSize
     container.addChild(box)
     text = new createjs.Text(device.name, '14px Helvetica')
     bounds = text.getBounds()

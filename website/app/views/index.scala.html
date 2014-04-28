@@ -13,6 +13,7 @@
     <script src="@routes.Assets.at("javascripts/easeljs-NEXT.min.js")"></script>
     <script src="@routes.Assets.at("javascripts/main.js")"></script>
     <script src="@routes.Assets.at("javascripts/syntaxcolor.js")"></script>
+    <script src="@routes.Assets.at("javascripts/DSLFactory.js")"></script>
   </head>
   <body>
     <div class="header">
@@ -28,6 +29,17 @@
             <div class="btn-group">
               <button class="btn btn-default navbar-btn" id="integrated-circuit-button"><i class="fa fa-sign-in"></i> Create Integrated Circuit</button>
               <button class="btn btn-default navbar-btn" id="load-circuit-button"><i class="fa fa-file-text-o"></i> Load Circuit</button>
+              <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" class="load-premade-circuit" data-circuit="rom">ROM</a></li>
+                <li><a href="#" class="load-premade-circuit" data-circuit="encoder">Encoder</a></li>
+                <li><a href="#" class="load-premade-circuit" data-circuit="decoder">Decoder</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
             </div>
             <button class="btn btn-default navbar-btn" id="new-button"><i class="fa fa-edit"></i> New</button>
           </div>
@@ -59,6 +71,42 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-primary" id="insert-circuit-button">Insert</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div class="modal fade" id="rom-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Insert ROM</h4>
+          </div>
+          <div class="modal-body" id="modal-body-load">
+            <p>Enter the ROM values below:</p>
+            <textarea name="rom-rows" id="rom-rows" class="form-control" placeholder="0101001..."></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="insert-rom">Insert</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div class="modal fade" id="decoder-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Insert ROM</h4>
+          </div>
+          <div class="modal-body" id="modal-body-load">
+            <p>Enter the number of inputs to decode:</p>
+            <input name="decoder-n" id="decoder-n" class="form-control" placeholder="0101001..."></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="insert-decoder">Insert</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->

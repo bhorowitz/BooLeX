@@ -143,7 +143,7 @@ function DSLFactory() {
 
         if (values.length !== (nWords * wordSize)) {
             console.log("ERROR: Wrong number of values");
-            return;
+            return undefined;
         }
 
         var wordNames = getWordNames(valueMatrix.length);
