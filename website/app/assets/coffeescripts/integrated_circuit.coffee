@@ -1,5 +1,6 @@
 class IntegratedCircuit extends Gate
-  height = $gateSize * 2
+  @height = $gateSize * 2
+  @width = $gateSize * 2
 
   constructor: (gates_or_dsl) -> # must be passed either a list of gates or dsl
     if gates_or_dsl instanceof Array
@@ -102,6 +103,7 @@ class IntegratedCircuit extends Gate
     text = new createjs.Text(device.name, '14px Helvetica')
     bounds = text.getBounds()
     text.x = -bounds.width / 2
+    @constructor.width = bounds.width + 5
     text.y = -bounds.height / 2
     container.addChild(text)
     container

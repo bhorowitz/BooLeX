@@ -68,6 +68,7 @@ initBoolexStage = ->
   )
 
   t = setInterval(->
+    $(window).trigger('refreshDSL')
     if $openConnection
       $openConnection.send(JSON.stringify(
                             command: 'heartbeat'
@@ -135,8 +136,9 @@ initBoolexStage = ->
 
   $('#insert-rom').click ->
     $('#rom-modal').modal('hide')
-    lines = $('#rom-rows').val().split("\n")
+    lines = $('#rom-rows').val().replace(/0/g, 'f').replace(/1/g, 't').split("\n")
     dsl = dslFactory.generateROM(lines)
+    console.log(dsl)
     unless dsl
       alert("Invalid ROM size!")
       return
