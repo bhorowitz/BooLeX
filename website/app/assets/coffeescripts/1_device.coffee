@@ -94,9 +94,9 @@ class Device extends Collectable
         socket.destroy()
     if @graphics.parent
       @graphics.parent.removeChild(@graphics)
-    window.$allDevices = $.grep($allDevices, (device) -> device.id != @id)
-    @klass.remove(this)
+    window.$allDevices = $.grep($allDevices, (device) => device.id != @id)
     $(window).trigger('refreshDSL')
+    super()
 
   # helper function to create a device's DisplayObject. Helps to easily build toolbox display.
   @createGraphics: (device) ->
