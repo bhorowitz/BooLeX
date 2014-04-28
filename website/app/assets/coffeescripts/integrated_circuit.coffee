@@ -29,11 +29,12 @@ class IntegratedCircuit extends Gate
       internalDSL = @gates.map((gate) -> gate.createDSL()).join("\n    ")
       integratedDSL += internalDSL + "\n    out " + destinationNames.join(", ") + "\nend"
 
+      IntegratedDSL.saveDSL(@name, integratedDSL);
+      @dsl = [@name]
+
       for gate in @gates
         if gate instanceof IntegratedCircuit
-          integratedDSL = gate.dsl + "\n\n" + integratedDSL
-
-      @dsl = integratedDSL
+          @dsl.append(gate.name)
 
       outConnections = []
       for name, i in destinationNames
@@ -69,11 +70,16 @@ class IntegratedCircuit extends Gate
       match = /circuit ([a-zA-Z0-9_\-]+)\(([^)]*)\)/m.exec(@dsl)
       @name = match[1]
       inputs = (str.trim() for str in match[2].split(','))
-      match = /^  out ([a-zA-Z0-9_\- ,]+)$/m.exec(@dsl)
+      match = /^\s*out ([_a-zA-Z0-9, ]+)$/m.exec(@dsl)
       outputs = (str.trim() for str in match[1].split(','))
       x = $stageWidth * 0.5
       y = $stageHeight * 0.5
+
+      IntegratedDSL.saveDSL(@name, @dsl);
+      @dsl = [@name]
+
       super(inputs.length, outputs.length)
+
     @graphics.x = x
     @graphics.y = y
     $(window).trigger('refreshDSL')
