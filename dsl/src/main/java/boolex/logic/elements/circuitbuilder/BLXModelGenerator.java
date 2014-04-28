@@ -2,11 +2,10 @@ package boolex.logic.elements.circuitbuilder;
 
 import boolex.antlr.BooLeXBaseVisitor;
 import boolex.logic.elements.core.BLXSocket;
+import boolex.logic.elements.signals.BLXSignalReceiver;
 import org.antlr.v4.runtime.misc.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static boolex.antlr.BooLeXParser.*;
@@ -82,7 +81,7 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
             return visitCircuitCall(ctx.circuitCall());
         if(ctx.BooleanValue() != null) {
             boolean value = ctx.BooleanValue().toString().equals("true") || ctx.BooleanValue().toString().equals("t");
-            BLXCircuit constCircuit = new BLXCircuit("true", defaultValue);
+            BLXCircuit constCircuit = new BLXCircuit(value ? "true" : "false", defaultValue);
             constCircuit.driveInputByConstant(value, 0);
             return constCircuit;
         }
@@ -109,29 +108,35 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
 
         BLXCircuit argumentsCircuit = circuitBuilder.merge(arguments);
 
+        Set<BLXSignalReceiver> trueTargets = new HashSet<>();
+        Set<BLXSignalReceiver> falseTargets = new HashSet<>();
+
         for (AssignmentContext assignment : ctx.assignment()) {
             List<String> lhsNames = flattenIdentifierList(assignment.identifierList());
             List<BLXCircuit> variablesCircuits = lhsNames.stream().map(this::getOrCreateInScope).collect(Collectors.toList());
 
-            // TODO: Figure out what to change to support "_" removal.
             BLXCircuit valuesCircuit = visitExpressionList(assignment.expressionList());
-            circuitBuilder.chain(valuesCircuit, circuitBuilder.merge(variablesCircuits));
+            BLXCircuit assignmentCircuit = circuitBuilder.chain(valuesCircuit, circuitBuilder.merge(variablesCircuits));
+            trueTargets.addAll(assignmentCircuit.getTrueSocket().getTargets());
+            falseTargets.addAll(assignmentCircuit.getFalseSocket().getTargets());
         }
 
         BLXCircuit outputCircuit = visitExpressionList(ctx.outStatement().expressionList());
+
+        trueTargets.addAll(outputCircuit.getTrueSocket().getTargets());
+        falseTargets.addAll(outputCircuit.getFalseSocket().getTargets());
+
         List<BLXSocket> outputSockets = outputCircuit.getOutputSockets();
 
         // automatically assign names if they aren't given already.
         int num = outputSockets.size();
         for (BLXSocket blxSocket : outputSockets) {
-            if(blxSocket.getId() == null)
-                blxSocket.setId("");
-            if(blxSocket.getId().equals("") && inTopLevel)
+            if(inTopLevel && (blxSocket.getId() == null || blxSocket.getId().equals("")))
                 blxSocket.setId("%o" + num);
             num--;
         }
 
-        BLXCircuit finalCircuit = circuitBuilder.buildCircuit(argumentsCircuit, outputCircuit);
+        BLXCircuit finalCircuit = circuitBuilder.buildCircuit(argumentsCircuit, outputCircuit, trueTargets, falseTargets);
 
         currentScope = previousScope;
         return finalCircuit;
@@ -139,7 +144,7 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
 
     private BLXCircuit getOrCreateInScope(String name) {
         if(!currentScope.containsKey(name))
-            currentScope.put(name, new BLXCircuit((inTopLevel) ? name : "", defaultValue));
+            currentScope.put(name, new BLXCircuit((inTopLevel) ? name : null, defaultValue));
         return currentScope.get(name);
     }
 }

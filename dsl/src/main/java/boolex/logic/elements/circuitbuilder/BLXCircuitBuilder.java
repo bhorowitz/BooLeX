@@ -47,13 +47,10 @@ public class BLXCircuitBuilder {
      * @param endCircuit The circuit whose outputs will be used as outputs in the merged circuit
      * @return The merged circuit
      */
-    public BLXCircuit buildCircuit(BLXCircuit startCircuit, BLXCircuit endCircuit) {
+    public BLXCircuit buildCircuit(BLXCircuit startCircuit, BLXCircuit endCircuit,
+                                   Set<BLXSignalReceiver> trueTargets, Set<BLXSignalReceiver> falseTargets) {
         List<BLXSocket> inputSockets = startCircuit.getInputSockets();
         List<BLXSocket> outputSockets = endCircuit.getOutputSockets();
-        Set<BLXSignalReceiver> trueTargets = startCircuit.getTrueSocket().getTargets();
-        Set<BLXSignalReceiver> falseTargets = startCircuit.getFalseSocket().getTargets();
-        trueTargets.addAll(endCircuit.getTrueSocket().getTargets());
-        falseTargets.addAll(endCircuit.getFalseSocket().getTargets());
         return new BLXCircuit(inputSockets, outputSockets, trueTargets, falseTargets);
     }
 
@@ -168,7 +165,7 @@ public class BLXCircuitBuilder {
      * Chain two circuits into a series circuit
      * @param source The source circuit
      * @param destination The destination circuit
-     * @return The chaind circuit
+     * @return The chained circuit
      */
     public BLXCircuit chain(BLXCircuit source, BLXCircuit destination) {
         if (source.getOutputSockets().size() != destination.getInputSockets().size()) {
@@ -198,7 +195,7 @@ public class BLXCircuitBuilder {
      * @return The connected circuit
      */
     private BLXCircuit connectToGate(BLXCircuit input, BLXGate gate) {
-        List<BLXSocket> inputSockets = input.getInputSockets();
+        List<BLXSocket> inputSockets = new ArrayList<>(input.getInputSockets());
         BLXSocket sourceSocket = input.getOutputSockets().get(0);
         List<BLXSocket> outputSockets = new ArrayList<>();
 

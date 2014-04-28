@@ -1,13 +1,9 @@
 package boolex.logic.elements.core;
 
+import boolex.logic.elements.circuitbuilder.BLXCircuit;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXSignalQueue;
-import boolex.logic.elements.signals.BLXSignalReceiver;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -44,6 +40,12 @@ public class BLXEventManager {
      */
     public void start() {
         runnerThread.start();
+    }
+
+    public void start(BLXCircuit circuit) {
+        runnerThread.start();
+        update(circuit.getTrueSocket(), true);
+        update(circuit.getFalseSocket(), false);
     }
 
     /**

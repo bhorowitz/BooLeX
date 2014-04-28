@@ -15,7 +15,7 @@ public class StablePriorityQueue<T extends Comparable<T>> implements Queue<T> {
     private Integer highestOrder;
 
     public StablePriorityQueue() {
-        priorityQueue = new PriorityBlockingQueue<>(100);
+        priorityQueue = new PriorityBlockingQueue<>(1000);
         highestOrder = 0;
     }
 

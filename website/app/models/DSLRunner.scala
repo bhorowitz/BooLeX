@@ -114,7 +114,7 @@ class DSLRunner extends Actor {
     case BeginEvaluation(initialValues) =>
       if(circuit != null && eventManager == null) {
         eventManager = new BLXEventManager(100, new CircuitHandler)
-        eventManager.start()
+        eventManager.start(circuit)
 
         initialValues.foreach(update)
       }
