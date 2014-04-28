@@ -145,9 +145,14 @@ window.echo = (message) ->
 
 startBoolex = ->
   dsl = Gate.createDSL()
-  $openConnection = new WebSocket("ws://#{location.host}/boolex?dsl=#{encodeURIComponent(dsl)}", ['soap', 'xmpp'])
+  $openConnection = new WebSocket("ws://#{location.host}/boolex", ['soap', 'xmpp'])
   
   $openConnection.onopen = (msg) ->
+    $openConnection.send(JSON.stringify(
+      command: 'initialize',
+      dsl: dsl
+    ))
+
     $openConnection.send(JSON.stringify(
       command: 'start',
       initialValues: { name: socket.name, value: Socket.states[socket.name] == 'on'} for socket in Gate.inputs()

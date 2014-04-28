@@ -4,7 +4,7 @@
 
 # Home page
 GET         /                    controllers.Application.index
-GET         /boolex              controllers.Application.boolex(dsl : String)
+GET         /boolex              controllers.Application.boolex
 POST        /save                controllers.Application.save(dsl : String)
 POST        /load                controllers.Application.load(hash : String)
 

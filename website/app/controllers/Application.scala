@@ -17,8 +17,8 @@ object Application extends Controller {
     Ok(views.html.index())
   }
 
-  def boolex(dsl : String) = WebSocket.async[JsValue] { request =>
-    DSLRunner.addCircuit(dsl)
+  def boolex() = WebSocket.async[JsValue] { request =>
+    DSLRunner.addCircuit()
   }
 
   def save(dsl : String) = Action {
