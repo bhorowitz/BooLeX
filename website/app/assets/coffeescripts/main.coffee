@@ -7,8 +7,8 @@ $(document).ready ->
   # Create a stage by getting a reference to the canvas
 
   window.canvas = $('#boolex-stage')
-  canvas[0].width = canvas.parent().innerWidth()
-  canvas[0].height = $(window).innerHeight()
+  window.$stageWidth = canvas[0].width = canvas.parent().innerWidth()
+  window.$stageHeight = canvas[0].height = $(window).innerHeight()
   canvas.mousedown (e) ->
     e.preventDefault()
 
@@ -65,19 +65,50 @@ initBoolexStage = ->
   )
 
   $(window).on('refreshDSL', ->
-    console.log(Gate.createDSL())
+    $('pre#code').text(Gate.createDSL())
   )
+
+  $(document).keydown (e) ->
+    active = $(document.activeElement)
+    if !active.is('input') and !active.is('textarea') and (e.which == 46 or e.which == 8)
+      device.destroy() for id, device of $selectedDevices
+      window.$selectedDevices = {}
+      return false
 
   $('#start-stop-button').click ->
     $this = $(this)
     if $this.data('running')?
       stopBoolex()
+      $(window).trigger('update')
       $this.removeClass('btn-danger').addClass('btn-primary').text('Start')
       $this.data('running', null)
     else
       startBoolex()
       $this.removeClass('btn-primary').addClass('btn-danger').text('Stop')
       $this.data('running', true)
+
+  $('#integrated-circuit-button').click ->
+    gates = []
+    for id, device of $selectedDevices
+      if device instanceof Gate
+        gates.push(device)
+    window.$selectedDevices = {}
+    ic = new IntegratedCircuit(gates)
+    boolexStage.addChild(ic.graphics)
+    $(window).trigger('update')
+
+  $('#load-circuit-button').click ->
+    $('#load-circuit-modal').modal('show')
+
+  $('#insert-circuit-button').click ->
+    $('#load-circuit-modal').modal('hide')
+    dsl = $('#circuit-dsl').val()
+    ic = new IntegratedCircuit(dsl)
+    boolexStage.addChild(ic.graphics)
+    $(window).trigger('update')
+
+  $('#new-button').click ->
+    device.destroy() for device in $allDevices
 
   $(window).bind('update', (e, isManual=true, socket=null) ->
     devices = IODevice.all || []
@@ -97,13 +128,6 @@ initBoolexStage = ->
         socket: { name: socket.name, value: Socket.states[socket.name] == 'on' }
       ))
   )
-
-$gateSize = 40
-$halfGateSize = $gateSize/2
-$socketSize = 4
-$socketPadding = $halfGateSize + 4
-$openConnection = null
-$allDevices = []
 
 distanceSquared = (x1, y1, x2, y2) ->
   dx = x2 - x1

@@ -1,7 +1,21 @@
-.controls {
+.code-panel {
   position: absolute;
-  width: 200px;
+  width: 400px;
   right: 10px;
   top: 50%;
   margin-top: -100px;
+}
+
+body {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHklEQVQYV2NkYGCQBGKCgBGq8DkhlaMK8YYQ0cEDACL8CSQmAiAoAAAAAElFTkSuQmCC);
+}
+
+pre#code {
+  max-height: 300px;
+  overflow: auto;
+}
+
+textarea#circuit-dsl {
+  font-family: Consolas, monospace;
+  height: 300px;
 }

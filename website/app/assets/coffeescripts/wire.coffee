@@ -4,8 +4,7 @@ class Wire extends Collectable
     @target = null
     super()
     if @fromSocket? and @toSocket?
-      @fromSocket.wires.push(@)
-      @toSocket.wires.push(@)
+      Socket.connect(@fromSocket, @toSocket, @)
     else if @fromSocket?
       @startSocket = @fromSocket
       @endSocket = 'toSocket'
@@ -17,6 +16,7 @@ class Wire extends Collectable
     @graphics = new createjs.Container()
     @line = new createjs.Shape()
     @graphics.addChild(@line)
+    @line.snapToPixel = true
     window.boolexStage.addChild(@graphics)
 
   startDrag: (e) =>
@@ -45,16 +45,23 @@ class Wire extends Collectable
 
   drawTo: (x1, y1, x2, y2) ->
     @line.graphics.clear()
-    if Socket.states[@fromSocket.name] == 'on'
+    if @fromSocket and Socket.states[@fromSocket.name] == 'on' and $openConnection
       @line.shadow = new createjs.Shadow("#00aaff", 0, 0, 5);
     else
       @line.shadow = null
     @line.graphics.beginStroke('black')
     @line.graphics.moveTo(x1, y1)
 
-    @line.graphics.lineTo((x2 + x1) * 0.5, y1)
-    @line.graphics.lineTo((x2 + x1) * 0.5, y2)
-    @line.graphics.lineTo(x2, y2)
+    if x1 < x2
+      @line.graphics.lineTo((x2 + x1) * 0.5, y1)
+      @line.graphics.lineTo((x2 + x1) * 0.5, y2)
+      @line.graphics.lineTo(x2, y2)
+    else
+      @line.graphics.lineTo(x1 + 30, y1)
+      @line.graphics.lineTo(x1 + 30, (y1 + y2) * 0.5)
+      @line.graphics.lineTo(x2 - 30, (y1 + y2) * 0.5)
+      @line.graphics.lineTo(x2 - 30, y2)
+      @line.graphics.lineTo(x2, y2)
 
   stopDrag: (e) =>
     if @target
@@ -72,8 +79,9 @@ class Wire extends Collectable
 
   destroy: ->
     window.boolexStage.removeChild(@graphics)
-    if @fromSocket?
-      @fromSocket.wires = $.grep(@fromSocket.wires, (wire) -> wire.id != @id)
-    if @toSocket?
-      @toSocket.wires = $.grep(@toSocket.wires, (wire) -> wire.id != @id)
+    id = @id
+    if @fromSocket
+      @fromSocket.wires = $.grep(@fromSocket.wires, (wire) -> wire.id != id)
+    if @toSocket
+      @toSocket.wires = $.grep(@toSocket.wires, (wire) -> wire.id != id)
     super()

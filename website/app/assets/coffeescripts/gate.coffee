@@ -23,27 +23,34 @@ class Gate extends Device
   createDSL: ->
     # abstract method, must be overrided
 
-  @inputs: ->
-    $.grep(Socket.all, (socket) -> socket.type == 'in' && !socket.connectedToGate())
+  @inputs: (gates) ->
+    if gates
+      sockets = [].concat.apply([], (socket for socket in gate.inputSockets when !socket.connectedToGate(gates)) for gate in gates)
+    else
+      sockets = $.grep(Socket.all, (socket) -> socket.type == 'in' && !socket.connectedToGate(gates))
+    sockets
 
-  @outs: ->
-    $.grep(Socket.all, (socket) -> socket.type == 'out' && !socket.connectedToGate())
+  @outs: (gates) ->
+    if gates
+      sockets = [].concat.apply([], (socket for socket in gate.outputSockets when socket.isRealOutput()) for gate in gates)
+    else
+      sockets = $.grep(Socket.all, (socket) -> socket.isRealOutput())
+    sockets
 
   @createDSL: ->
     inputs = @inputs()
     outs = @outs()
+    integratedCircuits = ''
     unless Gate.all?
       return "circuit main()\nend"
-    for gate in Gate.all
-      for socket in gate.inputSockets
-        unless socket.connectedToGate()
-          inputs.push(socket)
-    dsl = "circuit main(#{(s.name for s in inputs).unique().join(', ')})\n" # TODO: Sort by y position or something for integrated circuits
+    main = "circuit main(#{(s.name for s in inputs).unique().join(', ')})\n" # TODO: Sort by y position or something for integrated circuits
     for gate in @all
-      dsl += '  ' + gate.createDSL() + '\n'
-    dsl += '  out ' + (socket.name for socket in outs).join(', ') + '\n'
-    dsl += 'end'
-    dsl
+      if gate instanceof IntegratedCircuit
+        integratedCircuits += gate.circuitDSL() + '\n\n'
+      main += '  ' + gate.createDSL() + '\n'
+    main += '  out ' + (socket.name for socket in outs).join(', ') + '\n'
+    main += 'end'
+    integratedCircuits + main
 
   @displayName: 'GATE'
   @bitmap: "" # path to png file with gate graphic TODO

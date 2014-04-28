@@ -1,0 +1,9 @@
+$gateSize = 40
+$halfGateSize = $gateSize/2
+$socketSize = 4
+$socketPadding = $halfGateSize + 4
+$openConnection = null
+$allDevices = []
+$selectedDevices = {}
+$stageWidth = undefined
+$stageHeight = undefined

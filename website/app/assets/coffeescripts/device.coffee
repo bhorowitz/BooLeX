@@ -1,5 +1,6 @@
 class Device extends Collectable
   self = this
+  @height = $gateSize
   constructor: (@numIns, @numOuts, klass) ->
     @initSockets()
     @initGraphics()
@@ -7,6 +8,7 @@ class Device extends Collectable
     @dragged = false
     $allDevices.push(@)
     super(klass)
+    $(window).trigger('refreshDSL')
 
   initSockets: ->
     @inputSockets = @outputSockets = []
@@ -19,7 +21,7 @@ class Device extends Collectable
     @graphics = new createjs.Container()
     @box = @constructor.createGraphics(@)
     @selected = new createjs.Shape()
-    @selected.graphics.beginFill('rgba(0, 0, 255, 0.1)')
+    @selected.graphics.beginFill('rgba(0, 0, 255, 0.05)')
     @selected.graphics.beginStroke('rgba(0, 0, 255, 0.3)')
     @selected.graphics.drawRect(0, 0, $gateSize + 20, $gateSize + 20)
     @selected.x = @selected.y = -($gateSize * 0.5 + 10)
@@ -32,17 +34,17 @@ class Device extends Collectable
   drawSockets: ->
     for socket, i in @inputSockets
       socket.graphics.x = -$socketPadding
-      socket.graphics.y = ($gateSize / (@numIns + 1)) * (i + 1) - $halfGateSize
+      socket.graphics.y = (@constructor.height / (@numIns + 1)) * (i + 1) - @constructor.height*0.5
       @graphics.addChild(socket.graphics)
     for socket, i in @outputSockets
       socket.graphics.x = $socketPadding
-      socket.graphics.y = ($gateSize / (@numOuts + 1)) * (i + 1) - $halfGateSize
+      socket.graphics.y = (@constructor.height / (@numOuts + 1)) * (i + 1) - @constructor.height*0.5
       @graphics.addChild(socket.graphics)
 
   initEvents: ->
     @box.on("mousedown", (e) =>
       @dragged = false
-      @offset =
+      @graphics.offset =
         x: @graphics.x-e.stageX,
         y: @graphics.y-e.stageY
     )
@@ -73,9 +75,12 @@ class Device extends Collectable
     # window.boolexStage.update()
 
   select: ->
+    $selectedDevices[@id] = @
     @selected.visible = true
 
   deselect: ->
+    if $selectedDevices[@id]
+      delete $selectedDevices[@id]
     @selected.visible = false
 
   click: ->
@@ -83,9 +88,15 @@ class Device extends Collectable
     @select()
     # abstract
 
-  destroy: ->
-    @graphics.parent.removeChild(@graphics)
-    $allDevices = $.grep($allDevices, (device) -> device.id != @id)
+  destroy: (keepSockets=false)->
+    unless keepSockets
+      for socket in @inputSockets.concat(@outputSockets)
+        socket.destroy()
+    if @graphics.parent
+      @graphics.parent.removeChild(@graphics)
+    window.$allDevices = $.grep($allDevices, (device) -> device.id != @id)
+    @klass.remove(this)
+    $(window).trigger('refreshDSL')
 
   # helper function to create a device's DisplayObject. Helps to easily build toolbox display.
   @createGraphics: (device) ->
@@ -111,3 +122,4 @@ class Device extends Collectable
 
   y: ->
     @graphics.y
+

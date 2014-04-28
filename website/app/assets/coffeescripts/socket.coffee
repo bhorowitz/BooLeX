@@ -1,9 +1,9 @@
 class Socket extends Collectable
-  constructor: (@device, @index, @type) ->
+  constructor: (@device, @index, @type, @name) ->
     @initGraphics()
     @initEvents()
     @wires = []
-    @name = Socket.randomName()
+    @name ||= Socket.makeName()
     Socket.states[@name] = 'off'
     super()
 
@@ -11,6 +11,9 @@ class Socket extends Collectable
     @graphics = new createjs.Container()
     @circle = new createjs.Shape()
     @circle.graphics.beginFill('black').drawCircle(0, 0, $socketSize)
+    @box = new createjs.Shape()
+    @box.graphics.beginFill('black').drawRect(-$socketSize, -$socketSize, $socketSize * 2, $socketSize * 2)
+    @graphics.hitArea = @box
     # @circle.graphics.beginFill('white').drawCircle(0, 0, $socketSize - 2)
     @graphics.addChild(@circle)
 
@@ -26,9 +29,19 @@ class Socket extends Collectable
     getter = if @type == 'in' then 'fromSocket' else 'toSocket'
     (wire[getter] for wire in @wires when wire[getter]?)
 
-  connectedToGate: ->
+  connectedToGate: (gates) ->
+    if gates
+      gate_ids = (gate.id for gate in gates)
     for socket in @connectedSockets()
       if socket.device instanceof Gate
+        # if a list of gates was passed, we need to make sure this gate is one of them
+        if !gates || $.inArray(socket.device.id, gate_ids) >= 0
+          return true
+    false
+
+  connectedToLightbulb: ->
+    for socket in @connectedSockets()
+      if socket.device instanceof Lightbulb
         return true
     false
 
@@ -38,11 +51,17 @@ class Socket extends Collectable
   y: ->
     @graphics.localToGlobal(0, 0).y
 
-  @randomName: ->
-    possible = 'abcdefghijklmnopqrstuvwxyz'
-    name = ''
-    for i in [0..4]
-      name += possible[Math.floor(Math.random() * 26)]
+  destroy: ->
+    for wire in @wires
+      wire.destroy()
+    Socket.remove(@)
+
+  isRealOutput: (gates) ->
+    return @type == 'out' && (!@connectedToGate(gates) || @connectedToLightbulb())
+
+  @makeName: ->
+    name = "t#{@nameCounter}"
+    @nameCounter++
     name
 
   @connect: (fromSocket, toSocket, wire) ->
@@ -51,4 +70,6 @@ class Socket extends Collectable
     toSocket.name = fromSocket.name
 
   @states: {}
+
+  @nameCounter: 0
 
