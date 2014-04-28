@@ -65,7 +65,9 @@ initBoolexStage = ->
   )
 
   $(window).on('refreshDSL', ->
-    $('pre#code').text(Gate.createDSL())
+    dsl = Gate.createDSL()
+    dsl = syntaxColor(dsl)
+    $('pre#code').html(dsl)
   )
 
   $(document).keydown (e) ->
