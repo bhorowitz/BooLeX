@@ -23,6 +23,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.language.postfixOps
+import java.lang.management.ManagementFactory
 
 /**
  * Created by ajr64 on 4/4/14.
@@ -66,7 +67,7 @@ object DSLRunner {
               case "stop" => evaluator ! Die("")
               case _ => /* ignore */
             }
-        }
+        }.map { _ => evaluator ! Die("") }
         (iteratee, enumerator)
     }
   }
@@ -121,6 +122,8 @@ class DSLRunner extends Actor {
     case UpdateSocket(socket) => update(socket)
 
     case Die(message : String) =>
+      if(eventManager != null)
+        eventManager.stop() // THIS IS IMPORTANT
       if (outputChannel != null) {
         if (message != "")
           outputChannel.push(Json.toJson(Map("error" -> message)))

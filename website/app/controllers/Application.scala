@@ -6,6 +6,8 @@ import play.api.libs.iteratee._
 import play.api.libs.concurrent.Promise
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import java.lang.management.ManagementFactory
+
 // import boolex.typechecker.BooLeXTypeChecker
 import boolex.logic.elements.circuitbuilder._
 import play.api.libs.json.JsValue
@@ -14,6 +16,7 @@ import models.DSLRunner
 object Application extends Controller {
 
   def index = Action {
+    println("#threads = " + ManagementFactory.getThreadMXBean.getThreadCount)
     Ok(views.html.index())
   }
 
