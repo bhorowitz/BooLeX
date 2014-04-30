@@ -1,0 +1,49 @@
+.code-panel {
+  position: absolute;
+  width: 400px;
+  right: 10px;
+  top: 50%;
+  margin-top: -100px;
+}
+
+body {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHklEQVQYV2NkYGCQBGKCgBGq8DkhlaMK8YYQ0cEDACL8CSQmAiAoAAAAAElFTkSuQmCC);
+}
+
+pre#code {
+  max-height: 300px;
+  overflow: auto;
+}
+
+textarea#circuit-dsl {
+  font-family: Consolas, monospace;
+  height: 300px;
+}
+
+.tutorial {
+  display: none;
+  position: absolute;
+  top: 51px;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  font-size:12pt;
+  background-color: #fff;
+  border: 3px solid #ddd;
+}
+
+.tutorial-footer {
+  position: absolute;
+  right:    0;
+  bottom:   0;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+}
+
+.tutorial-body {
+  padding: 10px;
+}
+
+.btn:focus {
+  outline: none !important;
+}

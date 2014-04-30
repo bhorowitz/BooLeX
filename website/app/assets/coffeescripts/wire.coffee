@@ -43,6 +43,7 @@ class Wire extends Collectable
             @target = socket
             break
 
+  # draws a wire from (x1, y1) to (x2, y2)
   drawTo: (x1, y1, x2, y2) ->
     @line.graphics.clear()
     if @fromSocket and Socket.states[@fromSocket.name] == 'on' and $openConnection
