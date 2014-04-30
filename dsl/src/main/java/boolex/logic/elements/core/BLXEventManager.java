@@ -60,7 +60,7 @@ public class BLXEventManager {
  * An EventRunner is used to spin off the circuit simulation
  */
 class EventRunner implements Runnable {
-    BlockingQueue<BLXSignal> signals = new LinkedBlockingQueue<>();
+    private BlockingQueue<BLXSignal> signals = new LinkedBlockingQueue<>();
     private BLXSignalQueue queue;
 
     /**

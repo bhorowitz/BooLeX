@@ -58,7 +58,7 @@ public class StablePriorityQueue<T extends Comparable<T>> implements Queue<T> {
     @Override
     public <T1> T1[] toArray(T1[] a) {
         return null;
-    }
+    } // We'll do it live!
 
     @Override
     public boolean remove(Object o) {
@@ -90,7 +90,7 @@ public class StablePriorityQueue<T extends Comparable<T>> implements Queue<T> {
     }
 
     public boolean add(T t) {
-        boolean addSuccess = priorityQueue.add(new Entry<T>(t, highestOrder));
+        boolean addSuccess = priorityQueue.add(new Entry<>(t, highestOrder));
         highestOrder++;
         return addSuccess;
     }

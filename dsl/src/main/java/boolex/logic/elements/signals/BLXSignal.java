@@ -103,7 +103,6 @@ public class BLXSignal implements Comparable<BLXSignal> {
      * @return The propagated signal
      */
     public BLXSignal propagate(BLXSignalReceiver newTarget, Boolean value, int delay) {
-        BLXSignal signal = new BLXSignal(newTarget,value,delay);
-        return signal;
+        return new BLXSignal(newTarget,value,delay);
     }
 }

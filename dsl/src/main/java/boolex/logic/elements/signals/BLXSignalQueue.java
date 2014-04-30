@@ -1,9 +1,4 @@
 package boolex.logic.elements.signals;
-
-/**
- * Created by dani on 2/11/14.
- */
-
 import boolex.helpers.StablePriorityQueue;
 
 import java.util.HashSet;
