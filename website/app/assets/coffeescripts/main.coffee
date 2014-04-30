@@ -179,6 +179,13 @@ initBoolexStage = ->
     else if circuit == 'decoder'
       $('#decoder-modal').modal('show')
 
+  $('#toggle-gate-delay').click ->
+    window.$isImmediate = !$(this).hasClass('active')
+    if $isImmediate
+      $(this).find('span').text('On')
+    else
+      $(this).find('span').text('Off')
+
   $(window).bind('update', (e, isManual=true, socket=null) ->
     devices = IODevice.all || []
     for device in devices
@@ -219,7 +226,8 @@ startBoolex = ->
   $openConnection.onopen = (msg) ->
     $openConnection.send(JSON.stringify(
       command: 'initialize',
-      dsl: dsl
+      dsl: dsl,
+      gateDelay: !$isImmediate
     ))
 
     $openConnection.send(JSON.stringify(

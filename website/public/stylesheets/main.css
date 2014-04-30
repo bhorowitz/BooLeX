@@ -43,3 +43,7 @@ textarea#circuit-dsl {
 .tutorial-body {
   padding: 10px;
 }
+
+.btn:focus {
+  outline: none !important;
+}

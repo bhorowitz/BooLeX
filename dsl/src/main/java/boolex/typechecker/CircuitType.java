@@ -1,7 +1,10 @@
 package boolex.typechecker;
 
 /**
- * Created by alex on 3/11/14.
+ * Represents a circuit type. Stores number of formals and number of outputs
+ *
+ * I really wish Java had Scala's case classes
+ * @author Alex Reinking
  */
 public class CircuitType extends BooLeXType {
     private int nFormals;

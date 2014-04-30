@@ -1,7 +1,9 @@
 package boolex.typechecker;
 
 /**
- * Created by alex on 2/11/14.
+ * Something went wrong with parsing.
+ *
+ * @author Alex Reinking
  */
 public class ParseException extends Exception {
     private int line, pos;

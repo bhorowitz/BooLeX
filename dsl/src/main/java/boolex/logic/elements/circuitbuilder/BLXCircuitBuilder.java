@@ -16,7 +16,7 @@ import java.util.Set;
  * the circuits returned from the branches.  There are multiple connection methods,
  * such as gate connections, parallel circuit merge, and series circuit merge.
  *
- * @author alex and dani
+ * @author Alex Reinking and Dani Dickstein
  */
 public class BLXCircuitBuilder {
     /**

@@ -9,7 +9,7 @@ import static boolex.helpers.LogicHelper.isTrue;
 
 /**
  * This class is designed to simulate a standard AND gate
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXAndGate extends BLXGate {
 

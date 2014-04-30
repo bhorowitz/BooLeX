@@ -4,7 +4,7 @@ package boolex.logic.elements.core;
  * A BLXConstantSocket is a special case of sockets that has a constant unchanging value.
  * A signal from the constant sockets is propagated through the circuit when the simulation begins.
  *
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXConstantSocket extends BLXSocket {
     /**

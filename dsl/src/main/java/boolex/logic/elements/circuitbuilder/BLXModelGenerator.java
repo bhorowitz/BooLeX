@@ -13,7 +13,10 @@ import static boolex.helpers.ANTLRHelper.flattenExpressionList;
 import static boolex.helpers.ANTLRHelper.flattenIdentifierList;
 
 /**
- * Created by ajr64 on 3/24/14.
+ * The BLXModelGenerator is a tree-traversal-based translator from parse trees to
+ * our semantic model (c.f. Martin Fowler), the BLXCircuit.
+ *
+ * @author Alex Reinking and Dani Dickstein
  */
 public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
     private Map<String, CircuitDeclarationContext> knownCircuits = new HashMap<>();
@@ -22,12 +25,22 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
     private Boolean defaultValue;
     private boolean inTopLevel;
 
+    /**
+     *
+     * @param initializeToFalse Should all the sockets be initialized to false by default? (otherwise null)
+     */
     public BLXModelGenerator(boolean initializeToFalse) {
         defaultValue = initializeToFalse ? false : null;
         circuitBuilder = new BLXCircuitBuilder(this.defaultValue);
         inTopLevel = true;
     }
 
+    /**
+     * Converts a call to a sub-circuit to an actual circuit
+     * @param ctx The parse tree call to the circuit
+     * @return a circuit whose inputs are the inputs of the subcircuit's evaluated arguments
+     *         and whose outputs are the subcircuit's outputs
+     */
     @Override
     public BLXCircuit visitCircuitCall(@NotNull CircuitCallContext ctx) {
         boolean wasInTopLevel = inTopLevel;
@@ -38,6 +51,11 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return circuitBuilder.chain(arguments, subCircuit);
     }
 
+    /**
+     * Build up a circuit out of a list of expressions - collects the inputs and outputs in-order
+     * @param ctx the parsed expression list
+     * @return the circuit
+     */
     @Override
     public BLXCircuit visitExpressionList(@NotNull ExpressionListContext ctx) {
         List<ExpressionContext> expressionContexts = flattenExpressionList(ctx);
@@ -45,6 +63,11 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return circuitBuilder.merge(circuits);
     }
 
+    /**
+     * Construct a circiut from a boolean-arithmetic expression
+     * @param ctx the combinational expression
+     * @return the circuit
+     */
     @Override
     public BLXCircuit visitExpression(@NotNull ExpressionContext ctx) {
         if(ctx.factor() != null)
@@ -73,6 +96,11 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return null;
     }
 
+    /**
+     * Create a circuit representing an atom (ie. true, false, a named value)
+     * @param ctx the parsed factor
+     * @return the circuit
+     */
     @Override
     public BLXCircuit visitFactor(@NotNull FactorContext ctx) {
         if(ctx.expression() != null)
@@ -92,6 +120,11 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return null;
     }
 
+    /**
+     * Top-level parser
+     * @param ctx the top-level parsed module
+     * @return the BLXCircuit for the circuit named "main"
+     */
     @Override
     public BLXCircuit visitModule(@NotNull ModuleContext ctx) {
         for (CircuitDeclarationContext declarationContext : ctx.circuitDeclaration())
@@ -99,6 +132,11 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return visitCircuitDeclaration(knownCircuits.get("main"));
     }
 
+    /**
+     * Creates a whole circuit for a given declaration
+     * @param ctx the parsed circuit declaration
+     * @return the circuit
+     */
     @Override
     public BLXCircuit visitCircuitDeclaration(@NotNull CircuitDeclarationContext ctx) {
         Map<String, BLXCircuit> previousScope = currentScope;
@@ -142,6 +180,12 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         return finalCircuit;
     }
 
+    /**
+     * Check to see if a symbol with the given name exists. If so, fetch its circuit from the current
+     * scope. If not, create and return an empty circuit.
+     * @param name the name of the symbol to look up
+     * @return the corresponding circuit (might be new)
+     */
     private BLXCircuit getOrCreateInScope(String name) {
         if(!currentScope.containsKey(name))
             currentScope.put(name, new BLXCircuit((inTopLevel) ? name : null, defaultValue));

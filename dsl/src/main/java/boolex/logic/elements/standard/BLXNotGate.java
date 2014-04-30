@@ -6,7 +6,7 @@ import boolex.logic.elements.signals.BLXSignal;
 
 /**
  * This class is designed to simulate a standard NOT gate
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXNotGate extends BLXGate {
 

@@ -4,7 +4,7 @@ package boolex.logic.elements.signals;
  * A BLXSignalReceiver is an object that can receive a BLXSignal.
  * These are currently only BLXGates and BLXSockets.
  *
- * @author dani
+ * @author Dani Dickstein
  */
 public interface BLXSignalReceiver {
     /**
