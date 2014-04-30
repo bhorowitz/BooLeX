@@ -42,9 +42,16 @@ object DSLRunner {
             (event \ "command").as[String] match {
               case "initialize" =>
                 val dslResult = (event \ "dsl").validate[String]
+                val showGateDelays = (event \ "gateDelay").asOpt[Boolean]
+                var gateDelay = 100
+                showGateDelays match {
+                  case Some(true) => gateDelay = 100
+                  case Some(false) => gateDelay = 0
+                  case None => gateDelay = 100
+                }
                 dslResult match {
                   case JsSuccess(dsl, _) =>
-                    (evaluator ? Initialize(dsl)).map {
+                    (evaluator ? Initialize(dsl, gateDelay)).map {
                       case TypeError(error) => evaluator ! Die(error)
                       case _ => /* ignore */
                     }
@@ -86,6 +93,8 @@ class DSLRunner extends Actor {
   var circuit : BLXCircuit = null
   var eventManager : BLXEventManager = null
 
+  var effectiveGateDelay: Int = 100
+
   def update(sockAssign : SocketAssignment) = sockAssign match {
     case SocketAssignment(name, value) =>
       val sockets: List[BLXSocket] = circuit.getInputSockets.toList
@@ -97,10 +106,12 @@ class DSLRunner extends Actor {
     case OpenConnection() =>
       sender ! Ready(outSocket)
 
-    case Initialize(dsl) =>
+    case Initialize(dsl, gateDelay) =>
       val bl: BooLeXLexer = new BooLeXLexer(new ANTLRInputStream(dsl))
       val bp: BooLeXParser = new BooLeXParser(new CommonTokenStream(bl))
       val parseTree: ModuleContext = bp.module()
+
+      effectiveGateDelay = gateDelay
 
       if (bp.getNumberOfSyntaxErrors > 0) {
         sender ! TypeError("Error! Your code has syntax errors.")
@@ -113,7 +124,7 @@ class DSLRunner extends Actor {
 
     case BeginEvaluation(initialValues) =>
       if(circuit != null && eventManager == null) {
-        eventManager = new BLXEventManager(100, new CircuitHandler)
+        eventManager = new BLXEventManager(effectiveGateDelay, new CircuitHandler)
         eventManager.start(circuit)
 
         initialValues.foreach(update)
@@ -153,7 +164,7 @@ class DSLRunner extends Actor {
 /* Initialization messages */
 case class OpenConnection()
 
-case class Initialize(dsl: String)
+case class Initialize(dsl: String, gateDelay: Int)
 
 case class Ready(enumerator: Enumerator[JsValue])
 
