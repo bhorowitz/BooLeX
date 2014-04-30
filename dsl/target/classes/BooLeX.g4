@@ -100,7 +100,7 @@ LeftBracket  : '[' ;
 RightBracket : ']' ;
 
 // Raw boolean value
-BooleanValue : 'true' | 'false' | 't' | 'f' ;
+BooleanValue : 'true' | 'false';
 
 // Identifiers like C/C++/Java.
 Identifier   : [a-zA-Z_][a-zA-Z0-9_]* ;

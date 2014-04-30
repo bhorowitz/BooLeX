@@ -108,7 +108,7 @@ public class BLXModelGenerator extends BooLeXBaseVisitor<BLXCircuit> {
         if(ctx.circuitCall() != null)
             return visitCircuitCall(ctx.circuitCall());
         if(ctx.BooleanValue() != null) {
-            boolean value = ctx.BooleanValue().toString().equals("true") || ctx.BooleanValue().toString().equals("t");
+            boolean value = ctx.BooleanValue().toString().equals("true");
             BLXCircuit constCircuit = new BLXCircuit(value ? "true" : "false", defaultValue);
             constCircuit.driveInputByConstant(value, 0);
             return constCircuit;
