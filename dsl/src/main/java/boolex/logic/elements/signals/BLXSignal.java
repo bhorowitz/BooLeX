@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
  * A BLXSignal is used to simulate signals propagated through a circuit
  * comprised of BLXSockets and BLXGates.
  *
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXSignal implements Comparable<BLXSignal> {
     private BLXSignalReceiver target;

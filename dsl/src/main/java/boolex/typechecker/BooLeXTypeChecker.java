@@ -11,6 +11,11 @@ import static boolex.antlr.BooLeXParser.*;
 import static boolex.helpers.ANTLRHelper.flattenExpressionList;
 import static boolex.helpers.ANTLRHelper.flattenIdentifierList;
 
+/**
+ * Given a parse tree, returns whether the parse tree is semantically correct.
+ *
+ * @author Alex Reinking
+ */
 public class BooLeXTypeChecker extends BooLeXBaseVisitor<Boolean> {
     private BooLeXScope scopes = new BooLeXScope();
 

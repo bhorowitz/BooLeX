@@ -6,7 +6,7 @@ import boolex.logic.elements.signals.BLXSignal;
 
 /**
  * This class is designed to simulate a standard buffer
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXBuffer extends BLXGate {
 

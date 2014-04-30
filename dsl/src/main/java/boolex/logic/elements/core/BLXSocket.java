@@ -10,6 +10,8 @@ import java.util.Set;
 /**
  * A BLXSocket is used on either end of a gate for transmitting
  * signals through a circuit.
+ *
+ * @author Dani Dickstein
  */
 public class BLXSocket implements BLXSignalReceiver {
     private Boolean value;
