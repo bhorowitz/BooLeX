@@ -24,6 +24,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.language.postfixOps
 import java.lang.management.ManagementFactory
+import scala.collection.mutable
 
 /**
  * Created by ajr64 on 4/4/14.
@@ -144,18 +145,30 @@ class DSLRunner extends Actor {
   }
 
   private class CircuitHandler extends BLXSignalQueue.BLXSignalQueueCallback {
+    private val currentState = new mutable.HashMap[String, String]
+
     override def onSignalEvent(components: util.Set[BLXSignalReceiver]): Unit = {
-      if(components != null)
+      if(components != null) {
         components.toSet.filter(_.isInstanceOf[BLXSocket]).foreach(component => {
           val socket: BLXSocket = component.asInstanceOf[BLXSocket]
-          if(socket.getId != null && socket.getId != "_" && outputChannel != null) {
-            outputChannel.push(Json.toJson(Map(
-                "command" -> Json.toJson("update"),
-                "socket" -> Json.toJson(Map(
-                  "name" -> Json.toJson(socket.getId),
-                  "value" -> Json.toJson(socket.getValue.toString))))))
+          val name : String = socket.getId
+          val value : String = socket.getValue.toString
+
+          currentState.get(name) match {
+            case Some(v) =>
+              if(v != value && name != null && name != "_" && outputChannel != null) {
+                outputChannel.push(Json.toJson(Map(
+                  "command" -> Json.toJson("update"),
+                  "socket" -> Json.toJson(Map(
+                    "name" -> Json.toJson(name),
+                    "value" -> Json.toJson(value))))))
+              }
+            case None => /* Do nothing */
           }
+
+          currentState.put(name, value)
         })
+      }
     }
   }
 }
