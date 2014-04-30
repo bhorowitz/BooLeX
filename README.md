@@ -35,6 +35,11 @@ The following major use cases are tested:
 - D Latch
 - Positive-Edge D Flip-FLop
 
+## Contributing ##
+If you would like to contribute to this project, fork the repository and submit a pull request.  You will need to configure your IntelliJ IDEA environment as follows:
+
+<font color="red">This section needs to be filled in by Alex.</font>
+
 ## Development Team ##
 Abhishek Chandra
 - Developed JS editor widget with syntax highlighting
@@ -46,7 +51,6 @@ Dani Dickstein
 - Developed socket, gate, and circuit objects to build up connections from circuit definition
 - Implemented simulation of signal I/O updates for sockets in the circuit
 - Co-wrote front end circuit generators for basic integrated circuits
-- Configured Jenkins CI server for continuous integration with Maven
 
 Graham Kaemmer
 - Developed front end circuit lab for drag-and-drop circuit builder
