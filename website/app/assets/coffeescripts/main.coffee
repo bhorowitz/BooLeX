@@ -30,6 +30,9 @@ initBoolexStage = ->
 
   boolexStage.dragged = null
 
+  ###
+  MOUSE AND KEY EVENTS
+  ###
   boolexStage.on('mousedown', (e) ->
     if boolexStage.getObjectUnderPoint(e.stageX, e.stageY).id == stageArea.id
       Device.deselectAll()
@@ -63,6 +66,16 @@ initBoolexStage = ->
       selectBox = null
   )
 
+  $(document).keydown (e) ->
+    active = $(document.activeElement)
+    if !active.is('input') and !active.is('textarea') and (e.which == 46 or e.which == 8)
+      device.destroy() for id, device of $selectedDevices
+      window.$selectedDevices = {}
+      return false
+
+  ###
+  TICKER EVENTS
+  ###
   createjs.Ticker.on('tick', ->
     boolexStage.update()
   )
@@ -83,18 +96,15 @@ initBoolexStage = ->
       window.numTicks++
   , 1500)
 
+
+  ###
+  ON DSL REFRESH
+  ###
   $(window).on('refreshDSL', ->
     dsl = Gate.createDSL()
     dsl = syntaxColor(dsl)
     $('pre#code').html(dsl)
   )
-
-  $(document).keydown (e) ->
-    active = $(document.activeElement)
-    if !active.is('input') and !active.is('textarea') and (e.which == 46 or e.which == 8)
-      device.destroy() for id, device of $selectedDevices
-      window.$selectedDevices = {}
-      return false
 
   $('#start-stop-button').click ->
     $this = $(this)
@@ -109,6 +119,9 @@ initBoolexStage = ->
       $this.removeClass('btn-primary').addClass('btn-danger').text('Stop')
       $this.data('running', true)
 
+  ###
+  BUTTON EVENTS
+  ###
   $('#integrated-circuit-button').click ->
     gates = []
     for id, device of $selectedDevices
@@ -180,12 +193,16 @@ initBoolexStage = ->
       $('#decoder-modal').modal('show')
 
   $('#toggle-gate-delay').click ->
-    window.$isImmediate = !$(this).hasClass('active')
-    if $isImmediate
+    window.$gateDelayOn = !$(this).hasClass('active')
+    if $gateDelayOn
       $(this).find('span').text('On')
     else
       $(this).find('span').text('Off')
 
+
+  ###
+  ON STAGE UPDATE
+  ###
   $(window).bind('update', (e, isManual=true, socket=null) ->
     devices = IODevice.all || []
     for device in devices
@@ -213,12 +230,9 @@ distanceSquared = (x1, y1, x2, y2) ->
 distance = (x1, y1, x2, y2) ->
   Math.sqrt(distanceSquared(x1, y1, x2, y2))
 
-window.cometMessage = (message) ->
-  console.log("Event received: #{message}")
-
-window.echo = (message) ->
-  $('#echoer').attr('src', "/echo/#{encodeURIComponent(message)}")
-
+###
+INITIALIZE SERVER CONNECTION
+###
 startBoolex = ->
   dsl = Gate.createDSL()
   $openConnection = new WebSocket("ws://#{location.host}/boolex", ['soap', 'xmpp'])
@@ -227,14 +241,13 @@ startBoolex = ->
     $openConnection.send(JSON.stringify(
       command: 'initialize',
       dsl: dsl,
-      gateDelay: !$isImmediate
+      gateDelay: $gateDelayOn
     ))
 
     $openConnection.send(JSON.stringify(
       command: 'start',
       initialValues: { name: socket.name, value: Socket.states[socket.name] == 'on'} for socket in Gate.inputs()
     ))
-
 
   $openConnection.onerror = (error) ->
     console.log('WebSocket Error ' + error)
@@ -249,12 +262,3 @@ startBoolex = ->
 stopBoolex = ->
   $openConnection.close()
   $openConnection = null
-
-# socket = io.connect('http://localhost:9000/boolex')
-# socket.on('connect', ->
-#   # socket.send('hi')
-
-#   socket.on('message', (msg) ->
-#     console.log(msg)
-#   )
-# )

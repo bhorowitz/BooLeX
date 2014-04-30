@@ -11,6 +11,7 @@ class Device extends Collectable
     super(klass)
     $(window).trigger('refreshDSL')
 
+  # initialize sockets
   initSockets: ->
     @inputSockets = @outputSockets = []
     if @numIns > 0
@@ -18,6 +19,7 @@ class Device extends Collectable
     if @numOuts > 0
       @outputSockets = (new Socket(this, i, 'out') for i in [1..@numOuts])
 
+  # initialize graphics object and draw it
   initGraphics: ->
     @graphics = new createjs.Container()
     @box = @constructor.createGraphics(@)
@@ -32,6 +34,7 @@ class Device extends Collectable
     @sockets = @drawSockets()
     window.boolexStage.addChild(@graphics)  
 
+  # draw sockets in a pretty, even way
   drawSockets: ->
     for socket, i in @inputSockets
       socket.graphics.x = -$socketPadding * (@constructor.width / $gateSize)
@@ -42,6 +45,7 @@ class Device extends Collectable
       socket.graphics.y = (@constructor.height / (@numOuts + 1)) * (i + 1) - @constructor.height*0.5
       @graphics.addChild(socket.graphics)
 
+  # initialize event handlers
   initEvents: ->
     @box.on("mousedown", (e) =>
       @dragged = false
@@ -56,16 +60,18 @@ class Device extends Collectable
         @click()
     )
 
+  # return all devices that are connected to input sockets of this one
   inputDevices: ->
-    #TODO
     [inputSocket.wires[0].fromSocket for inputSocket in @inputSockets if inputSocket.wires.length]
 
+  # start following the mouse
   startDrag: (e) =>
     @graphics.offset =
       x: @graphics.x-e.stageX
       y: @graphics.y-e.stageY
     boolexStage.dragged = @
 
+  # follow the mouse (fired on mousemove)
   drag: (e) =>
     @dragged = true
     @graphics.x = e.stageX + @graphics.offset.x
@@ -73,22 +79,25 @@ class Device extends Collectable
     for socket in @inputSockets.concat(@outputSockets)
       for wire in socket.wires
         wire.redraw()
-    # window.boolexStage.update()
 
+  # select this device, adding it to global list of selected devices
   select: ->
     $selectedDevices[@id] = @
     @selected.visible = true
 
+  # deselect this device, removing it from the global list
   deselect: ->
     if $selectedDevices[@id]
       delete $selectedDevices[@id]
     @selected.visible = false
 
+  # called when user clicks this device
   click: ->
     Device.deselectAll()
     @select()
     # abstract
 
+  # destroy this device completely, optionally destroying its sockets as well
   destroy: (keepSockets=false)->
     unless keepSockets
       for socket in @inputSockets.concat(@outputSockets)
@@ -114,13 +123,16 @@ class Device extends Collectable
     container.addChild(text)
     container
 
+  # static method to deselect all devices
   @deselectAll: ->
     for device in $allDevices
       device.deselect()
 
+  # helper method to return the x position of this device
   x: ->
     @graphics.x
 
+  # helper method to return the x position of this device
   y: ->
     @graphics.y
 

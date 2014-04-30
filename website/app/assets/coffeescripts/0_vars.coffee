@@ -9,4 +9,4 @@ $stageWidth = undefined
 $stageHeight = undefined
 $clockTime = 1500
 $clocks = []
-$isImmediate = false
+$gateDelayOn = true
