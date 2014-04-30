@@ -8,7 +8,7 @@ import static boolex.helpers.LogicHelper.isNull;
 
 /**
  * This class is designed to simulate a standard XOR gate
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXXorGate extends BLXGate {
 

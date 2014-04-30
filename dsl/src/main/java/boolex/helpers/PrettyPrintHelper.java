@@ -1,7 +1,7 @@
 package boolex.helpers;
 
 /**
- * Created by dani on 3/14/14.
+ * @author Dani Dickstein
  */
 public class PrettyPrintHelper {
     /**

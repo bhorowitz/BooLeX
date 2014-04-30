@@ -9,7 +9,7 @@ import static boolex.helpers.LogicHelper.isFalse;
 
 /**
  * This class is designed to simulate a standard NAND gate
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXNandGate extends BLXGate {
 

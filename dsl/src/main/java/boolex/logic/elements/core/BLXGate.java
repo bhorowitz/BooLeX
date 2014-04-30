@@ -11,6 +11,8 @@ import java.util.ArrayList;
  * It has a set of input and output sockets.  Every time an input
  * socket receives a signal, values for all output sockets are
  * recomputed and propagated.
+ *
+ * @author Dani Dickstein
  */
 public abstract class BLXGate implements BLXSignalReceiver {
     private ArrayList<BLXSocket> inputSockets;

@@ -13,7 +13,7 @@ import java.util.Set;
  * The BLXSignalQueue class is used to manage a set of signals as they propagate
  * through a logic circuit.
  *
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXSignalQueue {
 

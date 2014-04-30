@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * A BLXEventManager is used to manage circuit events and start/stop the animation.
  *
- * @author dani
+ * @author Dani Dickstein and Alex Reinking
  */
 public class BLXEventManager {
     private EventRunner runner;

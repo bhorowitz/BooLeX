@@ -11,7 +11,7 @@ import java.util.*;
  * BLXGates.  As the parse tree is visited, a large BLXCircuit is built at each
  * root node by connecting the BLXCircuits returned from its branches.
  *
- * @author dani
+ * @author Dani Dickstein
  */
 public class BLXCircuit {
 
