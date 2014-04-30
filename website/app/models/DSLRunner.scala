@@ -23,13 +23,11 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.language.postfixOps
-import java.lang.management.ManagementFactory
 import scala.collection.mutable
 
 /**
- * Created by ajr64 on 4/4/14.
+ * @author Alex Reinking
  */
-
 object DSLRunner {
   implicit val timeout = Timeout(3 seconds)
 
@@ -44,11 +42,11 @@ object DSLRunner {
               case "initialize" =>
                 val dslResult = (event \ "dsl").validate[String]
                 val showGateDelays = (event \ "gateDelay").asOpt[Boolean]
-                var gateDelay = 100
+                var gateDelay = 250
                 showGateDelays match {
-                  case Some(true) => gateDelay = 100
+                  case Some(true) => gateDelay = 250
                   case Some(false) => gateDelay = 0
-                  case None => gateDelay = 100
+                  case None => gateDelay = 250
                 }
                 dslResult match {
                   case JsSuccess(dsl, _) =>
@@ -163,7 +161,14 @@ class DSLRunner extends Actor {
                     "name" -> Json.toJson(name),
                     "value" -> Json.toJson(value))))))
               }
-            case None => /* Do nothing */
+            case None =>
+              if(name != null && name != "_" && outputChannel != null) {
+                outputChannel.push(Json.toJson(Map(
+                  "command" -> Json.toJson("update"),
+                  "socket" -> Json.toJson(Map(
+                    "name" -> Json.toJson(name),
+                    "value" -> Json.toJson(value))))))
+              }
           }
 
           currentState.put(name, value)
