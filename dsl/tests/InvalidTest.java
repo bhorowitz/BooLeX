@@ -1,7 +1,7 @@
 import boolex.antlr.BooLeXLexer;
 import boolex.antlr.BooLeXParser;
-import boolex.logic.elements.circuitbuilder.BLXCircuit;
-import boolex.logic.elements.circuitbuilder.BLXModelGenerator;
+import boolex.logic.circuitbuilder.BLXCircuit;
+import boolex.logic.circuitbuilder.BLXModelGenerator;
 import boolex.logic.elements.core.BLXEventManager;
 import boolex.logic.elements.core.BLXSocket;
 import boolex.logic.elements.signals.BLXSignalReceiver;

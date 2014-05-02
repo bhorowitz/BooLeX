@@ -1,4 +1,4 @@
-package boolex.logic.elements.circuitbuilder;
+package boolex.logic.circuitbuilder;
 
 import boolex.logic.elements.core.BLXConstantSocket;
 import boolex.logic.elements.core.BLXSocket;

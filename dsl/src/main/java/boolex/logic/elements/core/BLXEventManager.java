@@ -1,6 +1,6 @@
 package boolex.logic.elements.core;
 
-import boolex.logic.elements.circuitbuilder.BLXCircuit;
+import boolex.logic.circuitbuilder.BLXCircuit;
 import boolex.logic.elements.signals.BLXSignal;
 import boolex.logic.elements.signals.BLXSignalQueue;
 

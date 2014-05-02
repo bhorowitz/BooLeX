@@ -1,4 +1,4 @@
-package boolex.logic.elements.circuitbuilder;
+package boolex.logic.circuitbuilder;
 
 import org.junit.After;
 import org.junit.Before;
