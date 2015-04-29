@@ -1,3 +1,5 @@
+**Important**: This repository is deprecated.  This project is undergoing continued development, but much of this code base has been rewritten.  To see the latest progress on this project, see the [new repository](https://github.com/ddickstein/BooLeX).
+
 ## Overview ##
 
 We developed BooLeX to provide a convenient tool for new Computer Science and Electrical Engineering students to conceptualize Boolean circuits.  We also found many circuit simulators already available (even proprietary ones) to be rather inadequate or ineffective.  Currently introductory CS and EE courses (for example, Yale's EENG 201 course) depend on industrial-strength simulators, and require their students to master Verilog or VHDL in order to demonstrate basic circuit architecture.  We wanted to create a lightweight alternative that still had large expressive power, so we created BooLeX.
